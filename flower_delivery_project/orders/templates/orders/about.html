@@ -1,0 +1,50 @@
+{% extends 'orders/layout.html' %}
+
+{% block title %}About Us - Flower Shop{% endblock %}
+
+{% block content %}
+<!-- Sub-banner -->
+<section class="sub-banner float-start w-100">
+    <div class="container">
+        <div class="insider-banner">
+            <h2>About Us</h2>
+            <nav class="mt-2">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">About</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="about-parts pt-4 d-inline-block w-100">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-lg-2 align-items-center gy-5 g-lg-5">
+            <div class="col">
+                <h6 class="sub-heading">Our Story</h6>
+                <h2 class="min-heading mt-2">We are Online Flower <br/>Delivery Experts</h2>
+                <p class="mt-4">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in classical Latin literature.</p>
+                <div class="d-flex align-items-center suport-abut mt-4">
+                    <figure class="m-0">
+                        <img alt="support" src="{% static 'images/2991793.png' %}">
+                    </figure>
+                    <div class="righty ps-3">
+                        <h5>Need help? Call Us</h5>
+                        <h3>(185)-1244-8855</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="img-oi position-relative w-100 d-block">
+                    <img alt="about us" src="{% static 'images/abu.png' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Additional Sections (e.g., Best Sellers, Team, Testimonials) -->
+<!-- Секции с командами, отзывами и популярными товарами -->
+{% endblock %}

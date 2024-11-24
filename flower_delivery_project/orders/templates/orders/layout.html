@@ -9,7 +9,8 @@
     <title>{% block title %}Flower Shop{% endblock %}</title>
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
@@ -44,9 +45,10 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer float-start w-100">
+    <footer class="footer float-start w-100 bg-light text-center py-4">
       <div class="container">
-        <p>&copy; 2024 Alex M's Flower Shop. Магазин создан у качестве сдачи дипломной работы.</p>
+        <p>&copy; 2024 Alex M's Flower Shop. Магазин создан в качестве сдачи дипломной работы.</p>
+        <img src="{% static 'images/payment-method_69e7ec.svg' %}" alt="Payment Methods" class="img-fluid" style="max-width: 200px;">
       </div>
     </footer>
 
@@ -55,6 +57,16 @@
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/owl.carousel.min.js' %}"></script>
     <script src="{% static 'js/custom.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            $(".owl-carousel").owlCarousel({
+                items: 1,
+                loop: true,
+                nav: true,
+                autoplay: true,
+            });
+        });
+    </script>
     {% endblock %}
   </body>
 </html>
