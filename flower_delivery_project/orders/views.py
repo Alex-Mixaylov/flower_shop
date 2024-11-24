@@ -1,6 +1,7 @@
+from django.core.mail import send_mail
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+
+from django.conf import settings
 
 def index(request):
     # Рендеринг HTML-шаблона index.html
@@ -21,12 +22,38 @@ def thanks(request):
 def contact(request):
     # Рендеринг HTML-шаблона contact.html
     if request.method == 'POST':
-        # Здесь можно обработать данные формы, например, сохранить сообщение в БД
         name = request.POST.get('name')
+        phone = request.POST.get('phone')
         email = request.POST.get('email')
+        subject = request.POST.get('subject')
         message = request.POST.get('message')
-        print(f"Message from {name} ({email}): {message}")  # Для тестирования
-        return HttpResponseRedirect(reverse('thanks'))  # Перенаправление на страницу благодарности
+
+        # Формирование HTML-сообщения
+        email_message = f"""
+        <html>
+        <body>
+            <table>
+                <tr><td>Name</td><td>{name}</td></tr>
+                <tr><td>Phone</td><td>{phone}</td></tr>
+                <tr><td>Email</td><td>{email}</td></tr>
+                <tr><td>Subject</td><td>{subject}</td></tr>
+                <tr><td>Message</td><td>{message}</td></tr>
+            </table>
+        </body>
+        </html>
+        """
+
+        # Отправка email
+        send_mail(
+            subject=f"Contact Us - {subject}",
+            message=message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=['info@example.com'],  # Замените на нужный email
+            html_message=email_message,
+        )
+
+        return redirect('thanks')  # Перенаправление на страницу благодарности
+
     return render(request, 'orders/contact.html')
 
 def collections(request):
@@ -51,23 +78,3 @@ def cart(request):
     return render(request, 'orders/cart.html')
 
 #
-# def shop(request):
-#     return HttpResponse("<h1>Это Страница магазина - shop.html</h1>")
-#
-# def product_details(request):
-#     return HttpResponse("<h1>Это Страница конкретного товара - product-details.html</h1>")
-#
-# def thanks(request):
-#     return HttpResponse("<h1>Это Страница благодарности за  заказ - thanks.html</h1>")
-#
-# def cart(request):
-#     return HttpResponse("<h1>Это Страница корзина за  заказ - cart.html</h1>")
-#
-# def checkout(request):
-#     return HttpResponse("<h1>Это Страница оформления за  заказ - checkout.html</h1>")
-#
-# def collections(request):
-#     return HttpResponse("<h1>Это Страница Коллекций - collections.html</h1>")
-#
-# def contact(request):
-#     return HttpResponse("<h1>Это Страница Контакты - contact.html</h1>")
