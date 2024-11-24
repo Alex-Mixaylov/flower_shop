@@ -1,9 +1,9 @@
 {% extends 'orders/layout.html' %}
+{% load static %}
 
 {% block title %}About Us - Flower Shop{% endblock %}
 
 {% block content %}
-<!-- Sub-banner -->
 <section class="sub-banner float-start w-100">
     <div class="container">
         <div class="insider-banner">
@@ -18,33 +18,54 @@
     </div>
 </section>
 
-<!-- About Section -->
-<section class="about-parts pt-4 d-inline-block w-100">
+<section class="best-sellers py-5">
     <div class="container">
-        <div class="row row-cols-1 row-cols-lg-2 align-items-center gy-5 g-lg-5">
-            <div class="col">
-                <h6 class="sub-heading">Our Story</h6>
-                <h2 class="min-heading mt-2">We are Online Flower <br/>Delivery Experts</h2>
-                <p class="mt-4">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in classical Latin literature.</p>
-                <div class="d-flex align-items-center suport-abut mt-4">
-                    <figure class="m-0">
-                        <img alt="support" src="{% static 'images/2991793.png' %}">
-                    </figure>
-                    <div class="righty ps-3">
-                        <h5>Need help? Call Us</h5>
-                        <h3>(185)-1244-8855</h3>
+        <h2 class="text-center mb-4">Best Sellers</h2>
+        <div class="row">
+            {% for product in best_sellers %}
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.title }}</h5>
+                        <p class="card-text">{{ product.description }}</p>
+                        <p class="text-muted">${{ product.price }}</p>
                     </div>
                 </div>
             </div>
-            <div class="col">
-                <div class="img-oi position-relative w-100 d-block">
-                    <img alt="about us" src="{% static 'images/abu.png' %}">
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
 
-<!-- Additional Sections (e.g., Best Sellers, Team, Testimonials) -->
-<!-- Секции с командами, отзывами и популярными товарами -->
+<section class="team py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">Meet Our Team</h2>
+        <div class="row">
+            {% for member in team_members %}
+            <div class="col-md-4 text-center">
+                <img src="{{ member.photo.url }}" alt="{{ member.name }}" class="rounded-circle mb-3" style="width: 150px; height: 150px;">
+                <h5>{{ member.name }}</h5>
+                <p class="text-muted">{{ member.role }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="testimonials py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">What Our Customers Say</h2>
+        <div class="row">
+            {% for testimonial in testimonials %}
+            <div class="col-md-6">
+                <blockquote class="blockquote">
+                    <p>"{{ testimonial.text }}"</p>
+                    <footer class="blockquote-footer">{{ testimonial.author }}</footer>
+                </blockquote>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
 {% endblock %}

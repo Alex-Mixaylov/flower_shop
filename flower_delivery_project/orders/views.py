@@ -1,5 +1,6 @@
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
+from .models import BestSeller, TeamMember, Testimonial
 
 from django.conf import settings
 
@@ -78,4 +79,14 @@ def cart(request):
     return render(request, 'orders/cart.html')
 
 def about(request):
-    return render(request, 'orders/about.html')
+    best_sellers = BestSeller.objects.filter(is_featured=True)
+    team_members = TeamMember.objects.all()
+    testimonials = Testimonial.objects.all()
+
+    context = {
+        'best_sellers': best_sellers,
+        'team_members': team_members,
+        'testimonials': testimonials,
+    }
+
+    return render(request, 'orders/about.html', context)
