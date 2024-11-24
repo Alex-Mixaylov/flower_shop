@@ -1,0 +1,48 @@
+{% extends 'orders/layout.html' %}
+
+{% block title %}Contact Us - Flower Shop{% endblock %}
+
+{% block content %}
+<!-- Contact Section -->
+<section class="contact-section py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Contact Us</h2>
+    <p class="text-center mb-5">If you have any questions or need assistance, feel free to reach out to us using the form below or through our contact information.</p>
+
+    <div class="row">
+      <!-- Contact Form -->
+      <div class="col-md-6">
+        <form action="{% url 'contact' %}" method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="name" class="form-label">Your Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Your Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label for="message" class="form-label">Your Message</label>
+            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="col-md-6">
+        <div class="contact-info">
+          <h4>Our Contact Details</h4>
+          <p><strong>Phone:</strong> +1 (123) 456-7890</p>
+          <p><strong>Email:</strong> support@flowershop.com</p>
+          <p><strong>Address:</strong> 123 Flower Street, Blossom City, FL 12345</p>
+        </div>
+        <div class="map mt-4">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.835434507305!2d-122.42067948468188!3d37.774929579758404!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085817c1b0d6ab1%3A0x4b13386e0600d564!2sFlower%20Shop!5e0!3m2!1sen!2sus!4v1633048579047!5m2!1sen!2sus" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

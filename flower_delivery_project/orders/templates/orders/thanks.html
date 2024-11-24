@@ -1,0 +1,16 @@
+{% extends 'orders/layout.html' %}
+
+{% block title %}Thank You - Flower Shop{% endblock %}
+
+{% block content %}
+<!-- Thank You Section -->
+<section class="thank-you-section py-5">
+  <div class="container text-center">
+    <h1 class="display-4 text-success">Thank You!</h1>
+    <p class="lead">
+      Your order has been successfully placed. We appreciate your trust in us and will ensure timely delivery of your flowers.
+    </p>
+    <a href="{% url 'shop' %}" class="btn btn-primary mt-3">Continue Shopping</a>
+  </div>
+</section>
+{% endblock %}

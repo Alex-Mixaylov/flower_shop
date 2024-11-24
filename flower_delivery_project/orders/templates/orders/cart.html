@@ -1,0 +1,69 @@
+{% extends 'orders/layout.html' %}
+
+{% block title %}Shopping Cart - Flower Shop{% endblock %}
+
+{% block content %}
+<!-- Cart Section -->
+<section class="cart-section py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Your Shopping Cart</h2>
+    <form action="{% url 'update_cart' %}" method="post">
+      {% csrf_token %}
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col">Price</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Subtotal</th>
+              <th scope="col">Remove</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Example Product 1 -->
+            <tr>
+              <td>Elegant Rose Bouquet</td>
+              <td>$50.00</td>
+              <td>
+                <input type="number" name="quantity_1" class="form-control" value="1" min="1">
+              </td>
+              <td>$50.00</td>
+              <td>
+                <button type="button" class="btn btn-danger btn-sm">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <!-- Example Product 2 -->
+            <tr>
+              <td>Tulip Arrangement</td>
+              <td>$40.00</td>
+              <td>
+                <input type="number" name="quantity_2" class="form-control" value="2" min="1">
+              </td>
+              <td>$80.00</td>
+              <td>
+                <button type="button" class="btn btn-danger btn-sm">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <a href="{% url 'shop' %}" class="btn btn-secondary">Continue Shopping</a>
+        </div>
+        <div class="col-md-6 text-end">
+          <h4>Total: <span class="text-primary">$130.00</span></h4>
+          <button type="submit" class="btn btn-primary">Update Cart</button>
+          <a href="{% url 'checkout' %}" class="btn btn-success">Proceed to Checkout</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
