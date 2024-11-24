@@ -1,5 +1,7 @@
-from django.urls import path
-from . import views
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -11,3 +13,7 @@ urlpatterns = [
     path('cart/', views.cart, name='cart'),
     path('checkout/', views.checkout, name='checkout')
 ]
+
+# Подключение статических файлов в режиме разработки
+if settings.DEBUG:  # Эта строка важна, чтобы не использовать static() в production
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
