@@ -1,6 +1,6 @@
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
-from .models import BestSeller, TeamMember, Testimonial
+from .models import BestSeller, TeamMember, Testimonial, Product, Category
 
 from django.conf import settings
 
@@ -13,8 +13,16 @@ def product_details(request):
     return render(request, 'orders/product-details.html')
 
 def shop(request):
-    # Рендеринг HTML-шаблона shop.html
-    return render(request, 'orders/shop.html')
+    products = Product.objects.all()
+    categories = Category.objects.all()
+
+    context = {
+        'products': products,
+        'categories': categories,
+    }
+
+    return render(request, 'orders/shop.html', context)
+
 
 def thanks(request):
     # Рендеринг HTML-шаблона thanks.html

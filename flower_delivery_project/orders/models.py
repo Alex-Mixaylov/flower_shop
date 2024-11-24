@@ -149,3 +149,36 @@ class Testimonial(models.Model):
 
     def __str__(self):
         return self.author
+
+from django.db import models
+
+# Категории товаров
+class Category(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Название категории")
+    slug = models.SlugField(unique=True, verbose_name="URL категории")
+
+    def __str__(self):
+        return self.name
+
+# Товары
+class Product(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Название товара")
+    description = models.TextField(verbose_name="Описание")
+    image = models.ImageField(upload_to='products/', verbose_name="Изображение")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Старая цена")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products", verbose_name="Категория")
+    is_featured = models.BooleanField(default=False, verbose_name="Показывать на главной странице")
+
+    def __str__(self):
+        return self.name
+
+# Отзывы
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews", verbose_name="Товар")
+    author = models.CharField(max_length=255, verbose_name="Автор")
+    text = models.TextField(verbose_name="Текст отзыва")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+
+    def __str__(self):
+        return f"Отзыв от {self.author} на {self.product.name}"

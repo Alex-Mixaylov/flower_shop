@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Collection, Bouquet, Order, OrderItem, ContactMessage, BestSeller, TeamMember, Testimonial
+from .models import User, Collection, Bouquet, Order, OrderItem, ContactMessage, BestSeller, TeamMember, Testimonial, Category, Product, Review
 
 # Регистрация моделей в админке
 admin.site.register(User)
@@ -24,3 +24,20 @@ class TeamMemberAdmin(admin.ModelAdmin):
 class TestimonialAdmin(admin.ModelAdmin):
     list_display = ('author',)
     search_fields = ('author',)
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    prepopulated_fields = {'slug': ('name',)}
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'category', 'is_featured')
+    list_filter = ('category', 'is_featured')
+    search_fields = ('name',)
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('product', 'author', 'created_at')
+    list_filter = ('product',)
+    search_fields = ('author', 'product__name')

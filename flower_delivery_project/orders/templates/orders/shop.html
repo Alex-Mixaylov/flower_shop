@@ -3,46 +3,47 @@
 {% block title %}Shop - Flower Shop{% endblock %}
 
 {% block content %}
-<!-- Shop Section -->
 <section class="shop-section py-5">
-  <div class="container">
-    <h2 class="text-center mb-4">Our Shop</h2>
-    <div class="row">
-      <!-- Product 1 -->
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <img src="{% static 'images/product1.jpg' %}" class="card-img-top" alt="Product 1">
-          <div class="card-body">
-            <h5 class="card-title">Elegant Rose Bouquet</h5>
-            <p class="card-text">$50.00</p>
-            <a href="{% url 'product_details' %}" class="btn btn-primary">View Details</a>
-          </div>
+    <div class="container">
+        <h2 class="text-center mb-4">Our Products</h2>
+
+        <!-- Categories -->
+        <div class="row mb-4">
+            <div class="col">
+                <ul class="nav justify-content-center">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'shop' %}">All</a>
+                    </li>
+                    {% for category in categories %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">{{ category.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-      </div>
-      <!-- Product 2 -->
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <img src="{% static 'images/product2.jpg' %}" class="card-img-top" alt="Product 2">
-          <div class="card-body">
-            <h5 class="card-title">Tulip Arrangement</h5>
-            <p class="card-text">$40.00</p>
-            <a href="{% url 'product_details' %}" class="btn btn-primary">View Details</a>
-          </div>
+
+        <!-- Products -->
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description|truncatechars:100 }}</p>
+                        <p class="text-muted">
+                            {% if product.old_price %}
+                                <del>${{ product.old_price }}</del>
+                            {% endif %}
+                            ${{ product.price }}
+                        </p>
+                        <a href="#" class="btn btn-primary">Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-      </div>
-      <!-- Product 3 -->
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <img src="{% static 'images/product3.jpg' %}" class="card-img-top" alt="Product 3">
-          <div class="card-body">
-            <h5 class="card-title">Seasonal Flower Mix</h5>
-            <p class="card-text">$60.00</p>
-            <a href="{% url 'product_details' %}" class="btn btn-primary">View Details</a>
-          </div>
-        </div>
-      </div>
-      <!-- More products can be added similarly -->
     </div>
-  </div>
 </section>
 {% endblock %}
