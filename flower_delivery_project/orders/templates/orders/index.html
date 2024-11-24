@@ -1,10 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'orders/layout.html' %}
 
-</body>
-</html>
+{% block title %}Home - Flower Shop{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4">Welcome to Flower Shop</h1>
+        <p class="lead">Discover our fresh and beautiful flowers for every occasion.</p>
+        <a href="{% url 'shop' %}" class="btn btn-primary">Shop Now</a>
+      </div>
+      <div class="col-lg-6">
+        <img src="{% static 'images/hero-image.jpg' %}" alt="Fresh Flowers" class="img-fluid">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Collections -->
+<section class="featured-collections py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Our Collections</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <img src="{% static 'images/collection1.jpg' %}" class="card-img-top" alt="Collection 1">
+          <div class="card-body">
+            <h5 class="card-title">Roses</h5>
+            <p class="card-text">Elegant and timeless roses for any occasion.</p>
+            <a href="{% url 'collections' %}" class="btn btn-outline-primary">Explore</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <img src="{% static 'images/collection2.jpg' %}" class="card-img-top" alt="Collection 2">
+          <div class="card-body">
+            <h5 class="card-title">Bouquets</h5>
+            <p class="card-text">Beautifully arranged bouquets for every moment.</p>
+            <a href="{% url 'collections' %}" class="btn btn-outline-primary">Explore</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <img src="{% static 'images/collection3.jpg' %}" class="card-img-top" alt="Collection 3">
+          <div class="card-body">
+            <h5 class="card-title">Seasonal Flowers</h5>
+            <p class="card-text">Fresh flowers that bloom with the season.</p>
+            <a href="{% url 'collections' %}" class="btn btn-outline-primary">Explore</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4">What Our Customers Say</h2>
+    <div class="row">
+      <div class="col-md-6">
+        <blockquote class="blockquote">
+          <p class="mb-0">"The flowers were fresh and beautiful. Perfect for my wedding day!"</p>
+          <footer class="blockquote-footer">Jane Doe</footer>
+        </blockquote>
+      </div>
+      <div class="col-md-6">
+        <blockquote class="blockquote">
+          <p class="mb-0">"Great service and amazing bouquets. Highly recommend!"</p>
+          <footer class="blockquote-footer">John Smith</footer>
+        </blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section class="contact-section py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Contact Us</h2>
+    <p class="text-center">Have questions? Reach out to us anytime.</p>
+    <div class="text-center">
+      <a href="{% url 'contact' %}" class="btn btn-primary">Contact Us</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
