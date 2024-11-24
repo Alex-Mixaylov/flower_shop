@@ -83,12 +83,11 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+
 # --- Статические файлы ---
 STATIC_URL = '/static/'
-#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATICFILES_DIRS = [
-    'C:/Users/tajin/Documents/GitHub/flower_shop/flower_delivery_project/static',
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Путь для собранных файлов
 
 # --- Медиа файлы ---
 MEDIA_URL = '/media/'
