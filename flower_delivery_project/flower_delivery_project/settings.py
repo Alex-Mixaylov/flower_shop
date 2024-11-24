@@ -142,3 +142,4 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'your-email@example.com'
 EMAIL_HOST_PASSWORD = 'your-password'
 
+AUTH_USER_MODEL = 'orders.User'

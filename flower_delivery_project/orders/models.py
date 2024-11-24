@@ -1,15 +1,48 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-
 # Пользователи (User)
 class User(AbstractUser):
-    # Наследуется от AbstractUser, чтобы использовать стандартные функции Django для аутентификации
-    email = models.EmailField(unique=True)  # Уникальный email для каждого пользователя
-    phone = models.CharField(max_length=15, blank=True, null=True)  # Номер телефона пользователя
-    is_admin = models.BooleanField(default=False)  # Флаг для определения, является ли пользователь администратором
+    """
+    Кастомная модель пользователя, наследуемая от AbstractUser.
+    Она позволяет добавлять дополнительные поля и кастомизировать существующие
+    функции модели пользователя Django.
+    """
+
+    # Email пользователя (уникальное поле)
+    email = models.EmailField(unique=True)
+
+    # Номер телефона пользователя (может быть пустым или отсутствовать)
+    phone = models.CharField(max_length=15, blank=True, null=True)
+
+    # Флаг, определяющий, является ли пользователь администратором
+    is_admin = models.BooleanField(default=False)
+
+    # Поле для связи пользователя с группами. Добавлен related_name для избежания конфликта
+    # с аналогичным полем в стандартной модели Django User.
+    groups = models.ManyToManyField(
+        'auth.Group',  # Связь с группами через стандартную модель 'auth.Group'
+        related_name='custom_user_set',  # Изменённое имя обратной связи для избежания конфликта
+        blank=True,  # Поле необязательно для заполнения
+        help_text='The groups this user belongs to.',  # Подсказка для админ-панели
+        verbose_name='groups',  # Название поля в админ-панели
+    )
+
+    # Поле для связи пользователя с правами. Добавлен related_name для избежания конфликта
+    # с аналогичным полем в стандартной модели Django User.
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',  # Связь с правами через стандартную модель 'auth.Permission'
+        related_name='custom_user_set',  # Изменённое имя обратной связи для избежания конфликта
+        blank=True,  # Поле необязательно для заполнения
+        help_text='Specific permissions for this user.',  # Подсказка для админ-панели
+        verbose_name='user permissions',  # Название поля в админ-панели
+    )
 
     def __str__(self):
+        """
+        Метод для представления объекта пользователя в виде строки.
+        Возвращает имя пользователя (username).
+        """
         return self.username
 
 
