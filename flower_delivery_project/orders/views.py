@@ -77,4 +77,5 @@ def cart(request):
     # Рендеринг HTML-шаблона cart.html
     return render(request, 'orders/cart.html')
 
-#
+def about(request):
+    return render(request, 'orders/about.html')

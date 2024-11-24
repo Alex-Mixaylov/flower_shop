@@ -119,3 +119,33 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"Message from {self.name} ({self.email})"
+
+
+# Лучшие товары (Best Sellers)
+class BestSeller(models.Model):
+    title = models.CharField(max_length=255, verbose_name="Название товара")
+    description = models.TextField(verbose_name="Описание")
+    image = models.ImageField(upload_to='bestsellers/', verbose_name="Изображение")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+    is_featured = models.BooleanField(default=False, verbose_name="Показать на главной")
+
+    def __str__(self):
+        return self.title
+
+# Команда (Team)
+class TeamMember(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Имя")
+    role = models.CharField(max_length=255, verbose_name="Роль")
+    photo = models.ImageField(upload_to='team/', verbose_name="Фотография")
+
+    def __str__(self):
+        return self.name
+
+# Отзывы (Testimonials)
+class Testimonial(models.Model):
+    author = models.CharField(max_length=255, verbose_name="Автор")
+    text = models.TextField(verbose_name="Отзыв")
+    photo = models.ImageField(upload_to='testimonials/', verbose_name="Фотография автора")
+
+    def __str__(self):
+        return self.author
