@@ -85,7 +85,10 @@ USE_TZ = True
 
 # --- Статические файлы ---
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [
+    'C:/Users/tajin/Documents/GitHub/flower_shop/flower_delivery_project/static',
+]
 
 # --- Медиа файлы ---
 MEDIA_URL = '/media/'
