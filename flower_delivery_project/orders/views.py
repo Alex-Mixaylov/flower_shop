@@ -1,6 +1,8 @@
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
-from .models import BestSeller, TeamMember, Testimonial, Product, Category
+from django.shortcuts import get_object_or_404
+from .models import Product, Category, BestSeller, TeamMember, Testimonial
+
 
 from django.conf import settings
 
@@ -8,9 +10,18 @@ def index(request):
     # Рендеринг HTML-шаблона index.html
     return render(request, 'orders/index.html')
 
-def product_details(request):
-    # Рендеринг HTML-шаблона product-details.html
-    return render(request, 'orders/product-details.html')
+
+def product_details(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+    reviews = product.reviews.all()
+    related_products = product.related_products.all()
+    combo_offers = product.combo_offers.all()
+    return render(request, 'orders/product-details.html', {
+        'product': product,
+        'reviews': reviews,
+        'related_products': related_products,
+        'combo_offers': combo_offers,
+    })
 
 def shop(request):
     products = Product.objects.all()

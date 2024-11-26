@@ -1,5 +1,21 @@
 from django.contrib import admin
-from .models import User, Collection, Bouquet, Order, OrderItem, ContactMessage, BestSeller, TeamMember, Testimonial, Category, Product, Review
+from .models import (
+    User,
+    Collection,
+    Bouquet,
+    Order,
+    OrderItem,
+    ContactMessage,
+    BestSeller,
+    TeamMember,
+    Testimonial,
+    Category,
+    Product,
+    Review,
+    SizeOption,
+    RelatedProduct,
+    ComboOffer,
+)
 
 # Регистрация моделей в админке
 admin.site.register(User)
@@ -27,17 +43,52 @@ class TestimonialAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
 
+class SizeOptionInline(admin.TabularInline):  # Наследование от InlineModelAdmin
+    model = SizeOption
+    extra = 1
+
+
+class RelatedProductInline(admin.TabularInline):  # Наследование от InlineModelAdmin
+    model = RelatedProduct
+    fk_name = 'product'
+    extra = 1
+
+
+class ComboOfferInline(admin.TabularInline):  # Наследование от InlineModelAdmin
+    model = ComboOffer
+    extra = 1
+
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(admin.ModelAdmin):  # Оставляем наследование от ModelAdmin
     list_display = ('name', 'price', 'category', 'is_featured')
     list_filter = ('category', 'is_featured')
     search_fields = ('name',)
+    inlines = [SizeOptionInline, RelatedProductInline, ComboOfferInline]  # Здесь исправлена передача inline классов
+
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('product', 'author', 'created_at')
-    list_filter = ('product',)
+    list_display = ('product', 'author', 'rating', 'created_at')
+    list_filter = ('product', 'rating')
     search_fields = ('author', 'product__name')
+
+@admin.register(SizeOption)
+class SizeOptionAdmin(admin.ModelAdmin):
+    list_display = ('product', 'size', 'stems_count')
+    list_filter = ('product',)
+    search_fields = ('product__name', 'size')
+
+@admin.register(RelatedProduct)
+class RelatedProductAdmin(admin.ModelAdmin):
+    list_display = ('product', 'related_product')
+    list_filter = ('product',)
+    search_fields = ('product__name', 'related_product__name')
+
+@admin.register(ComboOffer)
+class ComboOfferAdmin(admin.ModelAdmin):
+    list_display = ('product', 'name', 'price')
+    list_filter = ('product',)
+    search_fields = ('product__name', 'name')

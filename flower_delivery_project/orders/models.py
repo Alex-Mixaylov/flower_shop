@@ -1,50 +1,24 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.text import slugify
+
+
 
 # Пользователи (User)
 class User(AbstractUser):
-    """
-    Кастомная модель пользователя, наследуемая от AbstractUser.
-    Она позволяет добавлять дополнительные поля и кастомизировать существующие
-    функции модели пользователя Django.
-    """
-
-    # Email пользователя (уникальное поле)
     email = models.EmailField(unique=True)
-
-    # Номер телефона пользователя (может быть пустым или отсутствовать)
     phone = models.CharField(max_length=15, blank=True, null=True)
-
-    # Флаг, определяющий, является ли пользователь администратором
     is_admin = models.BooleanField(default=False)
 
-    # Поле для связи пользователя с группами. Добавлен related_name для избежания конфликта
-    # с аналогичным полем в стандартной модели Django User.
     groups = models.ManyToManyField(
-        'auth.Group',  # Связь с группами через стандартную модель 'auth.Group'
-        related_name='custom_user_set',  # Изменённое имя обратной связи для избежания конфликта
-        blank=True,  # Поле необязательно для заполнения
-        help_text='The groups this user belongs to.',  # Подсказка для админ-панели
-        verbose_name='groups',  # Название поля в админ-панели
+        'auth.Group', related_name='custom_user_set', blank=True
     )
-
-    # Поле для связи пользователя с правами. Добавлен related_name для избежания конфликта
-    # с аналогичным полем в стандартной модели Django User.
     user_permissions = models.ManyToManyField(
-        'auth.Permission',  # Связь с правами через стандартную модель 'auth.Permission'
-        related_name='custom_user_set',  # Изменённое имя обратной связи для избежания конфликта
-        blank=True,  # Поле необязательно для заполнения
-        help_text='Specific permissions for this user.',  # Подсказка для админ-панели
-        verbose_name='user permissions',  # Название поля в админ-панели
+        'auth.Permission', related_name='custom_user_set', blank=True
     )
 
     def __str__(self):
-        """
-        Метод для представления объекта пользователя в виде строки.
-        Возвращает имя пользователя (username).
-        """
         return self.username
-
 
 # Коллекции (Collection)
 class Collection(models.Model):
@@ -141,7 +115,7 @@ class TeamMember(models.Model):
     def __str__(self):
         return self.name
 
-# Отзывы (Testimonials)
+# Общие отзывы (Testimonials)
 class Testimonial(models.Model):
     author = models.CharField(max_length=255, verbose_name="Автор")
     text = models.TextField(verbose_name="Отзыв")
@@ -150,35 +124,81 @@ class Testimonial(models.Model):
     def __str__(self):
         return self.author
 
-from django.db import models
 
-# Категории товаров
+# Категория товаров
 class Category(models.Model):
     name = models.CharField(max_length=255, verbose_name="Название категории")
-    slug = models.SlugField(unique=True, verbose_name="URL категории")
+    slug = models.SlugField(max_length=255, unique=True, blank=True, null=True, verbose_name="URL")
+    description = models.TextField(blank=True, null=True, verbose_name="Описание категории")
+    image = models.ImageField(upload_to='categories/', blank=True, null=True, verbose_name="Изображение категории")
 
     def __str__(self):
         return self.name
 
-# Товары
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+
+## Товары
 class Product(models.Model):
     name = models.CharField(max_length=255, verbose_name="Название товара")
+    slug = models.SlugField(max_length=255, unique=True, blank=True, null=True, verbose_name="URL")
     description = models.TextField(verbose_name="Описание")
-    image = models.ImageField(upload_to='products/', verbose_name="Изображение")
+    image_main = models.ImageField(upload_to='products/', verbose_name="Основное изображение")
+    image_secondary = models.ImageField(upload_to='products/', blank=True, null=True,
+                                        verbose_name="Дополнительное изображение")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
-    old_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Старая цена")
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Старая цена")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products", verbose_name="Категория")
     is_featured = models.BooleanField(default=False, verbose_name="Показывать на главной странице")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
     def __str__(self):
         return self.name
 
-# Отзывы
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+# Отзывы о продуктах
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews", verbose_name="Товар")
     author = models.CharField(max_length=255, verbose_name="Автор")
+    rating = models.PositiveIntegerField(verbose_name="Рейтинг", help_text="Укажите рейтинг от 1 до 5")
     text = models.TextField(verbose_name="Текст отзыва")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     def __str__(self):
-        return f"Отзыв от {self.author} на {self.product.name}"
+        return f"Отзыв от {self.author} для {self.product.name}"
+
+# Размеры товара
+class SizeOption(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="size_options", verbose_name="Товар")
+    size = models.CharField(max_length=50, verbose_name="Размер")
+    stems_count = models.PositiveIntegerField(verbose_name="Количество стеблей")
+
+    def __str__(self):
+        return f"{self.size} ({self.stems_count} стеблей) - {self.product.name}"
+
+# Связанные товары
+class RelatedProduct(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="related_products",
+                                verbose_name="Товар")
+    related_product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="related_to",
+                                        verbose_name="Связанный товар")
+
+    def __str__(self):
+        return f"Связанный товар: {self.related_product.name} для {self.product.name}"
+
+# Комплектующие/Дополнительные товары
+class ComboOffer(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="combo_offers", verbose_name="Товар")
+    name = models.CharField(max_length=255, verbose_name="Название дополнения")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена дополнения")
+    image = models.ImageField(upload_to='combos/', verbose_name="Изображение дополнения")
+
+    def __str__(self):
+        return f"{self.name} для {self.product.name}"
