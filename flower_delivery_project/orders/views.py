@@ -1,7 +1,7 @@
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import Product, Category, BestSeller, TeamMember, Testimonial
+from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection
 
 
 from django.conf import settings
@@ -77,8 +77,22 @@ def contact(request):
     return render(request, 'orders/contact.html')
 
 def collections(request):
-    # Рендеринг HTML-шаблона collections.html
-    return render(request, 'orders/collections.html')
+    collections = Collection.objects.prefetch_related('products').all()
+    return render(request, 'orders/collections.html', {'collections': collections})
+
+
+def collection_detail(request, slug):
+    # Получение коллекции по slug
+    collection = get_object_or_404(Collection, slug=slug)
+
+    # Получение всех продуктов в этой коллекции
+    products = collection.products.all()
+
+    context = {
+        'collection': collection,
+        'products': products,
+    }
+    return render(request, 'orders/collection_detail.html', context)
 
 def checkout(request):
     # Рендеринг HTML-шаблона checkout.html

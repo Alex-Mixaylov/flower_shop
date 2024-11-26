@@ -1,50 +1,23 @@
-{% extends 'orders/layout.html' %}
+{% extends "base.html" %}
 
-{% block title %}Collections - Flower Shop{% endblock %}
+{% block title %}Коллекции{% endblock %}
 
 {% block content %}
-<!-- Collections Section -->
-<section class="collections-section py-5">
-  <div class="container">
-    <h2 class="text-center mb-4">Our Collections</h2>
-    <p class="text-center mb-5">
-      Discover our exclusive collections of beautiful flowers and bouquets. Perfect for every occasion.
-    </p>
+<div class="container py-5">
+    <h1 class="mb-4">Наши коллекции</h1>
     <div class="row">
-      <!-- Collection 1 -->
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <img src="{% static 'images/collection1.jpg' %}" class="card-img-top" alt="Roses Collection">
-          <div class="card-body text-center">
-            <h5 class="card-title">Roses Collection</h5>
-            <p class="card-text">Elegant and timeless roses for your loved ones.</p>
-            <a href="{% url 'shop' %}?collection=roses" class="btn btn-primary">View Collection</a>
-          </div>
+        {% for collection in collections %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <img src="{{ collection.image.url }}" class="card-img-top" alt="{{ collection.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ collection.name }}</h5>
+                    <p class="card-text">{{ collection.description|truncatechars:100 }}</p>
+                    <a href="{% url 'collection_detail' collection.slug %}" class="btn btn-primary">Подробнее</a>
+                </div>
+            </div>
         </div>
-      </div>
-      <!-- Collection 2 -->
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <img src="{% static 'images/collection2.jpg' %}" class="card-img-top" alt="Bouquets Collection">
-          <div class="card-body text-center">
-            <h5 class="card-title">Bouquets Collection</h5>
-            <p class="card-text">Beautifully arranged bouquets for every moment.</p>
-            <a href="{% url 'shop' %}?collection=bouquets" class="btn btn-primary">View Collection</a>
-          </div>
-        </div>
-      </div>
-      <!-- Collection 3 -->
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <img src="{% static 'images/collection3.jpg' %}" class="card-img-top" alt="Seasonal Collection">
-          <div class="card-body text-center">
-            <h5 class="card-title">Seasonal Collection</h5>
-            <p class="card-text">Fresh flowers that bloom with the seasons.</p>
-            <a href="{% url 'shop' %}?collection=seasonal" class="btn btn-primary">View Collection</a>
-          </div>
-        </div>
-      </div>
+        {% endfor %}
     </div>
-  </div>
-</section>
+</div>
 {% endblock %}

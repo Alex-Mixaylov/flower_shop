@@ -10,10 +10,11 @@ urlpatterns = [
     path('product/<slug:slug>/', views.product_details, name='product_details'),
     path('thanks/', views.thanks, name='thanks'),
     path('contact/', views.contact, name='contact'),
-    path('collections/', views.collections, name='collections'),
     path('cart/', views.cart, name='cart'),
     path('checkout/', views.checkout, name='checkout'),
-    path('about/', views.about, name='about')
+    path('about/', views.about, name='about'),
+    path('collections/', views.collections, name='collections'),
+    path('collections/<slug:slug>/', views.collection_detail, name='collection_detail')
 ]
 
 # Подключение статических файлов в режиме разработки

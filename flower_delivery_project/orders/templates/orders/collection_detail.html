@@ -1,0 +1,29 @@
+{% extends 'orders/layout.html' %}
+
+{% block title %}{{ collection.name }} - Flower Shop{% endblock %}
+
+{% block content %}
+<section class="collection-detail">
+    <div class="container">
+        <h1>{{ collection.name }}</h1>
+        <p>{{ collection.description }}</p>
+
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="{{ product.image_main.url }}" class="card-img-top" alt="{{ product.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.price }} руб.</p>
+                            <a href="{% url 'product_details' product.slug %}" class="btn btn-primary">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>В этой коллекции пока нет товаров.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

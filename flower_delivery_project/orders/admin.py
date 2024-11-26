@@ -19,7 +19,6 @@ from .models import (
 
 # Регистрация моделей в админке
 admin.site.register(User)
-admin.site.register(Collection)
 admin.site.register(Bouquet)
 admin.site.register(Order)
 admin.site.register(OrderItem)
@@ -46,28 +45,25 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
 
-class SizeOptionInline(admin.TabularInline):  # Наследование от InlineModelAdmin
+class SizeOptionInline(admin.TabularInline):
     model = SizeOption
     extra = 1
 
-
-class RelatedProductInline(admin.TabularInline):  # Наследование от InlineModelAdmin
+class RelatedProductInline(admin.TabularInline):
     model = RelatedProduct
     fk_name = 'product'
     extra = 1
 
-
-class ComboOfferInline(admin.TabularInline):  # Наследование от InlineModelAdmin
+class ComboOfferInline(admin.TabularInline):
     model = ComboOffer
     extra = 1
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):  # Оставляем наследование от ModelAdmin
-    list_display = ('name', 'price', 'category', 'is_featured')
-    list_filter = ('category', 'is_featured')
-    search_fields = ('name',)
-    inlines = [SizeOptionInline, RelatedProductInline, ComboOfferInline]  # Здесь исправлена передача inline классов
-
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'category', 'is_featured')  # Заменили collection на category
+    list_filter = ('category', 'is_featured')  # Заменили collection на category
+    search_fields = ('name', 'category__name')
+    inlines = [SizeOptionInline, RelatedProductInline, ComboOfferInline]
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
@@ -92,3 +88,8 @@ class ComboOfferAdmin(admin.ModelAdmin):
     list_display = ('product', 'name', 'price')
     list_filter = ('product',)
     search_fields = ('product__name', 'name')
+
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'created_at')
+    prepopulated_fields = {'slug': ('name',)}

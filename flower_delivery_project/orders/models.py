@@ -1,8 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
-
-
+from django.utils.timezone import now
 
 # Пользователи (User)
 class User(AbstractUser):
@@ -20,14 +19,20 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
-# Коллекции (Collection)
 class Collection(models.Model):
-    # Хранит данные о коллекциях товаров (например, Розы, Букеты)
-    name = models.CharField(max_length=255)  # Название коллекции
-    description = models.TextField(blank=True, null=True)  # Описание коллекции
+    name = models.CharField(max_length=255, verbose_name="Название коллекции")
+    slug = models.SlugField(max_length=255, unique=True, blank=True, null=True, verbose_name="URL")
+    description = models.TextField(blank=True, null=True, verbose_name="Описание коллекции")
+    image = models.ImageField(upload_to='collections/', blank=True, null=True, verbose_name="Изображение коллекции")
+    created_at = models.DateTimeField(auto_now_add=True, default=now, verbose_name="Дата создания")
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 # Букеты (Bouquet)
@@ -147,11 +152,14 @@ class Product(models.Model):
     slug = models.SlugField(max_length=255, unique=True, blank=True, null=True, verbose_name="URL")
     description = models.TextField(verbose_name="Описание")
     image_main = models.ImageField(upload_to='products/', verbose_name="Основное изображение")
-    image_secondary = models.ImageField(upload_to='products/', blank=True, null=True,
-                                        verbose_name="Дополнительное изображение")
+    image_secondary = models.ImageField(
+        upload_to='products/', blank=True, null=True, verbose_name="Дополнительное изображение"
+    )
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
     old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Старая цена")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products", verbose_name="Категория")
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="products", verbose_name="Категория"
+    )
     is_featured = models.BooleanField(default=False, verbose_name="Показывать на главной странице")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
