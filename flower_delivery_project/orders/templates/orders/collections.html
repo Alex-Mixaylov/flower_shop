@@ -5,19 +5,27 @@
 {% block content %}
 <div class="container py-5">
     <h1 class="mb-4">Наши коллекции</h1>
-    <div class="row">
-        {% for collection in collections %}
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <img src="{{ collection.image.url }}" class="card-img-top" alt="{{ collection.name }}">
-                <div class="card-body">
-                    <h5 class="card-title">{{ collection.name }}</h5>
-                    <p class="card-text">{{ collection.description|truncatechars:100 }}</p>
-                    <a href="{% url 'collection_detail' collection.slug %}" class="btn btn-primary">Подробнее</a>
+    {% if collections %}
+        <div class="row">
+            {% for collection in collections %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    {% if collection.image %}
+                        <img src="{{ collection.image.url }}" class="card-img-top" alt="{{ collection.name }}">
+                    {% else %}
+                        <img src="{% static 'images/default-collection.png' %}" class="card-img-top" alt="Нет изображения">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ collection.name }}</h5>
+                        <p class="card-text">{{ collection.description|truncatechars:100 }}</p>
+                        <a href="{% url 'collection_detail' slug=collection.slug %}" class="btn btn-primary">Подробнее</a>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
+    {% else %}
+        <p>Коллекции отсутствуют. Пожалуйста, добавьте новые коллекции.</p>
+    {% endif %}
 </div>
 {% endblock %}
