@@ -24,7 +24,7 @@ class Collection(models.Model):
     slug = models.SlugField(max_length=255, unique=True, blank=True, null=True, verbose_name="URL")
     description = models.TextField(blank=True, null=True, verbose_name="Описание коллекции")
     image = models.ImageField(upload_to='collections/', blank=True, null=True, verbose_name="Изображение коллекции")
-    created_at = models.DateTimeField(auto_now_add=True, default=now, verbose_name="Дата создания")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     def __str__(self):
         return self.name
