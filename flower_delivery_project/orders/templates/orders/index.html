@@ -1,72 +1,79 @@
 {% extends 'orders/layout.html' %}
 {% load static %}
 
-{% block title %}Home - Flower Shop{% endblock %}
+{% block title %}Flower Shop - Home{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4">Welcome to Flower Shop</h1>
-                <p class="lead">Discover our fresh and beautiful flowers for every occasion.</p>
-                <a href="{% url 'shop' %}" class="btn btn-primary">Shop Now</a>
-            </div>
-            <div class="col-lg-6">
-                <img src="{% static 'images/buk10.png' %}" alt="Fresh Flowers" class="img-fluid">
+<section class="banner-part float-start w-100">
+    <div class="slider-div owl-carousel owl-theme">
+        <div class="items-sliders" data-dot="<button>01</button>">
+            <div class="container">
+                <div class="row row-cols-1 row-cols-md-2 flex-md-row-reverse">
+                    <div class="col position-relative">
+                        <div class="lefta-img01">
+                            <img alt="er" src="{% static 'images/fealf1.png' %}" />
+                        </div>
+                        <div class="righty-img">
+                            <img alt="sm" src="{% static 'images/flower.png' %}" />
+                        </div>
+                    </div>
+                    <div class="col d-none d-md-block">
+                        <div class="items-text01 position-relative">
+                            <div class="aeorw">
+                                <img alt="ser" src="{% static 'images/64785.png' %}" />
+                            </div>
+                            <h6 class="sub-head02">Natural & Beautiful</h6>
+                            <h2 class="head-banner">Discover Exotic <span>Flowers</span> Easily</h2>
+                            <p class="banner-para mt-3 mb-5 d-block">
+                                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+        <!-- Add additional slides as needed -->
     </div>
 </section>
 
-<!-- Slider Section -->
-<section class="slider-section">
-    <div class="owl-carousel owl-theme">
-        <div class="item">
-            <img src="{% static 'images/slider-1.png' %}" alt="Slider 1">
-        </div>
-        <div class="item">
-            <img src="{% static 'images/bbhu.webp' %}" alt="Slider 2">
-        </div>
-        <div class="item">
-            <img src="{% static 'images/pexels-photo-4639557.jpeg' %}" alt="Slider 3">
-        </div>
-    </div>
-</section>
-
-<!-- Featured Collections -->
+<!-- Featured Products Section -->
 <section class="featured-collections py-5">
     <div class="container">
-        <h2 class="text-center mb-4">Our Collections</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="{% static 'images/shop-category-img-1.png' %}" class="card-img-top" alt="Roses">
-                    <div class="card-body">
-                        <h5 class="card-title">Roses</h5>
-                        <p class="card-text">Elegant and timeless roses for any occasion.</p>
-                        <a href="{% url 'collections' %}" class="btn btn-outline-primary">Explore</a>
-                    </div>
+        <h2 class="text-center mb-4">Shop by Category</h2>
+        <div class="slider-texr owl-theme owl-carousel mt-5">
+            {% for category in categories %}
+            <a href="{% url 'shop' %}" class="com-ctr d-inline-block w-100 text-center">
+                <div class="imgo-buy">
+                    <img alt="cta" src="{{ category.image.url }}" />
                 </div>
+                <h5>{{ category.name }}
+                    <span class="d-block">({{ category.product_count }} Items)</span>
+                </h5>
+            </a>
+            {% empty %}
+            <p class="text-center">No categories available at the moment.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="about-parts d-inline-block w-100">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-2 align-items-center">
+            <div class="col">
+                <h6 class="sub-heading">Who We Are</h6>
+                <h2 class="min-heading mt-2">Online Flower Delivery Expert</h2>
+                <p class="mt-4">
+                    Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in classical Latin literature.
+                </p>
+                <a href="{% url 'about' %}" class="btn btn-monre mt-4">Learn more</a>
             </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="{% static 'images/shop-category-img-2.jpg' %}" class="card-img-top" alt="Bouquets">
-                    <div class="card-body">
-                        <h5 class="card-title">Bouquets</h5>
-                        <p class="card-text">Beautifully arranged bouquets for every moment.</p>
-                        <a href="{% url 'collections' %}" class="btn btn-outline-primary">Explore</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="{% static 'images/shop-category-img-5.jpg' %}" class="card-img-top" alt="Seasonal Flowers">
-                    <div class="card-body">
-                        <h5 class="card-title">Seasonal Flowers</h5>
-                        <p class="card-text">Fresh flowers that bloom with the season.</p>
-                        <a href="{% url 'collections' %}" class="btn btn-outline-primary">Explore</a>
+            <div class="col">
+                <div class="img-oi position-relative w-100 d-block">
+                    <div class="big-img01">
+                        <img alt="si" src="{% static 'images/abu.png' %}" />
                     </div>
                 </div>
             </div>
@@ -74,23 +81,25 @@
     </div>
 </section>
 
-<!-- Testimonials -->
+<!-- Testimonials Section -->
 <section class="testimonials py-5 bg-light">
     <div class="container">
         <h2 class="text-center mb-4">What Our Customers Say</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <blockquote class="blockquote">
-                    <p class="mb-0">"The flowers were fresh and beautiful. Perfect for my wedding day!"</p>
-                    <footer class="blockquote-footer">Jane Doe</footer>
-                </blockquote>
+        <div class="tser-slider01 owl-carousel owl-theme mt-5">
+            {% for testimonial in testimonials %}
+            <div class="items-center-tesi d-inline-block w-100">
+                <div class="comon-pord d-inline-block w-100 items-pro">
+                    <div class="user-pic01">
+                        <img alt="ser" src="{{ testimonial.photo.url }}" />
+                    </div>
+                    <p class="mt-2">{{ testimonial.text }}</p>
+                    <h5 class="mt-3">{{ testimonial.author }}</h5>
+                    <span class="desi d-block mt-2">{{ testimonial.designation }}</span>
+                </div>
             </div>
-            <div class="col-md-6">
-                <blockquote class="blockquote">
-                    <p class="mb-0">"Great service and amazing bouquets. Highly recommend!"</p>
-                    <footer class="blockquote-footer">John Smith</footer>
-                </blockquote>
-            </div>
+            {% empty %}
+            <p class="text-center">No testimonials available yet.</p>
+            {% endfor %}
         </div>
     </div>
 </section>

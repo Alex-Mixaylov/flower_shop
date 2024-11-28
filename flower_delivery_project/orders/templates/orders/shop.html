@@ -3,47 +3,117 @@
 {% block title %}Shop - Flower Shop{% endblock %}
 
 {% block content %}
-<section class="shop-section py-5">
+<section class="sub-banner float-start w-100">
     <div class="container">
-        <h2 class="text-center mb-4">Our Products</h2>
-
-        <!-- Categories -->
-        <div class="row mb-4">
-            <div class="col">
-                <ul class="nav justify-content-center">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'shop' %}">All</a>
-                    </li>
-                    {% for category in categories %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{{ category.name }}</a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="insider-banner">
+            <h2>Shop</h2>
+            <nav class="mt-2">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Shop</li>
+                </ol>
+            </nav>
         </div>
+    </div>
+</section>
 
-        <!-- Products -->
-        <div class="row">
-            {% for product in products %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.description|truncatechars:100 }}</p>
-                        <p class="text-muted">
-                            {% if product.old_price %}
-                                <del>${{ product.old_price }}</del>
-                            {% endif %}
-                            ${{ product.price }}
-                        </p>
-                        <a href="#" class="btn btn-primary">Add to Cart</a>
+<main class="main-body float-start w-100">
+    <div class="tiop-listing-div d-inline-block w-100">
+        <div class="container">
+            <div class="row g-lg-5">
+                <!-- Filter Section -->
+                <div class="col-lg-3 filter-divgb">
+                    <h2 class="filter-by d-none d-lg-block">Filter by</h2>
+                    <div class="accordion mt-0 list-serach-acd" id="accordionFilters">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#categoriesFilter" aria-expanded="true" aria-controls="categoriesFilter">
+                                    Categories
+                                </button>
+                            </h2>
+                            <div id="categoriesFilter" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    {% for category in categories %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="{{ category.id }}" id="category{{ category.id }}">
+                                        <label class="form-check-label" for="category{{ category.id }}">
+                                            {{ category.name }} <span class="ciu">({{ category.product_count }})</span>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item mt-4">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#priceFilter" aria-expanded="false" aria-controls="priceFilter">
+                                    Price
+                                </button>
+                            </h2>
+                            <div id="priceFilter" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    <div class="range-slider">
+                                        <span class="rangeValues"></span>
+                                        <input value="10" min="10" max="200" step="10" type="range">
+                                        <input value="200" min="10" max="200" step="10" type="range">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Add other filters as necessary -->
+                    </div>
+                    <button type="submit" class="btn submit-btn mt-3">Apply Filters</button>
+                </div>
+
+                <!-- Products Section -->
+                <div class="col-lg-9">
+                    <div class="row mb-5">
+                        <div class="col">
+                            <h5>All Products</h5>
+                            <p>Showing {{ products|length }} results</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        {% for product in products %}
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="position-relative">
+                                    <img src="{{ product.image_main.url }}" class="card-img-top" alt="{{ product.name }}">
+                                    <button class="btn btn-wishlio">
+                                        <i data-feather="heart"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                    <p class="card-text">
+                                        <span class="ratine">
+                                            {% for i in "★★★★★"|slice:":product.rating" %}
+                                                <i class="fas fa-star"></i>
+                                            {% endfor %}
+                                            {% for i in "★★★★★"|slice:product.rating: %}
+                                                <i class="far fa-star"></i>
+                                            {% endfor %}
+                                        </span>
+                                        <span class="rv-text">({{ product.review_count }} Reviews)</span>
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>${{ product.price }}</strong>
+                                        {% if product.old_price %}
+                                        <del>${{ product.old_price }}</del>
+                                        {% endif %}
+                                    </p>
+                                    <a href="{% url 'product_details' product.slug %}" class="btn btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p>No products available.</p>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
     </div>
+</main>
 </section>
 {% endblock %}

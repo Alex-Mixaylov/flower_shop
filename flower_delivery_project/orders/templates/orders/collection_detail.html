@@ -3,27 +3,43 @@
 {% block title %}{{ collection.name }} - Flower Shop{% endblock %}
 
 {% block content %}
-<section class="collection-detail">
+<section class="collection-detail py-5">
     <div class="container">
-        <h1>{{ collection.name }}</h1>
-        <p>{{ collection.description }}</p>
+        <!-- Название коллекции -->
+        <h1 class="text-center mb-4">{{ collection.name }}</h1>
 
-        <div class="row">
+        <!-- Описание коллекции -->
+        <p class="text-center text-muted">{{ collection.description }}</p>
+
+        <!-- Список товаров в коллекции -->
+        {% if products %}
+        <div class="row mt-5">
             {% for product in products %}
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="{{ product.image_main.url }}" class="card-img-top" alt="{{ product.name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">{{ product.price }} руб.</p>
-                            <a href="{% url 'product_details' product.slug %}" class="btn btn-primary">Подробнее</a>
-                        </div>
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <!-- Изображение товара -->
+                    {% if product.image_main %}
+                    <img src="{{ product.image_main.url }}" class="card-img-top img-fluid" alt="{{ product.name }}">
+                    {% else %}
+                    <img src="{% static 'images/default-product.png' %}" class="card-img-top img-fluid" alt="Нет изображения">
+                    {% endif %}
+
+                    <!-- Информация о товаре -->
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.description|truncatechars:150 }}</p>
+                        <p class="card-text"><strong>{{ product.price }} руб.</strong></p>
+                        <a href="{% url 'product_details' product.slug %}" class="btn btn-primary">Подробнее</a>
                     </div>
                 </div>
-            {% empty %}
-                <p>В этой коллекции пока нет товаров.</p>
+            </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="text-center">
+            <p>В этой коллекции пока нет товаров.</p>
+        </div>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

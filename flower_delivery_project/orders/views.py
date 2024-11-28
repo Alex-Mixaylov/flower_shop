@@ -3,12 +3,19 @@ from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection
 
+from django.db import models
 
 from django.conf import settings
 
 def index(request):
-    # Рендеринг HTML-шаблона index.html
-    return render(request, 'orders/index.html')
+    categories = Category.objects.annotate(product_count=models.Count('products'))
+    testimonials = Testimonial.objects.all()
+
+    context = {
+        'categories': categories,
+        'testimonials': testimonials,
+    }
+    return render(request, 'orders/index.html', context)
 
 
 def product_details(request, slug):

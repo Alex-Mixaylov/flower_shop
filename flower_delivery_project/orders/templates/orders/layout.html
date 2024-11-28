@@ -1,61 +1,73 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     {% block head %}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="Alex Vikhaylov" />
     <title>{% block title %}Flower Shop{% endblock %}</title>
     <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+
+    <!-- Основные стили -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.min.css' %}" rel="stylesheet">
+
+    <!-- Дополнительные стили -->
+    <link href="{% static 'css/owl.carousel.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/owl.theme.default.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/jquery.fancybox.min.css' %}" rel="stylesheet">
+
+    <!-- Иконки FontAwesome -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
     {% endblock %}
-  </head>
-  <body>
+</head>
+<body>
     <!-- Header -->
     <header class="float-start w-100">
-      <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container">
-          <a class="navbar-brand" href="{% url 'index' %}">
-            <img alt="logo" src="{% static 'images/logo.png' %}" />
-          </a>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-              <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Home</a></li>
-              <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}">Shop</a></li>
-              <li class="nav-item"><a class="nav-link" href="{% url 'collections' %}">Collections</a></li>
-              <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
-              <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}">Contact</a></li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container">
+                <a class="navbar-brand" href="{% url 'index' %}">
+                    <img alt="logo" src="{% static 'images/logo.png' %}" />
+                </a>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}">Shop</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'collections' %}">Collections</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </header>
 
     <!-- Content -->
     <main class="main-body float-start w-100">
-      {% block content %}
-      {% endblock %}
+        {% block content %}
+        {% endblock %}
     </main>
 
     <!-- Footer -->
     <footer class="footer float-start w-100 bg-light text-center py-4">
-      <div class="container">
-        <p>&copy; 2024 Alex M's Flower Shop. Магазин создан в качестве сдачи дипломной работы.</p>
-        <img src="{% static 'images/payment-method_69e7ec.svg' %}" alt="Payment Methods" class="img-fluid" style="max-width: 200px;">
-      </div>
+        <div class="container">
+            <p>&copy; 2024 Alex M's Flower Shop. Магазин создан в качестве сдачи дипломной работы.</p>
+            <img src="{% static 'images/payment-method_69e7ec.svg' %}" alt="Payment Methods" class="img-fluid" style="max-width: 200px;">
+        </div>
     </footer>
 
     <!-- Scripts -->
     {% block scripts %}
+    <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'js/jquery.fancybox.min.js' %}"></script>
     <script src="{% static 'js/custom.js' %}"></script>
     <script>
         $(document).ready(function () {
@@ -68,5 +80,5 @@
         });
     </script>
     {% endblock %}
-  </body>
+</body>
 </html>

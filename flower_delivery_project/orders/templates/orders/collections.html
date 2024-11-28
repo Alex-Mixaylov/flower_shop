@@ -3,29 +3,54 @@
 {% block title %}Коллекции{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <h1 class="mb-4">Наши коллекции</h1>
-    {% if collections %}
-        <div class="row">
-            {% for collection in collections %}
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    {% if collection.image %}
+<!-- Верхний баннер -->
+<section class="sub-banner float-start w-100">
+    <div class="container">
+        <div class="insider-banner">
+            <h2>Collections</h2>
+            <nav class="mt-2">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Collections</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<main class="main-body float-start w-100">
+    <section class="collestion d-inline-block py-5 w-100">
+        <div class="container">
+            <h6 class="text-center sub-heading">Products</h6>
+            <h2 class="text-center min-heading mt-2">Best Seller of this month</h2>
+            <div class="text-center mt-3">
+                <img alt="ru" src="{% static 'images/divider_title.png' %}">
+            </div>
+
+            <!-- Проверяем наличие коллекций -->
+            {% if collections %}
+            <div class="row mt-5">
+                {% for collection in collections %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        {% if collection.image %}
                         <img src="{{ collection.image.url }}" class="card-img-top" alt="{{ collection.name }}">
-                    {% else %}
+                        {% else %}
                         <img src="{% static 'images/default-collection.png' %}" class="card-img-top" alt="Нет изображения">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ collection.name }}</h5>
-                        <p class="card-text">{{ collection.description|truncatechars:100 }}</p>
-                        <a href="{% url 'collection_detail' slug=collection.slug %}" class="btn btn-primary">Подробнее</a>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title text-center">{{ collection.name }}</h5>
+                            <p class="card-text">{{ collection.description|truncatechars:100 }}</p>
+                            <a href="{% url 'collection_detail' slug=collection.slug %}" class="btn btn-primary w-100">Подробнее</a>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            {% else %}
+            <p class="text-center mt-5">Коллекции отсутствуют. Пожалуйста, добавьте новые коллекции.</p>
+            {% endif %}
         </div>
-    {% else %}
-        <p>Коллекции отсутствуют. Пожалуйста, добавьте новые коллекции.</p>
-    {% endif %}
-</div>
+    </section>
+</main>
 {% endblock %}
