@@ -7,6 +7,9 @@
 <section class="cart-section py-5">
   <div class="container">
     <h2 class="text-center mb-4">Your Shopping Cart</h2>
+
+    <!-- Проверяем, есть ли товары в корзине -->
+    {% if cart_items %}
     <form action="{% url 'update_cart' %}" method="post">
       {% csrf_token %}
       <div class="table-responsive">
@@ -21,34 +24,26 @@
             </tr>
           </thead>
           <tbody>
-            <!-- Example Product 1 -->
+            {% for item in cart_items %}
             <tr>
-              <td>Elegant Rose Bouquet</td>
-              <td>$50.00</td>
               <td>
-                <input type="number" name="quantity_1" class="form-control" value="1" min="1">
+                <div class="d-flex align-items-center">
+                  <img src="{{ item.product.image_main.url }}" alt="{{ item.product.name }}" class="img-fluid me-2" style="width: 50px; height: auto;">
+                  <span>{{ item.product.name }}</span>
+                </div>
               </td>
-              <td>$50.00</td>
+              <td>${{ item.product.price }}</td>
               <td>
-                <button type="button" class="btn btn-danger btn-sm">
+                <input type="number" name="quantity_{{ item.product.id }}" class="form-control" value="{{ item.quantity }}" min="1">
+              </td>
+              <td>${{ item.subtotal }}</td>
+              <td>
+                <button type="submit" name="remove_{{ item.product.id }}" class="btn btn-danger btn-sm">
                   <i class="fa fa-trash"></i>
                 </button>
               </td>
             </tr>
-            <!-- Example Product 2 -->
-            <tr>
-              <td>Tulip Arrangement</td>
-              <td>$40.00</td>
-              <td>
-                <input type="number" name="quantity_2" class="form-control" value="2" min="1">
-              </td>
-              <td>$80.00</td>
-              <td>
-                <button type="button" class="btn btn-danger btn-sm">
-                  <i class="fa fa-trash"></i>
-                </button>
-              </td>
-            </tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
@@ -58,12 +53,17 @@
           <a href="{% url 'shop' %}" class="btn btn-secondary">Continue Shopping</a>
         </div>
         <div class="col-md-6 text-end">
-          <h4>Total: <span class="text-primary">$130.00</span></h4>
+          <h4>Total: <span class="text-primary">${{ cart_total }}</span></h4>
           <button type="submit" class="btn btn-primary">Update Cart</button>
           <a href="{% url 'checkout' %}" class="btn btn-success">Proceed to Checkout</a>
         </div>
       </div>
     </form>
+    {% else %}
+    <div class="text-center mt-5">
+      <p>Your cart is empty. <a href="{% url 'shop' %}">Continue shopping</a></p>
+    </div>
+    {% endif %}
   </div>
 </section>
 {% endblock %}
