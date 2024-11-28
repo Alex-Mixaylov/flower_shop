@@ -1,71 +1,115 @@
 {% extends 'orders/layout.html' %}
-{% load static %}
 
-{% block title %}About Us - Flower Shop{% endblock %}
+{% block title %}О нас - Магазин цветов{% endblock %}
 
 {% block content %}
 <section class="sub-banner float-start w-100">
     <div class="container">
         <div class="insider-banner">
-            <h2>About Us</h2>
+            <h2>О нас</h2>
             <nav class="mt-2">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">About</li>
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Главная</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">О нас</li>
                 </ol>
             </nav>
         </div>
     </div>
 </section>
 
-<section class="best-sellers py-5">
-    <div class="container">
-        <h2 class="text-center mb-4">Best Sellers</h2>
-        <div class="row">
-            {% for product in best_sellers %}
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.title }}</h5>
-                        <p class="card-text">{{ product.description }}</p>
-                        <p class="text-muted">${{ product.price }}</p>
+<main class="main-body float-start w-100">
+    <section class="about-parts pt-4 d-inline-block w-100">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-lg-2 align-items-center gy-5 g-lg-5">
+                <div class="col">
+                    <h6 class="sub-heading">Наша история</h6>
+                    <h2 class="min-heading mt-2">Мы - эксперты в доставке <br> цветов онлайн</h2>
+                    <p class="mt-4">Вопреки распространённому мнению, Lorem Ipsum не является случайным текстом. Его корни уходят в классическую латинскую литературу 45 года до н.э., делая его старше двух тысяч лет. Ричард МакКлинток, профессор латыни из колледжа Хэмпден-Сидни в Вирджинии, исследовал редкие латинские слова.</p>
+                    <div class="d-flex align-items-center suport-abut mt-4">
+                        <figure class="m-0">
+                            <img alt="syu" src="{% static 'images/2991793.png' %}">
+                        </figure>
+                        <div class="righty ps-3">
+                            <h5>Нужна помощь? Звоните нам</h5>
+                            <h3>(185)-1244-8855</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="img-oi position-relative w-100 d-block">
+                        <div class="big-img01">
+                            <img alt="si" src="{% static 'images/abu.png' %}">
+                        </div>
                     </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="team py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center mb-4">Meet Our Team</h2>
-        <div class="row">
-            {% for member in team_members %}
-            <div class="col-md-4 text-center">
-                <img src="{{ member.photo.url }}" alt="{{ member.name }}" class="rounded-circle mb-3" style="width: 150px; height: 150px;">
-                <h5>{{ member.name }}</h5>
-                <p class="text-muted">{{ member.role }}</p>
+    <section class="sections-shpping01 d-inline-block w-100">
+        <div class="container position-relative">
+            <div class="inside-flowers d-inline-block w-100">
+                <div class="row row-cols-1 row-cols-md-3 gy-5 g-lg-5">
+                    <div class="col position-relative d-grid justify-content-lg-center">
+                        <div class="comon-sert d-flex align-items-center w-100">
+                            <div class="c-icon">
+                                <img alt="ser" src="{% static 'images/15851760.png' %}">
+                            </div>
+                            <div class="cd-text-div">
+                                <h5>300+</h5>
+                                <p>Пакетов продано</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col position-relative d-grid justify-content-lg-center">
+                        <div class="comon-sert d-flex align-items-center w-100">
+                            <div class="c-icon">
+                                <img alt="ser" src="{% static 'images/1322236.png' %}">
+                            </div>
+                            <div class="cd-text-div">
+                                <h5>2000+</h5>
+                                <p>Довольных клиентов</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col position-relative d-grid justify-content-lg-center">
+                        <div class="comon-sert d-flex align-items-center w-100">
+                            <div class="c-icon">
+                                <img alt="ser" src="{% static 'images/7644785.png' %}">
+                            </div>
+                            <div class="cd-text-div">
+                                <h5>3000+</h5>
+                                <p>Цветочных букетов</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            {% endfor %}
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="testimonials py-5">
-    <div class="container">
-        <h2 class="text-center mb-4">What Our Customers Say</h2>
-        <div class="row">
-            {% for testimonial in testimonials %}
-            <div class="col-md-6">
-                <blockquote class="blockquote">
-                    <p>"{{ testimonial.text }}"</p>
-                    <footer class="blockquote-footer">{{ testimonial.author }}</footer>
-                </blockquote>
+    <section class="teams-sect d-inline-block w-100">
+        <div class="container">
+            <h6 class="text-center sub-heading">Команда</h6>
+            <h2 class="text-center min-heading mt-2">Познакомьтесь с нашей командой</h2>
+            <div class="text-center mt-3">
+                <img alt="ru" src="{% static 'images/divider_title.png' %}">
             </div>
-            {% endfor %}
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 gy-5 g-lg-5 mt-0">
+                {% for member in team_members %}
+                <div class="col">
+                    <div class="comon-uts d-inline-block w-100 text-center">
+                        <figure>
+                            <img alt="{{ member.name }}" src="{{ member.photo.url }}">
+                        </figure>
+                        <h5>{{ member.name }}
+                            <span class="d-block">{{ member.role }}</span>
+                        </h5>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+</main>
 {% endblock %}
