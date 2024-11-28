@@ -1,16 +1,35 @@
 {% extends 'orders/layout.html' %}
 
-{% block title %}Thank You - Flower Shop{% endblock %}
+{% block title %}Спасибо - Flower Shop{% endblock %}
 
 {% block content %}
-<!-- Thank You Section -->
-<section class="thank-you-section py-5">
-  <div class="container text-center">
-    <h1 class="display-4 text-success">Thank You!</h1>
-    <p class="lead">
-      Your order has been successfully placed. We appreciate your trust in us and will ensure timely delivery of your flowers.
-    </p>
-    <a href="{% url 'shop' %}" class="btn btn-primary mt-3">Continue Shopping</a>
-  </div>
+<section class="sub-banner float-start w-100">
+    <div class="container">
+        <div class="insider-banner">
+            <h2>Спасибо</h2>
+            <nav class="mt-2">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Главная</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Спасибо</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 </section>
+
+<main class="float-start w-100 body-part">
+    <div class="contact-us-page-div py-5">
+        <div class="container text-center">
+            <figure class="medsu-icon mt-0">
+                <img alt="Спасибо" src="{% static 'images/5486246.png' %}"/>
+            </figure>
+            <h1 class="main-headra mt-4">Спасибо за ваш заказ!</h1>
+            <p class="col-lg-7 mt-3 mx-auto">
+                Благодарим за ваш заказ. Мы обеспечим своевременную доставку и свяжемся с вами при необходимости.
+                Если у вас возникнут вопросы, пожалуйста, свяжитесь с нами.
+            </p>
+            <a href="{% url 'shop' %}" class="btn btn-primary mt-3">Продолжить покупки</a>
+        </div>
+    </div>
+</main>
 {% endblock %}
