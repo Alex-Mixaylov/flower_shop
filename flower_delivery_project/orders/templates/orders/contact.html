@@ -1,48 +1,132 @@
 {% extends 'orders/layout.html' %}
 
-{% block title %}Contact Us - Flower Shop{% endblock %}
+{% block title %}Свяжитесь с нами - Flower Shop{% endblock %}
 
 {% block content %}
-<!-- Contact Section -->
-<section class="contact-section py-5">
-  <div class="container">
-    <h2 class="text-center mb-4">Contact Us</h2>
-    <p class="text-center mb-5">If you have any questions or need assistance, feel free to reach out to us using the form below or through our contact information.</p>
-
-    <div class="row">
-      <!-- Contact Form -->
-      <div class="col-md-6">
-        <form action="{% url 'contact' %}" method="post">
-          {% csrf_token %}
-          <div class="mb-3">
-            <label for="name" class="form-label">Your Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
-          </div>
-          <div class="mb-3">
-            <label for="email" class="form-label">Your Email</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-          </div>
-          <div class="mb-3">
-            <label for="message" class="form-label">Your Message</label>
-            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary">Send Message</button>
-        </form>
-      </div>
-
-      <!-- Contact Information -->
-      <div class="col-md-6">
-        <div class="contact-info">
-          <h4>Our Contact Details</h4>
-          <p><strong>Phone:</strong> +1 (123) 456-7890</p>
-          <p><strong>Email:</strong> support@flowershop.com</p>
-          <p><strong>Address:</strong> 123 Flower Street, Blossom City, FL 12345</p>
+<section class="sub-banner float-start w-100">
+    <div class="container">
+        <div class="insider-banner">
+            <h2>Свяжитесь с нами</h2>
+            <nav class="mt-2">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Главная</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Свяжитесь с нами</li>
+                </ol>
+            </nav>
         </div>
-        <div class="map mt-4">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.835434507305!2d-122.42067948468188!3d37.774929579758404!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085817c1b0d6ab1%3A0x4b13386e0600d564!2sFlower%20Shop!5e0!3m2!1sen!2sus!4v1633048579047!5m2!1sen!2sus" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-        </div>
-      </div>
     </div>
-  </div>
 </section>
+
+<main class="main-body float-start w-100">
+    <section class="contact-us-page d-inline-block w-100 my-5">
+        <div class="container">
+            <div class="row g-lg-5">
+                <!-- Информация для связи -->
+                <div class="col-lg-5 col-xl-5">
+                    <div class="cm-text-n">
+                        <h6 class="mb-0">Давайте поговорим</h6>
+                        <h2>Мы здесь, чтобы помочь вам</h2>
+                        <p class="mt-3">Если у вас есть вопросы, не стесняйтесь обращаться к нам.</p>
+                        <h5 class="mt-4">Наш адрес</h5>
+                        <ul class="list-unstyled mt-4">
+                            <li class="d-flex">
+                                <span class="icon-c"><i data-feather="phone"></i></span>
+                                <span class="text-c">Позвоните нам
+                                    <small class="d-block">+7 (123) 456-78-90</small>
+                                </span>
+                            </li>
+                            <li class="d-flex">
+                                <span class="icon-c"><i data-feather="mail"></i></span>
+                                <span class="text-c">
+                                    Email:
+                                    <small class="d-block">info@flowershop.com</small>
+                                </span>
+                            </li>
+                            <li class="d-flex">
+                                <span class="icon-c"><i data-feather="map-pin"></i></span>
+                                <span class="text-c">Адрес:
+                                    <small class="d-block">Улица Цветочная, 123, Москва</small>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Форма обратной связи -->
+                <div class="col-lg-7 col-xl-7">
+                    <div class="conatct-form-div mb-5 mt-5 mt-lg-0">
+                        <h6 class="mb-0">Отправьте нам сообщение</h6>
+                        <h2>Заполните форму ниже</h2>
+                        <form action="{% url 'contact' %}" method="post">
+                            {% csrf_token %}
+                            <div class="row mt-4">
+                                <div class="col-lg-6">
+                                    <input type="text" name="name" class="form-control" placeholder="Ваше имя" required />
+                                </div>
+                                <div class="col-lg-6">
+                                    <input type="email" name="email" class="form-control" placeholder="Ваш email" required />
+                                </div>
+                                <div class="col-lg-12">
+                                    <textarea class="form-control" name="message" placeholder="Сообщение" rows="5" required></textarea>
+                                </div>
+                                <div class="col-lg-12">
+                                    <button class="btn subimt-message d-flex align-items-center" type="submit">Отправить сообщение
+                                        <i data-feather="send"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Часто задаваемые вопросы -->
+    <section class="faq-secion pt-5">
+        <div class="container">
+            <h6 class="mb-0 text-center sub-heading">FAQ</h6>
+            <h2 class="text-center min-heading mt-2">С какими вопросами вы сталкиваетесь?</h2>
+            <div class="col-lg-10 mx-auto mt-4">
+                <div class="accordion" id="accordionExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Могу ли я изменить адрес доставки моего заказа?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <p>Да, вы можете изменить адрес доставки, связавшись с нашей службой поддержки.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Можно ли указать точное время доставки?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <p>Мы стараемся доставить заказы в удобное для вас время. Пожалуйста, уточните время при оформлении заказа.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Как я могу добавить альтернативный номер для доставки заказа?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <p>Вы можете добавить альтернативный номер телефона через форму обратной связи или связавшись с нашей службой поддержки.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
 {% endblock %}
