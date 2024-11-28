@@ -160,6 +160,9 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="products", verbose_name="Категория"
     )
+    collection = models.ForeignKey(  # Добавляем связь с Collection
+        Collection, on_delete=models.CASCADE, related_name="products", verbose_name="Коллекция"
+    )
     is_featured = models.BooleanField(default=False, verbose_name="Показывать на главной странице")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
@@ -170,6 +173,7 @@ class Product(models.Model):
         if not self.slug and self.name:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+
 
 # Отзывы о продуктах
 class Review(models.Model):
