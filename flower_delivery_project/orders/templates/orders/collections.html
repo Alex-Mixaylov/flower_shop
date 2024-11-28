@@ -1,9 +1,8 @@
 {% extends 'orders/layout.html' %}
 
-{% block title %}Коллекции{% endblock %}
+{% block title %}Коллекции - Flower Shop{% endblock %}
 
 {% block content %}
-<!-- Верхний баннер -->
 <section class="sub-banner float-start w-100">
     <div class="container">
         <div class="insider-banner">
@@ -27,28 +26,41 @@
                 <img alt="ru" src="{% static 'images/divider_title.png' %}">
             </div>
 
-            <!-- Проверяем наличие коллекций -->
             {% if collections %}
-            <div class="row mt-5">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 mt-0 gy-5 g-lg-5">
                 {% for collection in collections %}
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        {% if collection.image %}
-                        <img src="{{ collection.image.url }}" class="card-img-top" alt="{{ collection.name }}">
-                        {% else %}
-                        <img src="{% static 'images/default-collection.png' %}" class="card-img-top" alt="Нет изображения">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title text-center">{{ collection.name }}</h5>
-                            <p class="card-text">{{ collection.description|truncatechars:100 }}</p>
-                            <a href="{% url 'collection_detail' slug=collection.slug %}" class="btn btn-primary w-100">Подробнее</a>
+                <div class="col">
+                    <div class="comoniu-listy d-inline-block w-100">
+                        <div class="img-posyu">
+                            {% if collection.image %}
+                            <img alt="{{ collection.name }}" src="{{ collection.image.url }}"/>
+                            {% else %}
+                            <img alt="No Image" src="{% static 'images/default-collection.png' %}"/>
+                            {% endif %}
+                        </div>
+                        <div class="comon-cat-list mt-3">
+                            <h5>{{ collection.name }}</h5>
+                            <ul class="mt-2">
+                                {% for product in collection.products.all %}
+                                <li>
+                                    <a href="{% url 'product_details' product.slug %}">
+                                        <i data-feather="chevron-right"></i> {{ product.name }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                                <li>
+                                    <a href="{% url 'collection_detail' collection.slug %}" class="btn btn-alio">
+                                        View All <span><i data-feather="arrow-up-right"></i></span>
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="text-center mt-5">Коллекции отсутствуют. Пожалуйста, добавьте новые коллекции.</p>
+            <p class="text-center mt-5">No collections available. Please add new collections.</p>
             {% endif %}
         </div>
     </section>
