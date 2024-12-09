@@ -87,11 +87,13 @@
                                 <div class="card-body">
                                     <h5 class="card-title">{{ product.name }}</h5>
                                     <p class="card-text">
-                                        <span class="ratine">
-                                            {% for i in "★★★★★"|slice:":product.rating" %}
+                                        <span class="rating">
+                                            <!-- Filled stars -->
+                                            {% for i in 0|range:product.rating %}
                                                 <i class="fas fa-star"></i>
                                             {% endfor %}
-                                            {% for i in "★★★★★"|slice:product.rating: %}
+                                            <!-- Empty stars -->
+                                            {% for i in product.rating|add:"5"|sub:product.rating %}
                                                 <i class="far fa-star"></i>
                                             {% endfor %}
                                         </span>
@@ -116,5 +118,4 @@
         </div>
     </div>
 </main>
-</section>
 {% endblock %}
