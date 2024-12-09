@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
 from django.utils.timezone import now
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Пользователи (User)
 class User(AbstractUser):
@@ -146,7 +147,7 @@ class Category(models.Model):
         super().save(*args, **kwargs)
 
 
-## Товары
+# Товары
 class Product(models.Model):
     name = models.CharField(max_length=255, verbose_name="Название товара")
     slug = models.SlugField(max_length=255, unique=True, blank=True, null=True, verbose_name="URL")
@@ -160,9 +161,14 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="products", verbose_name="Категория"
     )
-    collection = models.ForeignKey(  # Добавляем связь с Collection
+    collection = models.ForeignKey(
         Collection, on_delete=models.CASCADE, related_name="products", verbose_name="Коллекция"
     )
+    rating = models.IntegerField(
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(5)],
+        verbose_name="Рейтинг"
+    )  # Новое поле рейтинга
     is_featured = models.BooleanField(default=False, verbose_name="Показывать на главной странице")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
