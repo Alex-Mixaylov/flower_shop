@@ -86,18 +86,71 @@
 </section>
 <!-- End of Hero Slider Section -->
 
+<!-- Static Features Section -->
+<section class="sections-shpping01 d-inline-block w-100">
+    <div class="container position-relative">
+        <div class="inside-flowers d-inline-block w-100">
+            <div class="row row-cols-1 row-cols-md-3 gy-5 g-lg-5">
+                <div class="col position-relative d-grid justify-content-lg-center">
+                    <div class="comon-sert d-flex align-items-center w-100">
+                        <div class="c-icon">
+                            <img alt="ser" src="{% static 'images/1585176.png' %}">
+                        </div>
+                        <div class="cd-text-div">
+                            <h5>Free shipping</h5>
+                            <p>There are many variations $30</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col position-relative d-grid justify-content-lg-center">
+                    <div class="comon-sert d-flex align-items-center w-100">
+                        <div class="c-icon">
+                            <img alt="ser" src="{% static 'images/2058414.png' %}">
+                        </div>
+                        <div class="cd-text-div">
+                            <h5>Secure checkout</h5>
+                            <p>There are many</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col position-relative d-grid justify-content-lg-center">
+                    <div class="comon-sert d-flex align-items-center w-100 afte">
+                        <div class="c-icon">
+                            <img alt="ser" src="{% static 'images/1261038.png' %}">
+                        </div>
+                        <div class="cd-text-div">
+                            <h5>Offer &amp; gift here</h5>
+                            <p>Contrary to popular belief</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="leftd-div">
+            <img alt="sy" src="{% static 'images/bg-left.png' %}">
+        </div>
+        <div class="rosetd-div">
+            <img alt="sy" src="{% static 'images/rosert.png' %}">
+        </div>
+    </div>
+</section>
+
+<!-- End of Static Features  Section -->
 
 
-
-<!-- Featured Products Section -->
-<section class="featured-collections py-5">
+<!-- Shop by Category Section -->
+<section class="categorty-sec-choose d-inline-block w-100">
     <div class="container">
-        <h2 class="text-center mb-4">Shop by Category</h2>
+        <h6 class="text-center sub-heading">Products</h6>
+        <h2 class="text-center min-heading mt-2">Shop By <strong>Category</strong></h2>
+        <div class="text-center mt-3">
+            <img alt="ru" src="{% static 'images/divider_title.png' %}">
+        </div>
         <div class="slider-texr owl-theme owl-carousel mt-5">
             {% for category in categories %}
-            <a href="{% url 'shop' %}" class="com-ctr d-inline-block w-100 text-center">
+            <a href="{% url 'shop' %}?category={{ category.id }}" class="com-ctr d-inline-block w-100 text-center">
                 <div class="imgo-buy">
-                    <img alt="cta" src="{{ category.image.url }}" />
+                    <img alt="{{ category.name }}" src="{{ category.image.url }}">
                 </div>
                 <h5>{{ category.name }}
                     <span class="d-block">({{ category.product_count }} Items)</span>
@@ -109,6 +162,7 @@
         </div>
     </div>
 </section>
+<!-- End Shop by Category Section -->
 
 <!-- About Section -->
 <section class="about-parts d-inline-block w-100">
