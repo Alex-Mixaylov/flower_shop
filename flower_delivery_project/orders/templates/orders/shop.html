@@ -90,11 +90,11 @@
                                     <p class="card-text">
                                         <span class="rating">
                                             <!-- Filled stars -->
-                                            {% for i in product.rating|range %}
+                                            {% for i in product.rating|range_filter %}
                                                 <i class="fas fa-star"></i>
                                             {% endfor %}
                                             <!-- Empty stars -->
-                                            {% for i in 5|add:"-product.rating"|range %}
+                                            {% for i in 5|add:"-product.rating"|range_filter %}
                                                 <i class="far fa-star"></i>
                                             {% endfor %}
                                         </span>
