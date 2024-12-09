@@ -1,5 +1,6 @@
 {% extends 'orders/layout.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Shop - Flower Shop{% endblock %}
 
@@ -89,11 +90,11 @@
                                     <p class="card-text">
                                         <span class="rating">
                                             <!-- Filled stars -->
-                                            {% for i in 0|range:product.rating %}
+                                            {% for i in product.rating|range %}
                                                 <i class="fas fa-star"></i>
                                             {% endfor %}
                                             <!-- Empty stars -->
-                                            {% for i in product.rating|add:"5"|sub:product.rating %}
+                                            {% for i in 5|add:"-product.rating"|range %}
                                                 <i class="far fa-star"></i>
                                             {% endfor %}
                                         </span>
