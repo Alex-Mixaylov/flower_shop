@@ -4,38 +4,87 @@
 {% block title %}Flower Shop - Home{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
+<!-- Hero Slider Section -->
 <section class="banner-part float-start w-100">
     <div class="slider-div owl-carousel owl-theme">
-        <div class="items-sliders" data-dot="<button>01</button>">
+        {% for slide in slides %}
+        <div class="items-sliders" data-dot="<button>{{ forloop.counter|default:1 }}</button>">
             <div class="container">
                 <div class="row row-cols-1 row-cols-md-2 flex-md-row-reverse">
                     <div class="col position-relative">
+                        {% if slide.background_image %}
                         <div class="lefta-img01">
-                            <img alt="er" src="{% static 'images/fealf1.png' %}" />
+                            <img alt="Background Image" src="{{ slide.background_image.url }}">
                         </div>
+                        {% endif %}
+                        {% if slide.additional_image %}
                         <div class="righty-img">
-                            <img alt="sm" src="{% static 'images/flower.png' %}" />
+                            <img alt="Additional Image" src="{{ slide.additional_image.url }}">
                         </div>
+                        {% endif %}
                     </div>
                     <div class="col d-none d-md-block">
                         <div class="items-text01 position-relative">
+                            {% if slide.main_image %}
                             <div class="aeorw">
-                                <img alt="ser" src="{% static 'images/64785.png' %}" />
+                                <img alt="Main Image" src="{{ slide.main_image.url }}">
                             </div>
-                            <h6 class="sub-head02">Natural & Beautiful</h6>
-                            <h2 class="head-banner">Discover Exotic <span>Flowers</span> Easily</h2>
-                            <p class="banner-para mt-3 mb-5 d-block">
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                            </p>
+                            {% endif %}
+                            <h6 class="sub-head02">{{ slide.title }}</h6>
+                            <h2 class="head-banner">
+                                {{ slide.description|safe }}
+                            </h2>
+                            {% if slide.call_to_action_url %}
+                            <a href="{{ slide.call_to_action_url }}" class="btn btn-primary mt-3">{{ slide.call_to_action_text }}</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Add additional slides as needed -->
+        {% empty %}
+        <p class="text-center">No slides available. Please add slides in the admin panel.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-form-div01">
+        <div class="container">
+            <div class="search-secrt col-10 mx-auto ms-md-0 col-md-8 col-lg-6 d-flex align-items-center">
+                <input type="text" class="form-control" placeholder="Search any keyword">
+                <button class="btn btn-search">
+                    <span>Search</span>
+                    <span>
+                        <img alt="Search Icon" src="{% static 'images/search-icom.png' %}">
+                    </span>
+                </button>
+            </div>
+            <div class="hert col-10 mx-auto ms-md-0 col-md-8 col-lg-6 position-relative">
+                <div class="row row-cols-3">
+                    <div class="col">
+                        <div class="comoniyut-div d-inline-block w-100">
+                            <h5>300 +</h5>
+                            <p>Package Sold</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="comoniyut-div d-inline-block w-100">
+                            <h5>2000 +</h5>
+                            <p>Happy Customers</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="comoniyut-div afte d-inline-block w-100">
+                            <h5>4000 +</h5>
+                            <p>Flower Bouquets</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
+<!-- End of Hero Slider Section -->
 
 <!-- Featured Products Section -->
 <section class="featured-collections py-5">
@@ -117,16 +166,18 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/jquery.min.js' %}"></script>
 <script src="{% static 'js/owl.carousel.min.js' %}"></script>
-<script src="{% static 'js/custom.js' %}"></script>
 <script>
     $(document).ready(function () {
-        $(".owl-carousel").owlCarousel({
+        $(".slider-div").owlCarousel({
             items: 1,
             loop: true,
             nav: true,
+            dots: true,
             autoplay: true,
+            autoplayTimeout: 5000,
+            navText: ["<i class='fa fa-chevron-left'></i>", "<i class='fa fa-chevron-right'></i>"]
         });
     });
 </script>

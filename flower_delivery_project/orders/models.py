@@ -220,3 +220,22 @@ class ComboOffer(models.Model):
 
     def __str__(self):
         return f"{self.name} для {self.product.name}"
+
+#Управление слайдером
+
+class Slide(models.Model):
+    title = models.CharField(max_length=255, verbose_name="Заголовок")
+    description = models.TextField(blank=True, verbose_name="Описание")
+    main_image = models.ImageField(upload_to='slides/', verbose_name="Основное изображение")
+    background_image = models.ImageField(upload_to='slides/', blank=True, null=True, verbose_name="Фоновое изображение")
+    additional_image = models.ImageField(upload_to='slides/', blank=True, null=True, verbose_name="Дополнительное изображение")
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядок отображения")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = "Слайд"
+        verbose_name_plural = "Слайды"
+
+    def __str__(self):
+        return self.title

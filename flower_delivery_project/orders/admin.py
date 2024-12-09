@@ -15,6 +15,7 @@ from .models import (
     SizeOption,
     RelatedProduct,
     ComboOffer,
+    Slide,
 )
 
 # Регистрация моделей в админке
@@ -93,3 +94,10 @@ class ComboOfferAdmin(admin.ModelAdmin):
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ('name', 'created_at')
     prepopulated_fields = {'slug': ('name',)}
+
+@admin.register(Slide)
+class SlideAdmin(admin.ModelAdmin):
+    list_display = ('title', 'order', 'created_at')
+    list_editable = ('order',)
+    readonly_fields = ('created_at',)
+    search_fields = ('title',)

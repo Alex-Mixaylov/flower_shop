@@ -1,19 +1,27 @@
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection
+from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection, Slide
 
 from django.db import models
 
 from django.conf import settings
+from django.db.models import Count
+
 
 def index(request):
-    categories = Category.objects.annotate(product_count=models.Count('products'))
+    # Получение данных для категорий
+    categories = Category.objects.annotate(product_count=Count('products'))
+    # Получение отзывов
     testimonials = Testimonial.objects.all()
+    # Получение слайдов
+    slides = Slide.objects.all()
 
+    # Формирование контекста для передачи в шаблон
     context = {
         'categories': categories,
         'testimonials': testimonials,
+        'slides': slides,  # Добавление слайдов в контекст
     }
     return render(request, 'orders/index.html', context)
 
