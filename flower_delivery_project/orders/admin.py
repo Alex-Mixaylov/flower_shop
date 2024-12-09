@@ -25,11 +25,33 @@ admin.site.register(Order)
 admin.site.register(OrderItem)
 admin.site.register(ContactMessage)
 
+from django.contrib import admin
+from .models import BestSeller
+
 @admin.register(BestSeller)
 class BestSellerAdmin(admin.ModelAdmin):
-    list_display = ('title', 'price', 'is_featured')
-    list_filter = ('is_featured',)
-    search_fields = ('title',)
+    # Отображение в списке
+    list_display = ('title', 'price', 'old_price', 'tag', 'is_featured', 'created_at')
+    # Фильтры для быстрого поиска
+    list_filter = ('is_featured', 'tag', 'created_at')
+    # Поля для поиска
+    search_fields = ('title', 'description', 'tag')
+    # Поля, которые можно редактировать прямо в списке
+    list_editable = ('is_featured',)
+    # Группировка в админке
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'description', 'image')
+        }),
+        ('Цены и метки', {
+            'fields': ('price', 'old_price', 'tag', 'is_featured')
+        }),
+        ('Дополнительные данные', {
+            'fields': ('created_at',),
+        }),
+    )
+    # Поля, которые нельзя редактировать
+    readonly_fields = ('created_at',)
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(admin.ModelAdmin):

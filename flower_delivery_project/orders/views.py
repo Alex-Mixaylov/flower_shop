@@ -12,16 +12,22 @@ from django.db.models import Count
 def index(request):
     # Получение данных для категорий
     categories = Category.objects.annotate(product_count=Count('products'))
+
     # Получение отзывов
     testimonials = Testimonial.objects.all()
+
     # Получение слайдов
     slides = Slide.objects.all()
+
+    # Получение данных о Хитах продаж
+    best_sellers = BestSeller.objects.filter(is_featured=True).order_by('-created_at')[:10]  # Максимум 10 товаров
 
     # Формирование контекста для передачи в шаблон
     context = {
         'categories': categories,
         'testimonials': testimonials,
         'slides': slides,  # Добавление слайдов в контекст
+        'best_sellers': best_sellers,  # Добавление Хитов продаж в контекст
     }
     return render(request, 'orders/index.html', context)
 

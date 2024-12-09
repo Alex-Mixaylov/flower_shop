@@ -100,17 +100,24 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f"Message from {self.name} ({self.email})"
 
-
 # Лучшие товары (Best Sellers)
 class BestSeller(models.Model):
     title = models.CharField(max_length=255, verbose_name="Название товара")
     description = models.TextField(verbose_name="Описание")
     image = models.ImageField(upload_to='bestsellers/', verbose_name="Изображение")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Старая цена")
+    tag = models.CharField(max_length=255, blank=True, null=True, verbose_name="Метка (например, категория)")
     is_featured = models.BooleanField(default=False, verbose_name="Показать на главной")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name = "Лучший товар"
+        verbose_name_plural = "Лучшие товары"
+
 
 # Команда (Team)
 class TeamMember(models.Model):

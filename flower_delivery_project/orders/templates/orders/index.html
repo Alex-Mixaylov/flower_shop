@@ -164,6 +164,47 @@
 </section>
 <!-- End Shop by Category Section -->
 
+<!-- Best Seller Section -->
+
+<section class="best-seller d-inline-block w-100">
+    <div class="container">
+        <h6 class="text-center sub-heading">Products</h6>
+        <h2 class="text-center min-heading mt-2">Best Seller of this month</h2>
+        <div class="text-center mt-3">
+            <img alt="ru" src="{% static 'images/divider_title.png' %}">
+        </div>
+        <div class="best-slider owl-carousel owl-theme mt-5">
+            {% for product in best_sellers %}
+            <a href="#" class="comon-pord d-inline-block w-100 items-pro">
+                <div class="img-bu">
+                    <img alt="{{ product.title }}" src="{{ product.image.url }}">
+                </div>
+                <h6>{{ product.tag }}</h6>
+                <h5 class="mt-2">{{ product.title }}</h5>
+                <p class="mt-2">{{ product.description }}</p>
+                <h3 class="pric mt-4">
+                    ${{ product.price }}
+                    {% if product.old_price %}
+                    <span>${{ product.old_price }}</span>
+                    {% endif %}
+                </h3>
+                <div class="btn btn-cart mt-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </div>
+            </a>
+            {% empty %}
+            <p class="text-center">No best sellers available this month.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- End Best Seller Section -->
+
+
 <!-- About Section -->
 <section class="about-parts d-inline-block w-100">
     <div class="container">
@@ -238,4 +279,33 @@
         });
     });
 </script>
+<script>
+    $(document).ready(function () {
+        $(".slider-texr").owlCarousel({
+            items: 4,
+            loop: true,
+            margin: 30,
+            nav: true,
+            dots: true,
+            autoplay: true,
+            autoplayTimeout: 5000,
+            navText: ["<i class='fa fa-chevron-left'></i>", "<i class='fa fa-chevron-right'></i>"]
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $(".best-slider").owlCarousel({
+            items: 3,
+            loop: true,
+            margin: 30,
+            nav: true,
+            dots: true,
+            autoplay: true,
+            autoplayTimeout: 5000,
+            navText: ["<i class='fa fa-chevron-left'></i>", "<i class='fa fa-chevron-right'></i>"]
+        });
+    });
+</script>
+
 {% endblock %}
