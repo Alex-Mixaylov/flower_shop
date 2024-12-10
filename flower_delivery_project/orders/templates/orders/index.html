@@ -502,7 +502,7 @@
                     </div>
                     <div class="texrt-n">
                         <h6 class="text-white">Букеты со Скидкой</h6>
-                        <h2 class="text-white">доставкав тот же день</h2>
+                        <h2 class="text-white">Доставка в тот же день</h2>
                         <a href="{% url 'shop' %}" class="btn btn-vewall mt-3">
                             View All
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right">
@@ -530,20 +530,20 @@
                         <div class="btn btn-cart mt-4">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="9" cy="21" r="1"></circle>
-                                <circle cx="20" y="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
                                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                             </svg>
                         </div>
                     </a>
+                    {% empty %}
+                    <p class="text-center">No products found</p>
                     {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 </section>
-
-<!-- End Products With Discount Section -->
-
+<!--End Products With Discount Section -->
 
 <!-- Testimonials Section -->
 <section class="testimonials py-5 bg-light">
@@ -590,7 +590,7 @@
         $(".slider-div").owlCarousel({
             items: 1,
             loop: true,
-            nav: true,
+            nav: false,
             dots: true,
             autoplay: true,
             autoplayTimeout: 5000,
@@ -618,13 +618,35 @@
             items: 3,
             loop: true,
             margin: 30,
-            nav: true,
-            dots: true,
+            nav: false,
+            dots: true, # Точки навигации
             autoplay: true,
             autoplayTimeout: 5000,
             navText: ["<i class='fa fa-chevron-left'></i>", "<i class='fa fa-chevron-right'></i>"]
         });
     });
 </script>
-
+<script>
+$(document).ready(function(){
+    $('.owl-carousel').owlCarousel({
+        loop: true, // Включить зацикливание
+        margin: 10, // Отступы между элементами
+        nav: false, // Показать стрелки навигации
+        dots: false,  // Отключение точек навигации
+        autoplay: true, // Включить автопроигрывание
+        autoplayTimeout: 5000, // Задержка между сменой слайдов (в миллисекундах)
+        responsive: {
+            0: {
+                items: 1 // Показывать 1 товар на экранах до 600px
+            },
+            600: {
+                items: 2 // Показывать 2 товара на экранах от 600px до 999px
+            },
+            1000: {
+                items: 3 // Показывать 3 товара на экранах от 1000px
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

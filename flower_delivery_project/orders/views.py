@@ -34,6 +34,10 @@ def index(request):
     # Расчетные данные для вывода 5 товаров с максимальными скидками
     products_with_discounts = Product.objects.filter(old_price__isnull=False, old_price__gt=F('price')).annotate(discount_amount=F('old_price') - F('price')).order_by('-discount_amount')[:5]
 
+    # Отладочный вывод Расчетные данные для вывода 5 товаров с максимальными скидками
+    print("SQL Query:", products_with_discounts.query)  # Проверяет SQL-запрос
+    print("Products with Discounts:", products_with_discounts)  # Выводит данные
+
     # Формирование контекста для передачи в шаблон
     context = {
         'categories': categories,
