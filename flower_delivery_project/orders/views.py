@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection, Slide
 
 from django.db import models
+from django.db.models import F
 
 from django.conf import settings
 from django.db.models import Count
@@ -30,6 +31,9 @@ def index(request):
     most_popular_products = Product.objects.filter(is_featured=True).order_by('-created_at')[:8]  # Хиты продаж
     top_rated_products = Product.objects.annotate(average_rating=Avg('rating')).order_by('-average_rating')[:8]  # Товары с высоким рейтингом
 
+    # Расчетные данные для вывода 5 товаров с максимальными скидками
+    products_with_discounts = Product.objects.filter(old_price__isnull=False, old_price__gt=F('price')).annotate(discount_amount=F('old_price') - F('price')).order_by('-discount_amount')[:5]
+
     # Формирование контекста для передачи в шаблон
     context = {
         'categories': categories,
@@ -40,6 +44,7 @@ def index(request):
         'latest_products': latest_products,  # Последние товары
         'most_popular_products': most_popular_products,  # Самые популярные товары
         'top_rated_products': top_rated_products,  # Высокорейтинговые товары
+        'products_with_discounts': products_with_discounts, # Товары с максимальной скидкой
     }
     return render(request, 'orders/index.html', context)
 
