@@ -416,8 +416,133 @@
 <!-- End Products Tab Section -->
 
 <!-- Static 3 banners Section -->
+<section>
+    <div class="offer-producs d-inline-block w-100">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-lg-3 gy-5">
+                <!-- Первый блок -->
+                <div class="col">
+                    <a href="#" class="comoni-gift d-inline-block w-100 position-relative">
+                        <div class="img-offer w-100 d-inline-block">
+                            <img alt="Tulip Gift" src="{% static 'images/tulipglo.png' %}">
+                        </div>
+                        <div class="left-texr06">
+                            <h6>Combo Offer</h6>
+                            <p class="mt-2">
+                                <span class="d-block">50% Off</span>
+                                Tulip Flower gift
+                            </p>
+                            <h5 class="btn mt-2">Show now
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </h5>
+                        </div>
+                    </a>
+                </div>
+                <!-- Второй блок -->
+                <div class="col">
+                    <a href="#" class="comoni-gift d-inline-block drak-txe w-100 position-relative">
+                        <div class="img-offer w-100 d-inline-block">
+                            <img alt="Rose Offer" src="{% static 'images/rosee.jpg' %}">
+                        </div>
+                        <div class="left-texr06">
+                            <h6>SHOP SEASONAL</h6>
+                            <p class="mt-2">
+                                <span class="d-block">40% Off</span>
+                                All Rose Flower
+                            </p>
+                            <h5 class="btn mt-2">Show now
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </h5>
+                        </div>
+                    </a>
+                </div>
+                <!-- Третий блок -->
+                <div class="col">
+                    <a href="#" class="comoni-gift d-inline-block light w-100 position-relative">
+                        <div class="img-offer w-100 d-inline-block">
+                            <img alt="Lily Offer" src="{% static 'images/home-floral-slide-2.jpg' %}">
+                        </div>
+                        <div class="left-texr06">
+                            <h6 class="text-white">SHOP SEASONAL</h6>
+                            <p class="mt-2 text-white">
+                                <span class="d-block text-white">50% Off</span>
+                                All Lily Flower
+                            </p>
+                            <h5 class="btn mt-2">Show now
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- End Static 3 banners Section -->
+
+<!-- Products With Discount Section -->
+<section class="same-day-delio d-inline-block w-100 mt-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Блок с текстом -->
+            <div class="col-lg-3">
+                <div class="smal-post-fo d-inline-block position-relative w-100">
+                    <div class="img-small">
+                        <img alt="Everyday Florals" src="{% static 'images/smaler.jpg' %}">
+                    </div>
+                    <div class="texrt-n">
+                        <h6 class="text-white">Everyday Florals</h6>
+                        <h2 class="text-white">Same Day Delivery</h2>
+                        <a href="{% url 'shop' %}" class="btn btn-vewall mt-3">
+                            View All
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Блок с товарами -->
+            <div class="col-lg-9">
+                <div class="slio-eveny owl-carousel owl-theme">
+                    {% for product in products_with_discounts %}
+                    <a href="{% url 'product_details' product.slug %}" class="comon-pord d-inline-block w-100 items-pro">
+                        <div class="img-bu">
+                            <img alt="{{ product.name }}" src="{{ product.image_main.url }}">
+                        </div>
+                        <h6>{{ product.category.name }}</h6>
+                        <h5 class="mt-2">{{ product.name }}</h5>
+                        <h3 class="pric mt-4">
+                            ${{ product.price }}
+                            <span>${{ product.old_price }}</span>
+                        </h3>
+                        <div class="btn btn-cart mt-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" y="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- End Products With Discount Section -->
 
 
 <!-- Testimonials Section -->
