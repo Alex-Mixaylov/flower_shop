@@ -25,9 +25,6 @@ admin.site.register(Order)
 admin.site.register(OrderItem)
 admin.site.register(ContactMessage)
 
-from django.contrib import admin
-from .models import BestSeller
-
 @admin.register(BestSeller)
 class BestSellerAdmin(admin.ModelAdmin):
     # Отображение в списке

@@ -251,6 +251,53 @@
 </section>
 <!-- End Static Banner Section -->
 
+<!-- Best Collection Section -->
+<section class="colletion-parts-miis d-inline-block w-100">
+    <div class="container">
+        <h6 class="text-center sub-heading">Don't miss</h6>
+        <h2 class="text-center min-heading mt-2">Best Curated <strong>Collections</strong></h2>
+        <div class="text-center mt-3">
+            <img alt="ru" src="{% static 'images/divider_title.png' %}">
+        </div>
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 mt-0 g-lg-4">
+                {% for collection in collections %}
+                <div class="col">
+                    <a href="{% url 'collection_detail' collection.slug %}" class="comon-pord d-inline-block w-100 items-pro">
+                        <div class="imouy">
+                            <div class="img-bu">
+                                <img alt="{{ collection.title }}" src="{{ collection.image.url }}">
+                            </div>
+                        </div>
+                        <h6 class="mt-3">For Birthday</h6>
+                        <h5 class="mt-2">{{ collection.title }}</h5>
+                        <p class="mt-2">{{ collection.description|truncatewords:10 }}</p>
+                        <div class="btn btn-cart mt-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up-right">
+                                <line x1="7" y1="17" x2="17" y2="7"></line>
+                                <polyline points="7 7 17 7 17 17"></polyline>
+                            </svg>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            <a href="{% url 'collections' %}" class="btn btn-all-colo d-table mx-auto">Наши Коллекции
+                <span class="iou">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up-right">
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
+                </span>
+            </a>
+        </div>
+    </div>
+</section>
+<!-- End Best Collection Section -->
+
+
+
+
 <!-- Testimonials Section -->
 <section class="testimonials py-5 bg-light">
     <div class="container">

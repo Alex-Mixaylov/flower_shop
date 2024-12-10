@@ -22,12 +22,17 @@ def index(request):
     # Получение данных о Хитах продаж
     best_sellers = BestSeller.objects.filter(is_featured=True).order_by('-created_at')[:10]  # Максимум 10 товаров
 
+    # Добавляем коллекции
+    collections = Collection.objects.order_by('-created_at')[:4]  # Последние 4 созданные коллекции
+
+
     # Формирование контекста для передачи в шаблон
     context = {
         'categories': categories,
         'testimonials': testimonials,
-        'slides': slides,  # Добавление слайдов в контекст
-        'best_sellers': best_sellers,  # Добавление Хитов продаж в контекст
+        'slides': slides,  # Добавление слайдов
+        'best_sellers': best_sellers,  # Добавление Хитов продаж
+        'collections': collections,  # Коллекции
     }
     return render(request, 'orders/index.html', context)
 
