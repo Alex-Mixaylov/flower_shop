@@ -218,15 +218,18 @@ class RelatedProduct(models.Model):
     def __str__(self):
         return f"Связанный товар: {self.related_product.name} для {self.product.name}"
 
+
 # Комплектующие/Дополнительные товары
 class ComboOffer(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="combo_offers", verbose_name="Товар")
     name = models.CharField(max_length=255, verbose_name="Название дополнения")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена дополнения")
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Старая цена")
     image = models.ImageField(upload_to='combos/', verbose_name="Изображение дополнения")
 
     def __str__(self):
         return f"{self.name} для {self.product.name}"
+
 
 #Управление слайдером
 

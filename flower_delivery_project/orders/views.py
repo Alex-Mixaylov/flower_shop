@@ -1,7 +1,7 @@
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection, Slide
+from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection, Slide, ComboOffer
 
 from django.db import models
 from django.db.models import F
@@ -38,6 +38,9 @@ def index(request):
     print("SQL Query:", products_with_discounts.query)  # Проверяет SQL-запрос
     print("Products with Discounts:", products_with_discounts)  # Выводит данные
 
+    # Получение последних 6 товаров для "Gifts worth waiting for"
+    combo_offers = ComboOffer.objects.order_by('-id')[:6]  # Выбор последних 6 товаров
+
     # Формирование контекста для передачи в шаблон
     context = {
         'categories': categories,
@@ -49,6 +52,7 @@ def index(request):
         'most_popular_products': most_popular_products,  # Самые популярные товары
         'top_rated_products': top_rated_products,  # Высокорейтинговые товары
         'products_with_discounts': products_with_discounts, # Товары с максимальной скидкой
+        'combo_offers': combo_offers, # Дополнительные товары
     }
     return render(request, 'orders/index.html', context)
 
