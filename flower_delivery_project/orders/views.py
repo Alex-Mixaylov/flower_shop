@@ -27,9 +27,9 @@ def index(request):
     collections = Collection.objects.order_by('-created_at')[:4]  # Последние 4 созданные коллекции
 
     # Данные для табов "LATEST", "MOST POPULAR", "TOP RATED"
-    latest_products = Product.objects.order_by('-created_at')[:8]  # Последние 8 товаров
-    most_popular_products = Product.objects.filter(is_featured=True).order_by('-created_at')[:8]  # Хиты продаж
-    top_rated_products = Product.objects.annotate(average_rating=Avg('rating')).order_by('-average_rating')[:8]  # Товары с высоким рейтингом
+    latest_products = Product.objects.order_by('-created_at')[:4]  # Последние 4 товара
+    most_popular_products = Product.objects.filter(is_featured=True).order_by('-created_at')[:4]  # Хиты продаж
+    top_rated_products = Product.objects.annotate(average_rating=Avg('rating')).order_by('-average_rating')[:4]  # Товары с высоким рейтингом
 
     # Расчетные данные для вывода 5 товаров с максимальными скидками
     products_with_discounts = Product.objects.filter(old_price__isnull=False, old_price__gt=F('price')).annotate(discount_amount=F('old_price') - F('price')).order_by('-discount_amount')[:5]
