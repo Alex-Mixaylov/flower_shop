@@ -80,10 +80,13 @@ class ComboOfferInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'category', 'is_featured')  # Заменили collection на category
-    list_filter = ('category', 'is_featured')  # Заменили collection на category
+    list_display = ('name', 'price', 'category', 'rating', 'is_featured', 'created_at')  # Добавили rating и created_at
+    list_filter = ('category', 'is_featured', 'rating')  # Добавили rating
     search_fields = ('name', 'category__name')
+    list_editable = ('is_featured',)  # Позволяет редактировать is_featured прямо из списка
+    ordering = ('-created_at',)  # Последние добавленные товары сверху
     inlines = [SizeOptionInline, RelatedProductInline, ComboOfferInline]
+
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):

@@ -7,7 +7,7 @@ from django.db import models
 
 from django.conf import settings
 from django.db.models import Count
-
+from django.db.models import Avg
 
 def index(request):
     # Получение данных для категорий
@@ -25,6 +25,10 @@ def index(request):
     # Добавляем коллекции
     collections = Collection.objects.order_by('-created_at')[:4]  # Последние 4 созданные коллекции
 
+    # Данные для табов "LATEST", "MOST POPULAR", "TOP RATED"
+    latest_products = Product.objects.order_by('-created_at')[:8]  # Последние 8 товаров
+    most_popular_products = Product.objects.filter(is_featured=True).order_by('-created_at')[:8]  # Хиты продаж
+    top_rated_products = Product.objects.annotate(average_rating=Avg('rating')).order_by('-average_rating')[:8]  # Товары с высоким рейтингом
 
     # Формирование контекста для передачи в шаблон
     context = {
@@ -33,6 +37,9 @@ def index(request):
         'slides': slides,  # Добавление слайдов
         'best_sellers': best_sellers,  # Добавление Хитов продаж
         'collections': collections,  # Коллекции
+        'latest_products': latest_products,  # Последние товары
+        'most_popular_products': most_popular_products,  # Самые популярные товары
+        'top_rated_products': top_rated_products,  # Высокорейтинговые товары
     }
     return render(request, 'orders/index.html', context)
 
