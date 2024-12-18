@@ -213,11 +213,19 @@ def add_to_cart(request, product_id):
     return redirect('cart')
 
 
-@login_required
 def remove_from_cart(request, item_id):
-    cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
-    cart_item.delete()
-    return redirect('cart')  # Перенаправление на страницу корзины
+    if request.user.is_authenticated:
+        # Удаление из корзины авторизованного пользователя
+        cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
+        cart_item.delete()
+    else:
+        # Удаление из корзины в сессии
+        cart = request.session.get('cart', {})
+        if str(item_id) in cart:
+            del cart[str(item_id)]
+            request.session['cart'] = cart
+    return redirect('cart')
+
 
 
 def about(request):
