@@ -2,7 +2,6 @@
 {% load static %}
 {% load custom_filters %}
 
-
 {% block title %}Shopping Cart - Flower Shop{% endblock %}
 
 {% block content %}
@@ -27,6 +26,7 @@
             </tr>
           </thead>
           <tbody>
+            <!-- For authenticated users -->
             {% if cart_items %}
               {% for item in cart_items %}
               <tr>
@@ -52,6 +52,7 @@
               {% endfor %}
             {% endif %}
 
+            <!-- For guests -->
             {% if cart_session %}
               {% for product_id, product_data in cart_session.items %}
               <tr>
