@@ -560,19 +560,19 @@
 <!-- Gifts Worth Waiting For Section -->
 <section class="gift-sections d-inline-block w-100">
     <div class="container">
-        <h6 class="text-center sub-heading"> Products </h6>
-        <h2 class="text-center min-heading mt-2"> Подарки ждут <strong> Вас </strong> </h2>
+        <h6 class="text-center sub-heading">Products</h6>
+        <h2 class="text-center min-heading mt-2">Подарки ждут <strong>Вас</strong></h2>
         <div class="text-center mt-3">
             <img alt="divider" src="{% static 'images/divider_title.png' %}">
         </div>
         <div class="best-slider owl-carousel owl-theme mt-5">
             {% for offer in combo_offers %}
-            <a href="{% url 'product_details' offer.product.slug %}" class="comon-pord d-inline-block w-100 items-pro">
+            <div class="comon-pord d-inline-block w-100 items-pro">
                 <div class="img-bu">
                     <img alt="{{ offer.name }}" src="{{ offer.image.url }}">
                 </div>
                 <h5 class="mt-2">{{ offer.name }}</h5>
-                <p class="mt-2"> {{ offer.product.description|truncatewords:10 }} </p>
+                <p class="mt-2">{{ offer.product.description|truncatewords:10 }}</p>
                 <h3 class="pric mt-4">
                     ${{ offer.price }}
                     {% if offer.old_price %}
@@ -580,13 +580,17 @@
                     {% endif %}
                 </h3>
                 <div class="btn btn-cart mt-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart">
-                        <circle cx="9" cy="21" r="1"></circle>
-                        <circle cx="20" cy="21" r="1"></circle>
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                    </svg>
+                    <a href="{% url 'add_to_cart' offer.product.id %}" class="text-decoration-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                    </a>
                 </div>
-            </a>
+            </div>
+            {% empty %}
+            <p class="text-center">No offers available at the moment.</p>
             {% endfor %}
         </div>
     </div>
