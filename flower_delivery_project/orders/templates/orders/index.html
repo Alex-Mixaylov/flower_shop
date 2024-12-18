@@ -324,7 +324,7 @@
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 gy-5 g-lg-4 mt-0">
                     {% for product in latest_products %}
                     <div class="col">
-                        <a href="{% url 'product_details' product.slug %}" class="comon-pord d-inline-block w-100 items-pro">
+                        <div class="comon-pord d-inline-block w-100 items-pro">
                             <div class="img-bu">
                                 <img alt="{{ product.name }}" src="{{ product.image_main.url }}">
                             </div>
@@ -338,14 +338,16 @@
                                     {% endif %}
                                 </h3>
                                 <div class="btn btn-cart mt-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="9" cy="21" r="1"></circle>
-                                        <circle cx="20" cy="21" r="1"></circle>
-                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                    </svg>
+                                    <a href="{% url 'add_to_cart' product.id %}" class="text-decoration-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                        </svg>
+                                    </a>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -355,7 +357,7 @@
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 gy-5 g-lg-4 mt-0">
                     {% for product in most_popular_products %}
                     <div class="col">
-                        <a href="{% url 'product_details' product.slug %}" class="comon-pord d-inline-block w-100 items-pro">
+                        <div class="comon-pord d-inline-block w-100 items-pro">
                             <div class="img-bu">
                                 <img alt="{{ product.name }}" src="{{ product.image_main.url }}">
                             </div>
@@ -369,14 +371,16 @@
                                     {% endif %}
                                 </h3>
                                 <div class="btn btn-cart mt-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="9" cy="21" r="1"></circle>
-                                        <circle cx="20" cy="21" r="1"></circle>
-                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                    </svg>
+                                    <a href="{% url 'add_to_cart' product.id %}" class="text-decoration-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                        </svg>
+                                    </a>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -386,7 +390,7 @@
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 gy-5 g-lg-4 mt-0">
                     {% for product in top_rated_products %}
                     <div class="col">
-                        <a href="{% url 'product_details' product.slug %}" class="comon-pord d-inline-block w-100 items-pro">
+                        <div class="comon-pord d-inline-block w-100 items-pro">
                             <div class="img-bu">
                                 <img alt="{{ product.name }}" src="{{ product.image_main.url }}">
                             </div>
@@ -400,14 +404,16 @@
                                     {% endif %}
                                 </h3>
                                 <div class="btn btn-cart mt-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="9" cy="21" r="1"></circle>
-                                        <circle cx="20" cy="21" r="1"></circle>
-                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                    </svg>
+                                    <a href="{% url 'add_to_cart' product.id %}" class="text-decoration-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                        </svg>
+                                    </a>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -519,7 +525,7 @@
             <div class="col-lg-9">
                 <div class="slio-eveny owl-carousel owl-theme">
                     {% for product in products_with_discounts %}
-                    <a href="{% url 'product_details' product.slug %}" class="comon-pord d-inline-block w-100 items-pro">
+                    <div class="comon-pord d-inline-block w-100 items-pro">
                         <div class="img-bu">
                             <img alt="{{ product.name }}" src="{{ product.image_main.url }}">
                         </div>
@@ -527,16 +533,20 @@
                         <h5 class="mt-2">{{ product.name }}</h5>
                         <h3 class="pric mt-4">
                             ${{ product.price }}
+                            {% if product.old_price %}
                             <span>${{ product.old_price }}</span>
+                            {% endif %}
                         </h3>
                         <div class="btn btn-cart mt-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="9" cy="21" r="1"></circle>
-                                <circle cx="20" cy="21" r="1"></circle>
-                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                            </svg>
+                            <a href="{% url 'add_to_cart' product.id %}" class="text-decoration-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                            </a>
                         </div>
-                    </a>
+                    </div>
                     {% empty %}
                     <p class="text-center">No products found</p>
                     {% endfor %}
@@ -545,7 +555,7 @@
         </div>
     </div>
 </section>
-<!--End Products With Discount Section -->
+<!-- End Products With Discount Section -->
 
 <!-- Gifts Worth Waiting For Section -->
 <section class="gift-sections d-inline-block w-100">
