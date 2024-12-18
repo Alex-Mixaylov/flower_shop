@@ -8,6 +8,7 @@ from django.db import models
 from django.db.models import F
 
 from django.conf import settings
+from django.contrib import messages
 from django.db.models import Count
 from django.db.models import Avg
 
@@ -163,28 +164,54 @@ def cart(request):
     return render(request, 'orders/cart.html')
 
 def cart_view(request):
-    user = request.user
-    cart, created = Cart.objects.get_or_create(user=user)
-    cart_items = cart.items.all()  # Получение всех товаров в корзине
-    total_price = cart.total_price()  # Используем метод модели Cart для расчета общей стоимости
+    if request.user.is_authenticated:
+        # Получаем корзину авторизованного пользователя
+        cart_items = CartItem.objects.filter(user=request.user)
+        total_price = sum(item.product.price * item.quantity for item in cart_items)
+    else:
+        # Для гостей корзина из сессии
+        cart = request.session.get('cart', {})
+        cart_items = [
+            {'product_id': key, 'name': value['name'], 'quantity': value['quantity'], 'price': value['price']}
+            for key, value in cart.items()
+        ]
+        total_price = sum(float(item['price']) * item['quantity'] for item in cart_items)
 
-    recommended_products = Product.objects.filter(is_recommended=True)[:5]  # Рекомендуемые товары
     context = {
         'cart_items': cart_items,
         'total_price': total_price,
-        'recommended_products': recommended_products,
     }
     return render(request, 'orders/cart.html', context)
 
-@login_required
+
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-    if not created:
-        cart_item.quantity += 1
-        cart_item.save()
-    return redirect('cart')  # Перенаправление на страницу корзины
+
+    if request.user.is_authenticated:
+        # Если пользователь авторизован, добавляем в его корзину
+        cart_item, created = CartItem.objects.get_or_create(
+            user=request.user, product=product
+        )
+        if not created:
+            cart_item.quantity += 1
+            cart_item.save()
+        messages.success(request, f"Товар {product.name} добавлен в корзину.")
+    else:
+        # Если пользователь не авторизован, используем сессии
+        cart = request.session.get('cart', {})
+        if str(product_id) in cart:
+            cart[str(product_id)]['quantity'] += 1
+        else:
+            cart[str(product_id)] = {
+                'quantity': 1,
+                'name': product.name,
+                'price': str(product.price)
+            }
+        request.session['cart'] = cart
+        messages.success(request, f"Товар {product.name} добавлен в корзину.")
+
+    return redirect('cart')
+
 
 @login_required
 def remove_from_cart(request, item_id):
