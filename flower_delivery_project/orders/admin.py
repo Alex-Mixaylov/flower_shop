@@ -28,20 +28,34 @@ admin.site.register(ContactMessage)
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'session_id', 'created_at', 'updated_at')
-    search_fields = ('user__username', 'session_id')
-    list_filter = ('created_at',)
+    list_display = ('id', 'user', 'created_at', 'updated_at', 'item_count', 'total_cost')
+    list_filter = ('created_at', 'updated_at')  # Фильтрация по дате создания и обновления
+    search_fields = ('user__username',)  # Поиск по имени пользователя
+
+    @admin.display(description='Item Count')
+    def item_count(self, obj):
+        return obj.items.count()
+
+    @admin.display(description='Total Cost')
+    def total_cost(self, obj):
+        return sum(item.total_price() for item in obj.items.all())
 
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cart', 'product', 'quantity')
-    search_fields = ('cart__id', 'product__name')
+    list_display = ('id', 'cart', 'product', 'quantity', 'total_price')
+    list_filter = ('cart__created_at', 'product__name')  # Фильтрация по дате создания корзины и имени товара
+    search_fields = ('product__name', 'cart__user__username')  # Поиск по имени товара и имени пользователя
+
+    @admin.display(description='Total Price')
+    def total_price(self, obj):
+        return obj.total_price()
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'status', 'total_price', 'created_at')
-    search_fields = ('user__username', 'customer_name', 'customer_email')
-    list_filter = ('status', 'created_at')
+    list_display = ('id', 'user', 'cart', 'status', 'created_at', 'updated_at')
+    list_filter = ('status', 'created_at', 'updated_at')  # Фильтрация по статусу и датам
+    search_fields = ('user__username', 'cart__id')  # Поиск по имени пользователя и ID корзины
+    
 @admin.register(BestSeller)
 class BestSellerAdmin(admin.ModelAdmin):
     # Отображение в списке
