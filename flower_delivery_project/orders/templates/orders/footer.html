@@ -1,4 +1,5 @@
 <!-- footer.html -->
+{% load static %}
 <footer class="float-start">
     <div class="main-footer01 d-inline-block w-100 pt-0">
         <div class="container">
@@ -34,10 +35,10 @@
                     <div class="comon-footer-mns d-inline-block w-100">
                         <h5>Company</h5>
                         <ul class="main-links mt-5">
-                            <li><a href="{% url 'about' %}"><span class="bi bi-arrow-right-short"></span> About</a></li>
-                            <li><a href="{% url 'delivery_information' %}"><span class="bi bi-arrow-right-short"></span> Delivery Information</a></li>
-                            <li><a href="{% url 'faq' %}"><span class="bi bi-arrow-right-short"></span> Collections</a></li>
-                            <li><a href="{% url 'faq' %}"><span class="bi bi-arrow-right-short"></span> Occasions</a></li>
+                            <li><a href="{% url 'about' %}"><span class="bi bi-arrow-right-short"></span> О Компании</a></li>
+                            <li><a href="{% url 'contact' %}"><span class="bi bi-arrow-right-short"></span> Контакты</a></li>
+                            <li><a href="{% url 'collections' %}"><span class="bi bi-arrow-right-short"></span> Наши Коллекции</a></li>
+                            <li><a href="{% url 'shop' %}"><span class="bi bi-arrow-right-short"></span> Цветы на все случаи жизни</a></li>
                         </ul>
                     </div>
                 </div>
@@ -46,11 +47,11 @@
                     <div class="comon-footer-mns d-inline-block w-100">
                         <h5>Help & Information</h5>
                         <ul class="main-links mt-5">
-                            <li><a href="{% url 'payments' %}"><span class="bi bi-arrow-right-short"></span> Payments</a></li>
-                            <li><a href="{% url 'account_cancellation' %}"><span class="bi bi-arrow-right-short"></span> Account Cancellation</a></li>
+                            <li><a href="{% url 'about' %}"><span class="bi bi-arrow-right-short"></span> Payments</a></li>
+                            <li><a href="{% url 'about' %}"><span class="bi bi-arrow-right-short"></span> Account Cancellation</a></li>
                             <li><a href="{% url 'contact' %}"><span class="bi bi-arrow-right-short"></span> Contact</a></li>
-                            <li><a href="{% url 'delivery_refunds' %}"><span class="bi bi-arrow-right-short"></span> Delivery & Refunds</a></li>
-                            <li><a href="{% url 'terms_conditions' %}"><span class="bi bi-arrow-right-short"></span> Terms & Conditions</a></li>
+                            <li><a href="{% url 'contact' %}"><span class="bi bi-arrow-right-short"></span> Delivery & Refunds</a></li>
+                            <li><a href="{% url 'contact' %}"><span class="bi bi-arrow-right-short"></span> Terms & Conditions</a></li>
                         </ul>
                     </div>
                 </div>
@@ -62,25 +63,23 @@
                 <div class="comon-links-off d-md-flex align-items-center">
                     <h5 class="text-white">Shop by Design:</h5>
                     <ul class="ms-lg-4">
-                        {% for collection in collections %}
                         <li class="alin mt-4 mt-md-0">
+                            {% for collection in collections|slice:":5" %}
                             <a href="{% url 'shop_by_collection' collection.slug %}">{{ collection.name }}</a>
+                            {% endfor %}
+                            <a href="{% url 'collections' %}" class="view-all">Смотреть все</a>
                         </li>
-                        {% empty %}
-                        <li>No collections available.</li>
-                        {% endfor %}
                     </ul>
                 </div>
                 <div class="comon-links-off d-md-flex align-items-center">
                     <h5 class="text-white">Type of Flowers:</h5>
                     <ul class="ms-lg-4">
-                        {% for category in categories %}
                         <li class="alin mt-4 mt-md-0">
+                            {% for category in categories|slice:":5" %}
                             <a href="{% url 'shop_by_category' category.slug %}">{{ category.name }}</a>
+                            {% endfor %}
+                            <a href="{% url 'shop' %}" class="view-all">Смотреть все</a>
                         </li>
-                        {% empty %}
-                        <li>No categories available.</li>
-                        {% endfor %}
                     </ul>
                 </div>
                 <hr>

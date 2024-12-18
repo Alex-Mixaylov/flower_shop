@@ -14,7 +14,10 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('about/', views.about, name='about'),
     path('collections/', views.collections, name='collections'),
-    path('collections/<slug:slug>/', views.collection_detail, name='collection_detail')
+    path('collections/<slug:slug>/', views.collection_detail, name='collection_detail'),
+    # Маршруты для коллекций и категорий в footer
+    path('collection/<slug:slug>/', views.shop_by_collection, name='shop_by_collection'),
+    path('category/<slug:slug>/', views.shop_by_category, name='shop_by_category'),
 ]
 
 # Подключение статических файлов в режиме разработки

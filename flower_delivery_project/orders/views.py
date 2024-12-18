@@ -185,3 +185,22 @@ def get_footer_context():
         'collections': collections,
         'categories': categories,
     }
+
+# для Footer
+def shop_by_collection(request, slug):
+    collection = get_object_or_404(Collection, slug=slug)
+    products = Product.objects.filter(collection=collection)
+    context = {
+        'collection': collection,
+        'products': products,
+    }
+    return render(request, 'orders/collections.html', context)
+
+def shop_by_category(request, slug):
+    category = get_object_or_404(Category, slug=slug)
+    products = Product.objects.filter(category=category)
+    context = {
+        'category': category,
+        'products': products,
+    }
+    return render(request, 'orders/shop.html', context)
