@@ -9,3 +9,9 @@ def range_filter(value):
         return range(int(value))
     except (ValueError, TypeError):
         return []
+@register.filter
+def multiply(value, arg):
+    try:
+        return float(value) * float(arg)
+    except (ValueError, TypeError):
+        return ''
