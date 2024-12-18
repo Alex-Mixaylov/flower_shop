@@ -52,9 +52,15 @@ class CartItemAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'cart', 'status', 'created_at', 'updated_at')
-    list_filter = ('status', 'created_at', 'updated_at')  # Фильтрация по статусу и датам
+    list_display = ('id', 'user', 'cart', 'status', 'created_at', 'updated_at_display')  # Добавлено отображение updated_at
+    list_filter = ('status', 'created_at', 'updated_at')  # Фильтрация по статусу, created_at и updated_at
     search_fields = ('user__username', 'cart__id')  # Поиск по имени пользователя и ID корзины
+
+    # Метод для отображения updated_at в list_display
+    def updated_at_display(self, obj):
+        return obj.updated_at
+    updated_at_display.short_description = 'Updated At'  # Название колонки в админке
+
 
 @admin.register(BestSeller)
 class BestSellerAdmin(admin.ModelAdmin):
