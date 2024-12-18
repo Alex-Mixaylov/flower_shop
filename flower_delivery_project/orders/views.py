@@ -1,7 +1,8 @@
+from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection, Slide, ComboOffer
+from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection, Slide, ComboOffer, Cart, CartItem
 
 from django.db import models
 from django.db.models import F
@@ -160,6 +161,37 @@ def checkout(request):
 def cart(request):
     # Рендеринг HTML-шаблона cart.html
     return render(request, 'orders/cart.html')
+
+def cart_view(request):
+    user = request.user
+    cart, created = Cart.objects.get_or_create(user=user)
+    cart_items = cart.items.all()  # Получение всех товаров в корзине
+    total_price = cart.total_price()  # Используем метод модели Cart для расчета общей стоимости
+
+    recommended_products = Product.objects.filter(is_recommended=True)[:5]  # Рекомендуемые товары
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price,
+        'recommended_products': recommended_products,
+    }
+    return render(request, 'orders/cart.html', context)
+
+@login_required
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+    return redirect('cart')  # Перенаправление на страницу корзины
+
+@login_required
+def remove_from_cart(request, item_id):
+    cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    cart_item.delete()
+    return redirect('cart')  # Перенаправление на страницу корзины
+
 
 def about(request):
     best_sellers = BestSeller.objects.filter(is_featured=True)

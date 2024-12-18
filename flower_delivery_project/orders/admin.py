@@ -55,7 +55,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'cart', 'status', 'created_at', 'updated_at')
     list_filter = ('status', 'created_at', 'updated_at')  # Фильтрация по статусу и датам
     search_fields = ('user__username', 'cart__id')  # Поиск по имени пользователя и ID корзины
-    
+
 @admin.register(BestSeller)
 class BestSellerAdmin(admin.ModelAdmin):
     # Отображение в списке
