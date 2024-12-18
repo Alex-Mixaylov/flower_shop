@@ -1,0 +1,101 @@
+<!-- footer.html -->
+<footer class="float-start">
+    <div class="main-footer01 d-inline-block w-100 pt-0">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 gy-5 gx-lg-5">
+                <!-- Discount Section -->
+                <div class="col">
+                    <div class="subs-bei d-inline-block w-100">
+                        <h5 class="text-white">10% OFF YOUR FIRST ORDER</h5>
+                        <p class="mt-4 col-lg-11">
+                            We are the best world Company. Providing the highest quality.
+                        </p>
+                        <div class="form-group mt-3">
+                            <input type="text" class="form-control" placeholder="Enter your email address">
+                            <button class="btn btn-subsrcible">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Send Flowers Section -->
+                <div class="col d-grid justify-content-lg-center">
+                    <div class="comon-footer-mns d-inline-block w-100">
+                        <h5>Send flowers to</h5>
+                        <ul class="main-links mt-5">
+                            <li><a href="#"><span class="bi bi-arrow-right-short"></span> Sydney Metro</a></li>
+                            <li><a href="#"><span class="bi bi-arrow-right-short"></span> Melbourne Metro</a></li>
+                            <li><a href="#"><span class="bi bi-arrow-right-short"></span> Queensland</a></li>
+                            <li><a href="#"><span class="bi bi-arrow-right-short"></span> Rest of NSW</a></li>
+                            <li><a href="#"><span class="bi bi-arrow-right-short"></span> Victoria</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Company Section -->
+                <div class="col d-grid justify-content-lg-center">
+                    <div class="comon-footer-mns d-inline-block w-100">
+                        <h5>Company</h5>
+                        <ul class="main-links mt-5">
+                            <li><a href="{% url 'about' %}"><span class="bi bi-arrow-right-short"></span> About</a></li>
+                            <li><a href="{% url 'delivery_information' %}"><span class="bi bi-arrow-right-short"></span> Delivery Information</a></li>
+                            <li><a href="{% url 'faq' %}"><span class="bi bi-arrow-right-short"></span> Collections</a></li>
+                            <li><a href="{% url 'faq' %}"><span class="bi bi-arrow-right-short"></span> Occasions</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Help & Information Section -->
+                <div class="col d-grid justify-content-lg-end">
+                    <div class="comon-footer-mns d-inline-block w-100">
+                        <h5>Help & Information</h5>
+                        <ul class="main-links mt-5">
+                            <li><a href="{% url 'payments' %}"><span class="bi bi-arrow-right-short"></span> Payments</a></li>
+                            <li><a href="{% url 'account_cancellation' %}"><span class="bi bi-arrow-right-short"></span> Account Cancellation</a></li>
+                            <li><a href="{% url 'contact' %}"><span class="bi bi-arrow-right-short"></span> Contact</a></li>
+                            <li><a href="{% url 'delivery_refunds' %}"><span class="bi bi-arrow-right-short"></span> Delivery & Refunds</a></li>
+                            <li><a href="{% url 'terms_conditions' %}"><span class="bi bi-arrow-right-short"></span> Terms & Conditions</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Dynamic Collections Section -->
+        <div class="top-coalledtion d-inline-block w-100 mt-5">
+            <div class="container">
+                <div class="comon-links-off d-md-flex align-items-center">
+                    <h5 class="text-white">Shop by Design:</h5>
+                    <ul class="ms-lg-4">
+                        {% for collection in collections %}
+                        <li class="alin mt-4 mt-md-0">
+                            <a href="{% url 'shop_by_collection' collection.slug %}">{{ collection.name }}</a>
+                        </li>
+                        {% empty %}
+                        <li>No collections available.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="comon-links-off d-md-flex align-items-center">
+                    <h5 class="text-white">Type of Flowers:</h5>
+                    <ul class="ms-lg-4">
+                        {% for category in categories %}
+                        <li class="alin mt-4 mt-md-0">
+                            <a href="{% url 'shop_by_category' category.slug %}">{{ category.name }}</a>
+                        </li>
+                        {% empty %}
+                        <li>No categories available.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <hr>
+            </div>
+        </div>
+        <!-- Footer Bottom Section -->
+        <div class="last-footer d-inline-block mt-2 w-100">
+            <div class="container">
+                <div class="d-md-flex coply align-items-center justify-content-between">
+                    <p>&copy; 2024 Flower Shop. Дипломный проект Alexey Mikhaylov.</p>
+                    <figure class="m-0">
+                        <img alt="Payment Methods" src="{% static 'images/payment-method_69e7ec.svg' %}" class="img-fluid" style="max-width: 200px;">
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>

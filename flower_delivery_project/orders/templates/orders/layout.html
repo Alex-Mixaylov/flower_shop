@@ -60,12 +60,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer float-start w-100 bg-light text-center py-4">
-        <div class="container">
-            <p>&copy; 2024 Alex M's Flower Shop. Магазин создан в качестве сдачи дипломной работы.</p>
-            <img src="{% static 'images/payment-method_69e7ec.svg' %}" alt="Payment Methods" class="img-fluid" style="max-width: 200px;">
-        </div>
-    </footer>
+    {% include 'footer.html' %}
 
     <!-- Scripts -->
     {% block scripts %}

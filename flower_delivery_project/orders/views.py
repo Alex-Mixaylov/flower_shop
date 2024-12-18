@@ -41,6 +41,9 @@ def index(request):
     # Получение последних 6 товаров для "Gifts worth waiting for"
     combo_offers = ComboOffer.objects.order_by('-id')[:6]  # Выбор последних 6 товаров
 
+    # Получение данных для футера
+    footer_context = get_footer_context()
+
     # Формирование контекста для передачи в шаблон
     context = {
         'categories': categories,
@@ -53,6 +56,7 @@ def index(request):
         'top_rated_products': top_rated_products,  # Высокорейтинговые товары
         'products_with_discounts': products_with_discounts, # Товары с максимальной скидкой
         'combo_offers': combo_offers, # Дополнительные товары
+        **footer_context,  # Добавление динамических данных в футер
     }
     return render(request, 'orders/index.html', context)
 
@@ -169,3 +173,15 @@ def about(request):
     }
 
     return render(request, 'orders/about.html', context)
+
+def get_footer_context():
+    # Получение всех коллекций
+    collections = Collection.objects.all()
+
+    # Получение всех категорий
+    categories = Category.objects.all()
+
+    return {
+        'collections': collections,
+        'categories': categories,
+    }
