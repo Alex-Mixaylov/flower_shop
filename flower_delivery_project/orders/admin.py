@@ -16,15 +16,32 @@ from .models import (
     RelatedProduct,
     ComboOffer,
     Slide,
+    Cart,
+    CartItem,
 )
 
 # Регистрация моделей в админке
 admin.site.register(User)
 admin.site.register(Bouquet)
-admin.site.register(Order)
 admin.site.register(OrderItem)
 admin.site.register(ContactMessage)
 
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'session_id', 'created_at', 'updated_at')
+    search_fields = ('user__username', 'session_id')
+    list_filter = ('created_at',)
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ('id', 'cart', 'product', 'quantity')
+    search_fields = ('cart__id', 'product__name')
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'status', 'total_price', 'created_at')
+    search_fields = ('user__username', 'customer_name', 'customer_email')
+    list_filter = ('status', 'created_at')
 @admin.register(BestSeller)
 class BestSellerAdmin(admin.ModelAdmin):
     # Отображение в списке
