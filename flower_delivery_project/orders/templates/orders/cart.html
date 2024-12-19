@@ -54,7 +54,8 @@
                                        </li>
                                     </ul>
 
-                                    <a href="{% url 'remove_from_cart' item.id %}" class="btn remove-btn p-0 mt-2">
+                                    <a href="{% if item.id %}{% url 'remove_from_cart' item.id %}{% else %}#{% endif %}"
+                                       class="btn remove-btn p-0 mt-2">
                                        <span> <i class="fas fa-trash"></i> </span> Remove
                                     </a>
                                 </div>

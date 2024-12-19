@@ -175,20 +175,19 @@ def cart_view(request):
             total_price += item.subtotal
     else:
         # Для гостей
-        cart_items = []
         for product_id, product_data in cart_session.items():
             product_data['subtotal'] = float(product_data['price']) * product_data['quantity']
             total_price += product_data['subtotal']
-            # Создаём структуру, аналогичную записи модели CartItem для шаблона
+            # Добавляем product_id в данные для шаблона
             cart_items.append({
-                'product_id': product_id,
-                'name': product_data['name'],
-                'quantity': product_data['quantity'],
-                'price': product_data['price'],
+                'product_id': product_id,  # Убедитесь, что передаётся product_id
+                'name': product_data.get('name', 'Unknown Product'),  # Обработка отсутствия имени
+                'quantity': product_data.get('quantity', 1),  # Обработка отсутствия количества
+                'price': product_data.get('price', 0.0),  # Обработка отсутствия цены
                 'subtotal': product_data['subtotal']
             })
 
-    # Формирование контекста
+    # Формирование контекста для шаблона
     context = {
         'cart_items': cart_items,  # Данные корзины
         'total_price': total_price,  # Общая сумма
