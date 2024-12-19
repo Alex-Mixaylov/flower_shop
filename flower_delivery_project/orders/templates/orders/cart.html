@@ -1,5 +1,6 @@
 {% extends 'orders/layout.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Shopping Cart - Flower Shop{% endblock %}
 
@@ -43,9 +44,13 @@
                 </td>
                 <td>${{ item.subtotal }}</td>
                 <td>
+                  {% if item.id %}
                   <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm">
                     <i class="fa fa-trash"></i>
                   </a>
+                  {% else %}
+                  <span class="text-muted">Cannot remove</span>
+                  {% endif %}
                 </td>
               </tr>
               {% endfor %}
@@ -64,9 +69,13 @@
                 </td>
                 <td>${{ product_data.subtotal }}</td>
                 <td>
+                  {% if product_id %}
                   <a href="{% url 'remove_from_cart' product_id %}" class="btn btn-danger btn-sm">
                     <i class="fa fa-trash"></i>
                   </a>
+                  {% else %}
+                  <span class="text-muted">Cannot remove</span>
+                  {% endif %}
                 </td>
               </tr>
               {% endfor %}

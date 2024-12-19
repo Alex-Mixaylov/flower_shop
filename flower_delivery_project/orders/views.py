@@ -159,10 +159,7 @@ def checkout(request):
         return redirect('thanks')  # Перенаправление на страницу благодарности
     return render(request, 'orders/checkout.html')
 
-def cart(request):
-    # Рендеринг HTML-шаблона cart.html
-    return render(request, 'orders/cart.html')
-
+# Корзина
 def cart_view(request):
     # Инициализация данных
     cart_items = []
@@ -198,8 +195,14 @@ def cart_view(request):
     }
     return render(request, 'orders/cart.html', context)
 
-
+# Добавление в Корзину
 def add_to_cart(request, product_id):
+    # Проверяем наличие product_id
+    if not product_id:
+        messages.error(request, "Invalid product ID.")
+        return redirect('cart')
+
+    # Пытаемся получить продукт, возвращаем 404, если он не найден
     product = get_object_or_404(Product, id=product_id)
 
     if request.user.is_authenticated:
@@ -208,6 +211,7 @@ def add_to_cart(request, product_id):
             user=request.user, product=product
         )
         if not created:
+            # Если товар уже в корзине, увеличиваем его количество
             cart_item.quantity += 1
             cart_item.save()
         messages.success(request, f"Товар {product.name} добавлен в корзину.")
@@ -215,8 +219,10 @@ def add_to_cart(request, product_id):
         # Если пользователь не авторизован, используем сессии
         cart = request.session.get('cart', {})
         if str(product_id) in cart:
+            # Если товар уже в корзине сессии, увеличиваем количество
             cart[str(product_id)]['quantity'] += 1
         else:
+            # Если товара нет в корзине, добавляем его
             cart[str(product_id)] = {
                 'quantity': 1,
                 'name': product.name,
@@ -227,8 +233,12 @@ def add_to_cart(request, product_id):
 
     return redirect('cart')
 
-
+# Удаление из Корзины
 def remove_from_cart(request, item_id):
+    if not item_id:
+        messages.error(request, "Invalid item ID.")
+        return redirect('cart')
+
     if request.user.is_authenticated:
         # Удаление из корзины авторизованного пользователя
         cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
@@ -240,8 +250,6 @@ def remove_from_cart(request, item_id):
             del cart[str(item_id)]
             request.session['cart'] = cart
     return redirect('cart')
-
-
 
 def about(request):
     best_sellers = BestSeller.objects.filter(is_featured=True)
