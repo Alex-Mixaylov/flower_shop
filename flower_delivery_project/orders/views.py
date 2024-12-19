@@ -164,22 +164,37 @@ def cart(request):
     return render(request, 'orders/cart.html')
 
 def cart_view(request):
-    if request.user.is_authenticated:
-        # Получаем корзину авторизованного пользователя
-        cart_items = CartItem.objects.filter(user=request.user)
-        total_price = sum(item.product.price * item.quantity for item in cart_items)
-    else:
-        # Для гостей корзина из сессии
-        cart = request.session.get('cart', {})
-        cart_items = [
-            {'product_id': key, 'name': value['name'], 'quantity': value['quantity'], 'price': value['price']}
-            for key, value in cart.items()
-        ]
-        total_price = sum(float(item['price']) * item['quantity'] for item in cart_items)
+    # Инициализация данных
+    cart_items = []
+    cart_session = request.session.get('cart', {})
+    total_price = 0
 
+    if request.user.is_authenticated:
+        # Для авторизованных пользователей
+        cart_items = CartItem.objects.filter(user=request.user)  # Получение корзины пользователя
+        for item in cart_items:
+            # Рассчёт subtotal для каждого элемента
+            item.subtotal = item.quantity * item.product.price
+            total_price += item.subtotal
+    else:
+        # Для гостей
+        cart_items = []
+        for product_id, product_data in cart_session.items():
+            product_data['subtotal'] = float(product_data['price']) * product_data['quantity']
+            total_price += product_data['subtotal']
+            # Создаём структуру, аналогичную записи модели CartItem для шаблона
+            cart_items.append({
+                'product_id': product_id,
+                'name': product_data['name'],
+                'quantity': product_data['quantity'],
+                'price': product_data['price'],
+                'subtotal': product_data['subtotal']
+            })
+
+    # Формирование контекста
     context = {
-        'cart_items': cart_items,
-        'total_price': total_price,
+        'cart_items': cart_items,  # Данные корзины
+        'total_price': total_price,  # Общая сумма
     }
     return render(request, 'orders/cart.html', context)
 

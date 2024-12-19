@@ -1,6 +1,5 @@
 {% extends 'orders/layout.html' %}
 {% load static %}
-{% load custom_filters %}
 
 {% block title %}Shopping Cart - Flower Shop{% endblock %}
 
@@ -42,7 +41,7 @@
                 <td>
                   <input type="number" name="quantity_{{ item.id }}" class="form-control" value="{{ item.quantity }}" min="1">
                 </td>
-                <td>${{ item.quantity|multiply:item.product.price }}</td>
+                <td>${{ item.subtotal }}</td>
                 <td>
                   <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm">
                     <i class="fa fa-trash"></i>
@@ -63,7 +62,7 @@
                 <td>
                   <input type="number" name="quantity_{{ product_id }}" class="form-control" value="{{ product_data.quantity }}" min="1">
                 </td>
-                <td>${{ product_data.quantity|multiply:product_data.price }}</td>
+                <td>${{ product_data.subtotal }}</td>
                 <td>
                   <a href="{% url 'remove_from_cart' product_id %}" class="btn btn-danger btn-sm">
                     <i class="fa fa-trash"></i>
