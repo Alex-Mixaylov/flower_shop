@@ -4,99 +4,114 @@
 {% block title %}Shopping Cart - Flower Shop{% endblock %}
 
 {% block content %}
-
 <!-- Sub-Banner Section -->
 <section class="sub-banner float-start w-100">
     <div class="container">
         <div class="insider-banner">
-            <h2> Cart </h2>
+            <h2>Cart</h2>
             <nav class="mt-2">
                 <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="{% url 'shop' %}">Home</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">Cart</li>
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Cart</li>
                 </ol>
             </nav>
         </div>
     </div>
 </section>
 
-<!-- Main Cart Section -->
+<!-- Cart Section -->
 <main class="main-body float-start w-100">
     <div class="cart-page-div pt-5 d-inline-block w-100">
         <div class="container">
             <div class="row gx-lg-5">
                 <div class="col-lg-8">
-                    <div class="cart-heading">
-                        <h2 class="d-flex align-items-center justify-content-between mb-4"> My Cart
+                    <div class="cart-haedeing">
+                        <h2 class="d-flex align-items-center justify-content-between mb-4">
+                            My Cart
                             <span class="ms-lg-auto">
                                 {{ cart_items|length }} Items
                             </span>
                         </h2>
 
-                        {% for item in cart_items %}
-                        <div class="comon-items-cart">
-                            <div class="left-section-div">
-                                <figure>
-                                    <img src="{% if item.product.image_main %}{{ item.product.image_main.url }}{% else %}{% static 'images/default-product.jpg' %}{% endif %}" alt="{{ item.product.name }}">
-                                </figure>
-                                <div class="products-cart1">
-                                    <h5>{{ item.product.name }}</h5>
-                                    <ul>
-                                       <li>
-                                         <span> Price: </span>
-                                         <span>${{ item.product.price }}</span>
-                                       </li>
-                                       <li>
-                                         <span>
-                                            Qty:
-                                         </span>
-                                         <span>{{ item.quantity }}</span>
-                                       </li>
-                                    </ul>
+                        {% if cart_items %}
+                            {% for item in cart_items %}
+                            <div class="comon-items-cart">
+                                <div class="left-section-div">
+                                    <figure>
+                                        {% if item.product.image_main %}
+                                            <img src="{{ item.product.image_main.url }}" alt="{{ item.product.name }}">
+                                        {% else %}
+                                            <img src="{% static 'images/default-product.jpg' %}" alt="No Image">
+                                        {% endif %}
+                                    </figure>
+                                    <div class="products-cart1">
+                                        <h5>{{ item.product.name }}</h5>
+                                        <ul>
+                                            <li>
+                                                <span>Size:</span>
+                                                <span>{{ item.product.size|default:"N/A" }}</span>
+                                            </li>
+                                            <li>
+                                                <span>Order ID:</span>
+                                                <span>{{ item.id }}</span>
+                                            </li>
+                                            <li>
+                                                <span>Qty:</span>
+                                                <span>{{ item.quantity }}</span>
+                                            </li>
+                                        </ul>
+                                        <a href="{% url 'remove_from_cart' item.id %}" class="btn remove-btn p-0 mt-2">
+                                            <span><i class="fas fa-trash"></i></span> Remove
+                                        </a>
+                                    </div>
+                                </div>
 
-                                    <a href="{% if item.id %}{% url 'remove_from_cart' item.id %}{% else %}#{% endif %}"
-                                       class="btn remove-btn p-0 mt-2">
-                                       <span> <i class="fas fa-trash"></i> </span> Remove
-                                    </a>
+                                <div class="crat-linl-pay">
+                                    <h4><span>${{ item.product.old_price|default:"-" }}</span> ${{ item.product.price }}</h4>
+                                    <h6>
+                                        {% if item.product.old_price %}
+                                            You Save ${{ item.product.old_price|floatformat:2|default:0|add:"-"|add:item.product.price }}
+                                        {% endif %}
+                                    </h6>
+
+                                    <div class="quantity-field">
+                                        <button class="value-button decrease-button" onclick="decreaseValue(this)" title="Decrease">-</button>
+                                        <div class="number">{{ item.quantity }}</div>
+                                        <button class="value-button increase-button" onclick="increaseValue(this, 5)" title="Increase">+</button>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="cart-link-pay">
-                                <h4> Subtotal: ${{ item.subtotal }}</h4>
-                                <div class="quantity-field">
-                                  <button class="value-button decrease-button" onclick="decreaseValue(this)" title="Decrease">-</button>
-                                  <div class="number">{{ item.quantity }}</div>
-                                  <button class="value-button increase-button" onclick="increaseValue(this, 5)" title="Increase">+</button>
-                                </div>
-                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="text-center mt-5">
+                            <p>Your cart is empty. <a href="{% url 'shop' %}">Continue shopping</a></p>
                         </div>
-                        {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
-
                 <div class="col-lg-4">
                     <div class="total-count-div">
-                        <h4> Order Summary</h4>
+                        <h4>Order Summary</h4>
                         <hr class="my-2">
-                        <div class="items-list my-4">
+                        <div class="itemsl-list my-4">
                             <ul>
-                               <li class="d-flex align-items-center justify-content-between">
-                                 <span>Items ({{ cart_items|length }})</span>
-                                 <span>${{ total_price }}</span>
-                               </li>
+                                <li class="d-flex align-items-center justify-content-between">
+                                    <span>Items ({{ cart_items|length }})</span>
+                                    <span>${{ total_price|floatformat:2 }}</span>
+                                </li>
                             </ul>
                         </div>
                         <div class="promo-code1">
                             <div class="form-group">
-                                <label>Do you have Any Discount Code?</label>
+                                <label>Do you have any discount code?</label>
                                 <input type="text" class="form-control" placeholder="Enter your code">
                                 <input type="submit" value="Apply" class="btn">
                             </div>
                         </div>
                         <ul class="pay-listy mt-4">
                             <li>
-                              <span class="list-payt">Subtotal <b>({{ cart_items|length }} Items)</b></span>
-                              <span class="price-bn">${{ total_price }}</span>
+                                <span class="list-payt">Subtotal <b>({{ cart_items|length }} Items)</b></span>
+                                <span class="price-bn">${{ total_price|floatformat:2 }}</span>
                             </li>
                             <li>
                                 <span class="list-payt">Delivery charges</span>
@@ -109,43 +124,12 @@
                         </ul>
                         <hr>
 
-                        <h3><span>Total Cost</span> <span>${{ total_price|add:"5.00" }}</span> </h3>
-                        <a href="{% url 'checkout' %}" class="btn btn-check-btn mt-4">Checkout</a>
+                        <h3><span>Total Cost</span> <span>${{ total_price|add:"5.00"|floatformat:2 }}</span></h3>
+                        <a href="{% url 'checkout' %}" class="btn btncheck-btn mt-4">Checkout</a>
                     </div>
                 </div>
             </div>
-
-            <div class="recommended-products d-inline-block w-100 py-5">
-              <h2 class="min-heading"> Recommended </h2>
-
-              <div class="shop-slider owl-carousel owl-theme mt-4">
-                {% for product in recommended_products %}
-                <div class="comon-prod shopi-divu mt-0 d-inline-block w-100 items-pro">
-                    <div class="img-bu position-relative">
-                      <img alt="{{ product.name }}" src="{% if product.image_main %}{{ product.image_main.url }}{% else %}{% static 'images/default-product.jpg' %}{% endif %}">
-                      <button class="btn btn-wishlio">
-                         <i class="fas fa-heart"></i>
-                      </button>
-                    </div>
-                    <h6> <a href="{% url 'product_details' product.slug %}"> {{ product.category.name }} </a> </h6>
-                     <h5 class="mt-2"> <a href="{% url 'product_details' product.slug %}"> {{ product.name }} </a> </h5>
-                     <p class="my-2">
-                        <span class="ratine">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </span>
-                        <span class="rv-text">({{ product.reviews.count }} Reviews)</span>
-                    </p>
-                     <h3 class="pric mt-3"> ${{ product.price }} <span>${{ product.old_price }}</span> </h3>
-                     <a href="{% url 'add_to_cart' product.id %}" class="btn btn-cart mt-3">
-                        <i class="fas fa-shopping-cart"></i>
-                     </a>
-                 </div>
-                {% endfor %}
-              </div>
-            </div>
         </div>
-      </div>
+    </div>
 </main>
-
 {% endblock %}
