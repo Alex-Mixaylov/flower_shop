@@ -210,6 +210,8 @@ def cart_view(request):
 # Добавление товара в Корзину
 
 def add_to_cart(request, product_id):
+    print(f"add_to_cart called for product_id: {product_id}")
+
     # Проверяем наличие product_id
     if not product_id:
         messages.error(request, "Invalid product ID.")
@@ -217,6 +219,8 @@ def add_to_cart(request, product_id):
 
     # Пытаемся получить продукт, возвращаем 404, если он не найден
     product = get_object_or_404(Product, id=product_id)
+    # Отладочный вывод информации о продукте
+    print(f"Product Data - Name: {product.name}, Image: {product.image_main}")
 
     if request.user.is_authenticated:
         # Если пользователь авторизован, добавляем в его корзину
@@ -243,7 +247,7 @@ def add_to_cart(request, product_id):
                 'image_main': product.image_main.url if product.image_main else None,
                 'size': product.size if hasattr(product, 'size') else "N/A"
             }
-      
+
         print("Cart Session Data:", cart)
 
         request.session['cart'] = cart
