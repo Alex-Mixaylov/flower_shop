@@ -196,6 +196,10 @@ def cart_view(request):
     for item in cart_items:
         print(f"Item Data: {item}")
 
+    # Отладка вывода  изображений из media в Корзину
+    for product_id, product_data in cart_session.items():
+        print("Product Image Path:", product_data.get('image_main'))
+
     # Формирование контекста для шаблона
     context = {
         'cart_items': cart_items,  # Данные корзины
@@ -239,6 +243,9 @@ def add_to_cart(request, product_id):
                 'image_main': product.image_main.url if product.image_main else None,
                 'size': product.size if hasattr(product, 'size') else "N/A"
             }
+      
+        print("Cart Session Data:", cart)
+
         request.session['cart'] = cart
         messages.success(request, f"Товар {product.name} добавлен в корзину.")
 
