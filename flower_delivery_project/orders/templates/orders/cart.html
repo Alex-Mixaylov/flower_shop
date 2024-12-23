@@ -4,7 +4,6 @@
 {% block title %}Shopping Cart - Flower Shop{% endblock %}
 
 {% block content %}
-<!-- Sub-Banner Section -->
 <section class="sub-banner float-start w-100">
     <div class="container">
         <div class="insider-banner">
@@ -19,7 +18,6 @@
     </div>
 </section>
 
-<!-- Cart Section -->
 <main class="main-body float-start w-100">
     <div class="cart-page-div pt-5 d-inline-block w-100">
         <div class="container">
@@ -28,9 +26,7 @@
                     <div class="cart-haedeing">
                         <h2 class="d-flex align-items-center justify-content-between mb-4">
                             My Cart
-                            <span class="ms-lg-auto">
-                                {{ cart_items|length }} Items
-                            </span>
+                            <span class="ms-lg-auto">{{ cart_items|length }} Items</span>
                         </h2>
 
                         {% if cart_items %}
@@ -53,24 +49,29 @@
                                             </li>
                                             <li>
                                                 <span>Order ID:</span>
-                                                <span>{{ item.id }}</span>
+                                                <span>{{ item.id|default:item.product_id }}</span>
                                             </li>
                                             <li>
                                                 <span>Qty:</span>
                                                 <span>{{ item.quantity }}</span>
                                             </li>
                                         </ul>
-                                        <a href="{% url 'remove_from_cart' item.id %}" class="btn remove-btn p-0 mt-2">
+                                        <a href="{% url 'remove_from_cart' item.id|default:item.product_id %}" class="btn remove-btn p-0 mt-2">
                                             <span><i class="fas fa-trash"></i></span> Remove
                                         </a>
                                     </div>
                                 </div>
 
                                 <div class="crat-linl-pay">
-                                    <h4><span>${{ item.product.old_price|default:"-" }}</span> ${{ item.product.price }}</h4>
+                                    <h4>
+                                        {% if item.product.old_price %}
+                                            <span>${{ item.product.old_price }}</span>
+                                        {% endif %}
+                                        ${{ item.product.price }}
+                                    </h4>
                                     <h6>
                                         {% if item.product.old_price %}
-                                            You Save ${{ item.product.old_price|floatformat:2|default:0|add:"-"|add:item.product.price }}
+                                            You Save ${{ item.product.old_price|floatformat:2|add:"-"|add:item.product.price }}
                                         {% endif %}
                                     </h6>
 

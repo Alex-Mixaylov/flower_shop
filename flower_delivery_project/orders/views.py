@@ -173,6 +173,8 @@ def cart_view(request):
             # Рассчёт subtotal для каждого элемента
             item.subtotal = item.quantity * item.product.price
             total_price += item.subtotal
+            # Отладочный вывод данных корзины пользователя
+            print(f"User Cart Item: ID={item.id}, Product={item.product.name}, Price={item.product.price}, Quantity={item.quantity}, Subtotal={item.subtotal}")
     else:
         # Для гостей
         for product_id, product_data in cart_session.items():
@@ -186,6 +188,11 @@ def cart_view(request):
                 'price': product_data.get('price', 0.0),  # Обработка отсутствия цены
                 'subtotal': product_data['subtotal']
             })
+            # Отладочный вывод данных корзины гостя
+            print(f"Guest Cart Item: Product ID={product_id}, Name={product_data.get('name')}, Price={product_data.get('price')}, Quantity={product_data.get('quantity')}, Subtotal={product_data['subtotal']}")
+
+    # Отладочный вывод общего количества товаров и суммы
+    print(f"Total Items: {len(cart_items)}, Total Price: {total_price}")
 
     # Формирование контекста для шаблона
     context = {
