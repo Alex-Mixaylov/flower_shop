@@ -193,6 +193,8 @@ def cart_view(request):
 
     # Отладочный вывод общего количества товаров и суммы
     print(f"Total Items: {len(cart_items)}, Total Price: {total_price}")
+    for item in cart_items:
+        print(f"Item Data: {item}")
 
     # Формирование контекста для шаблона
     context = {
@@ -201,7 +203,8 @@ def cart_view(request):
     }
     return render(request, 'orders/cart.html', context)
 
-# Добавление в Корзину
+# Добавление товара в Корзину
+
 def add_to_cart(request, product_id):
     # Проверяем наличие product_id
     if not product_id:
@@ -232,12 +235,15 @@ def add_to_cart(request, product_id):
             cart[str(product_id)] = {
                 'quantity': 1,
                 'name': product.name,
-                'price': str(product.price)
+                'price': str(product.price),
+                'image_main': product.image_main.url if product.image_main else None,
+                'size': product.size if hasattr(product, 'size') else "N/A"
             }
         request.session['cart'] = cart
         messages.success(request, f"Товар {product.name} добавлен в корзину.")
 
     return redirect('cart')
+
 
 # Удаление из Корзины
 def remove_from_cart(request, item_id):

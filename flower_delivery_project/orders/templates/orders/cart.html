@@ -34,14 +34,16 @@
                             <div class="comon-items-cart">
                                 <div class="left-section-div">
                                     <figure>
-                                        {% if item.product.image_main %}
+                                        {% if item.product and item.product.image_main %}
                                             <img src="{{ item.product.image_main.url }}" alt="{{ item.product.name }}">
+                                        {% elif item.image_main %}
+                                            <img src="{{ item.image_main }}" alt="{{ item.name }}">
                                         {% else %}
                                             <img src="{% static 'images/default-product.jpg' %}" alt="No Image">
                                         {% endif %}
                                     </figure>
                                     <div class="products-cart1">
-                                        <h5>{{ item.product.name }}</h5>
+                                        <h5>{{ item.product.name|default:item.name }}</h5>
                                         <ul>
                                             <li>
                                                 <span>Size:</span>
@@ -64,13 +66,15 @@
 
                                 <div class="crat-linl-pay">
                                     <h4>
-                                        {% if item.product.old_price %}
+                                        {% if item.product and item.product.old_price %}
                                             <span>${{ item.product.old_price }}</span>
+                                        {% elif item.old_price %}
+                                            <span>${{ item.old_price }}</span>
                                         {% endif %}
-                                        ${{ item.product.price }}
+                                        ${{ item.product.price|default:item.price }}
                                     </h4>
                                     <h6>
-                                        {% if item.product.old_price %}
+                                        {% if item.product and item.product.old_price %}
                                             You Save ${{ item.product.old_price|floatformat:2|add:"-"|add:item.product.price }}
                                         {% endif %}
                                     </h6>
