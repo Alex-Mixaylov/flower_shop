@@ -218,7 +218,8 @@ def add_to_cart(request, product_id):
     if request.user.is_authenticated:
         # Если пользователь авторизован, добавляем в его корзину
         cart_item, created = CartItem.objects.get_or_create(
-            user=request.user, product=product
+            user=request.user,  # Связываем с авторизованным пользователем
+            product=product
         )
         if not created:
             # Если товар уже в корзине, увеличиваем его количество
@@ -257,14 +258,23 @@ def remove_from_cart(request, item_id):
 
     if request.user.is_authenticated:
         # Удаление из корзины авторизованного пользователя
-        cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
-        cart_item.delete()
+        try:
+            cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
+            cart_item.delete()
+            messages.success(request, "Товар был удалён из корзины.")
+        except Exception as e:
+            print(f"Error while removing item from user cart: {e}")
+            messages.error(request, "Не удалось удалить товар из корзины.")
     else:
         # Удаление из корзины в сессии
         cart = request.session.get('cart', {})
         if str(item_id) in cart:
             del cart[str(item_id)]
             request.session['cart'] = cart
+            messages.success(request, "Товар был удалён из корзины.")
+        else:
+            messages.error(request, "Товар не найден в корзине.")
+
     return redirect('cart')
 
 def about(request):
