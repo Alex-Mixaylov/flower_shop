@@ -197,18 +197,13 @@ def cart_view(request):
     for item in cart_items:
         print(f"Item Data: {item}")
 
-    # Отладка вывода  изображений из media в Корзину
-    for product_id, product_data in cart_session.items():
-        print("Product Image Path:", product_data.get('image_main'))
-
-    print("Cart Session Data:", cart_session)
-
     # Формирование контекста для шаблона
     context = {
         'cart_items': cart_items,  # Данные корзины
         'total_price': total_price,  # Общая сумма
     }
     return render(request, 'orders/cart.html', context)
+
 
 # Добавление товара в Корзину
 def add_to_cart(request, product_id):

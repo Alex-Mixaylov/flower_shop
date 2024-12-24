@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
+
 from django.utils.text import slugify
 from django.utils.timezone import now
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -139,8 +141,12 @@ class Cart(models.Model):
 
     item_count.short_description = "Item Count"  # Отображение в админке
 
+
 # Элементы корзины
 class CartItem(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Пользователь"
+    )  # Добавляем связь с пользователем
     cart = models.ForeignKey(
         Cart, on_delete=models.CASCADE, related_name="items", verbose_name="Корзина"
     )
@@ -155,6 +161,8 @@ class CartItem(models.Model):
 
     def total_price(self):
         return self.product.price * self.quantity
+
+
 # Заказы (Order)
 class Order(models.Model):
     # Модель для хранения информации о заказах
