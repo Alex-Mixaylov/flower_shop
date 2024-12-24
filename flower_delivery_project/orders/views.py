@@ -216,10 +216,14 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
     if request.user.is_authenticated:
+        # Получаем корзину пользователя или создаём новую
+        user_cart, created = Cart.objects.get_or_create(user=request.user)
+
         # Если пользователь авторизован, добавляем в его корзину
         cart_item, created = CartItem.objects.get_or_create(
-            user=request.user,  # Связываем с авторизованным пользователем
-            product=product
+            user=request.user,
+            product=product,
+            cart=user_cart  # Привязываем элемент корзины к корзине пользователя
         )
         if not created:
             # Если товар уже в корзине, увеличиваем его количество
@@ -235,7 +239,6 @@ def add_to_cart(request, product_id):
         else:
             # Если товара нет в корзине, добавляем его
             image_url = product.image_main.url if product.image_main else None
-            print(f"Adding Product: {product.name}, Image URL: {image_url}")  # Отладочный вывод
             cart[str(product_id)] = {
                 'quantity': 1,
                 'name': product.name,
@@ -244,7 +247,6 @@ def add_to_cart(request, product_id):
                 'size': product.size if hasattr(product, 'size') else "N/A"
             }
         request.session['cart'] = cart
-        print("Cart Session After Update:", request.session['cart'])  # Отладочный вывод
         messages.success(request, f"Товар {product.name} добавлен в корзину.")
 
     return redirect('cart')
