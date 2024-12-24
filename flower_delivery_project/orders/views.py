@@ -186,7 +186,8 @@ def cart_view(request):
                 'name': product_data.get('name', 'Unknown Product'),  # Обработка отсутствия имени
                 'quantity': product_data.get('quantity', 1),  # Обработка отсутствия количества
                 'price': product_data.get('price', 0.0),  # Обработка отсутствия цены
-                'subtotal': product_data['subtotal']
+                'subtotal': product_data['subtotal'],
+                'image_main': product_data.get('image_main')
             })
             # Отладочный вывод данных корзины гостя
             print(f"Guest Cart Item: Product ID={product_id}, Name={product_data.get('name')}, Price={product_data.get('price')}, Quantity={product_data.get('quantity')}, Subtotal={product_data['subtotal']}")
@@ -219,8 +220,8 @@ def add_to_cart(request, product_id):
 
     # Пытаемся получить продукт, возвращаем 404, если он не найден
     product = get_object_or_404(Product, id=product_id)
-    # Отладочный вывод информации о продукте
-    print(f"Product Data - Name: {product.name}, Image: {product.image_main}")
+    # Отладочный вывод данных продукта
+    print(f"Adding to cart: Name={product.name}, Image={product.image_main}")
 
     if request.user.is_authenticated:
         # Если пользователь авторизован, добавляем в его корзину
