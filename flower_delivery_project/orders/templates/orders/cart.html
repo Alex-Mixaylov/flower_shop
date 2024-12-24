@@ -37,18 +37,29 @@
                                         {% if item.product and item.product.image_main %}
                                             <img src="{{ item.product.image_main.url }}" alt="{{ item.product.name }}">
                                         {% elif item.image_main %}
-                                            <img src="{{ item.image_main }}" alt="{{ item.name }}">
+                                            <img src="{{ item.image_main }}" alt="{{ item.name|default:'No Image' }}">
                                         {% else %}
                                             <img src="{% static 'images/default-product.jpg' %}" alt="No Image">
                                         {% endif %}
-                                        <p>{{ item.image_main }}</p><!-- Для отладки -->
                                     </figure>
                                     <div class="products-cart1">
-                                        <h5>{{ item.product.name|default:item.name }}</h5>
+                                        <h5>
+                                            {% if item.product and item.product.name %}
+                                                {{ item.product.name }}
+                                            {% else %}
+                                                {{ item.name|default:"Unknown" }}
+                                            {% endif %}
+                                        </h5>
                                         <ul>
                                             <li>
                                                 <span>Size:</span>
-                                                <span>{{ item.product.size|default:"N/A" }}</span>
+                                                <span>
+                                                    {% if item.product and item.product.size %}
+                                                        {{ item.product.size }}
+                                                    {% else %}
+                                                        N/A
+                                                    {% endif %}
+                                                </span>
                                             </li>
                                             <li>
                                                 <span>Order ID:</span>
@@ -59,7 +70,7 @@
                                                 <span>{{ item.quantity }}</span>
                                             </li>
                                         </ul>
-                                        <a href="{% url 'remove_from_cart' item.id|default:item.product_id %}" class="btn remove-btn p-0 mt-2">
+                                        <a href="{% url 'remove_from_cart' item.id %}" class="btn remove-btn p-0 mt-2">
                                             <span><i class="fas fa-trash"></i></span> Remove
                                         </a>
                                     </div>
