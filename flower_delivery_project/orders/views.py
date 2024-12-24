@@ -187,7 +187,7 @@ def cart_view(request):
                 'quantity': product_data.get('quantity', 1),  # Обработка отсутствия количества
                 'price': product_data.get('price', 0.0),  # Обработка отсутствия цены
                 'subtotal': product_data['subtotal'],
-                'image_main': product_data.get('image_main')
+                'image_main': product_data.get('image_main')  # Проверка изображения
             })
             # Отладочный вывод данных корзины гостя
             print(f"Guest Cart Item: Product ID={product_id}, Name={product_data.get('name')}, Price={product_data.get('price')}, Quantity={product_data.get('quantity')}, Subtotal={product_data['subtotal']}")
@@ -201,6 +201,8 @@ def cart_view(request):
     for product_id, product_data in cart_session.items():
         print("Product Image Path:", product_data.get('image_main'))
 
+    print("Cart Session Data:", cart_session)
+
     # Формирование контекста для шаблона
     context = {
         'cart_items': cart_items,  # Данные корзины
@@ -209,10 +211,7 @@ def cart_view(request):
     return render(request, 'orders/cart.html', context)
 
 # Добавление товара в Корзину
-
 def add_to_cart(request, product_id):
-    print(f"add_to_cart called for product_id: {product_id}")
-
     # Проверяем наличие product_id
     if not product_id:
         messages.error(request, "Invalid product ID.")
@@ -220,8 +219,6 @@ def add_to_cart(request, product_id):
 
     # Пытаемся получить продукт, возвращаем 404, если он не найден
     product = get_object_or_404(Product, id=product_id)
-    # Отладочный вывод данных продукта
-    print(f"Adding to cart: Name={product.name}, Image={product.image_main}")
 
     if request.user.is_authenticated:
         # Если пользователь авторизован, добавляем в его корзину
@@ -241,17 +238,17 @@ def add_to_cart(request, product_id):
             cart[str(product_id)]['quantity'] += 1
         else:
             # Если товара нет в корзине, добавляем его
+            image_url = product.image_main.url if product.image_main else None
+            print(f"Adding Product: {product.name}, Image URL: {image_url}")  # Отладочный вывод
             cart[str(product_id)] = {
                 'quantity': 1,
                 'name': product.name,
                 'price': str(product.price),
-                'image_main': product.image_main.url if product.image_main else None,
+                'image_main': image_url,
                 'size': product.size if hasattr(product, 'size') else "N/A"
             }
-
-        print("Cart Session Data:", cart)
-
         request.session['cart'] = cart
+        print("Cart Session After Update:", request.session['cart'])  # Отладочный вывод
         messages.success(request, f"Товар {product.name} добавлен в корзину.")
 
     return redirect('cart')

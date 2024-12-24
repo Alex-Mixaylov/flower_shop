@@ -41,6 +41,7 @@
                                         {% else %}
                                             <img src="{% static 'images/default-product.jpg' %}" alt="No Image">
                                         {% endif %}
+                                        <p>{{ item.image_main }}</p><!-- Для отладки -->
                                     </figure>
                                     <div class="products-cart1">
                                         <h5>{{ item.product.name|default:item.name }}</h5>
