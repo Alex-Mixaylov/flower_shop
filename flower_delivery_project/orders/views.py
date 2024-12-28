@@ -168,6 +168,7 @@ def cart_view(request):
         cart, created = Cart.objects.get_or_create(user=request.user)
         cart_items = cart.items.select_related('product')
         for item in cart_items:
+            print(f"Cart Item ID: {item.id}, Product: {item.product}, Price: {item.product.price}")
             total_price += item.total_price()
     else:
         # Для гостей
