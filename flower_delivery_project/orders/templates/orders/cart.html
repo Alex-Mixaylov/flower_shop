@@ -63,14 +63,14 @@
                                             </li>
                                             <li>
                                                 <span>Order ID:</span>
-                                                <span>{{ item.id }}</span>
+                                                <span>{{ item.id|default:item.product_id }}</span>
                                             </li>
                                             <li>
                                                 <span>Qty:</span>
                                                 <span>{{ item.quantity }}</span>
                                             </li>
                                         </ul>
-                                        <a href="{% url 'remove_from_cart' item.id %}" class="btn remove-btn p-0 mt-2">
+                                        <a href="{% if item.id %}{% url 'remove_from_cart' item.id %}{% else %}#{% endif %}" class="btn remove-btn p-0 mt-2">
                                             <span><i class="fas fa-trash"></i></span> Remove
                                         </a>
                                     </div>
@@ -83,19 +83,13 @@
                                         {% elif item.old_price %}
                                             <span>${{ item.old_price }}</span>
                                         {% endif %}
-                                        ${{ item.product.price|default:item.price }}
+                                        ${{ item.product.price|default:item.price|default:"0.00" }}
                                     </h4>
                                     <h6>
                                         {% if item.product and item.product.old_price %}
                                             You Save ${{ item.product.old_price|floatformat:2|add:"-"|add:item.product.price }}
                                         {% endif %}
                                     </h6>
-
-                                    <div class="quantity-field">
-                                        <button class="value-button decrease-button" onclick="decreaseValue(this)" title="Decrease">-</button>
-                                        <div class="number">{{ item.quantity }}</div>
-                                        <button class="value-button increase-button" onclick="increaseValue(this, 5)" title="Increase">+</button>
-                                    </div>
                                 </div>
                             </div>
                             {% endfor %}
@@ -118,13 +112,6 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="promo-code1">
-                            <div class="form-group">
-                                <label>Do you have any discount code?</label>
-                                <input type="text" class="form-control" placeholder="Enter your code">
-                                <input type="submit" value="Apply" class="btn">
-                            </div>
-                        </div>
                         <ul class="pay-listy mt-4">
                             <li>
                                 <span class="list-payt">Subtotal <b>({{ cart_items|length }} Items)</b></span>
@@ -133,10 +120,6 @@
                             <li>
                                 <span class="list-payt">Delivery charges</span>
                                 <span class="price-bn">$5.00</span>
-                            </li>
-                            <li>
-                                <span class="list-payt">Discount price</span>
-                                <span class="price-bn">-</span>
                             </li>
                         </ul>
                         <hr>

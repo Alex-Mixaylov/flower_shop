@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
@@ -5,8 +6,6 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.utils.timezone import now
 from django.core.validators import MinValueValidator, MaxValueValidator
-
-from flower_delivery_project.flower_delivery_project import settings
 
 
 # Пользователи (User)
