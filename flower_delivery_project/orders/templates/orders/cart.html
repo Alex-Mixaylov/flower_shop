@@ -63,14 +63,14 @@
                                             </li>
                                             <li>
                                                 <span>Order ID:</span>
-                                                <span>{{ item.id|default:item.product_id }}</span>
+                                                <span>{{ item.id }}</span>
                                             </li>
                                             <li>
                                                 <span>Qty:</span>
                                                 <span>{{ item.quantity }}</span>
                                             </li>
                                         </ul>
-                                        <a href="{% url 'remove_from_cart' item.id|default:item.product_id %}" class="btn remove-btn p-0 mt-2">
+                                        <a href="{% url 'remove_from_cart' item.id %}" class="btn remove-btn p-0 mt-2">
                                             <span><i class="fas fa-trash"></i></span> Remove
                                         </a>
                                     </div>
