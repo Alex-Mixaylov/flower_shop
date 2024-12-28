@@ -160,124 +160,192 @@ def checkout(request):
     return render(request, 'orders/checkout.html')
 
 # Корзина
+# def cart_view(request):
+#     # Инициализация данных
+#     cart_items = []
+#     cart_session = request.session.get('cart', {})
+#     total_price = 0
+#
+#     if request.user.is_authenticated:
+#         # Для авторизованных пользователей
+#         cart_items = CartItem.objects.filter(user=request.user)  # Получение корзины пользователя
+#         for item in cart_items:
+#             # Рассчёт subtotal для каждого элемента
+#             item.subtotal = item.quantity * item.product.price
+#             total_price += item.subtotal
+#             # Отладочный вывод данных корзины пользователя
+#             print(f"User Cart Item: ID={item.id}, Product={item.product.name}, Price={item.product.price}, Quantity={item.quantity}, Subtotal={item.subtotal}")
+#     else:
+#         # Для гостей
+#         for product_id, product_data in cart_session.items():
+#             product_data['subtotal'] = float(product_data['price']) * product_data['quantity']
+#             total_price += product_data['subtotal']
+#             # Добавляем product_id в данные для шаблона
+#             cart_items.append({
+#                 'product_id': product_id,  # Убедитесь, что передаётся product_id
+#                 'name': product_data.get('name', 'Unknown Product'),  # Обработка отсутствия имени
+#                 'quantity': product_data.get('quantity', 1),  # Обработка отсутствия количества
+#                 'price': product_data.get('price', 0.0),  # Обработка отсутствия цены
+#                 'subtotal': product_data['subtotal'],
+#                 'image_main': product_data.get('image_main')  # Проверка изображения
+#             })
+#             # Отладочный вывод данных корзины гостя
+#             print(f"Guest Cart Item: Product ID={product_id}, Name={product_data.get('name')}, Price={product_data.get('price')}, Quantity={product_data.get('quantity')}, Subtotal={product_data['subtotal']}")
+#
+#     # Отладочный вывод общего количества товаров и суммы
+#     print(f"Total Items: {len(cart_items)}, Total Price: {total_price}")
+#     for item in cart_items:
+#         print(f"Item Data: {item}")
+#
+#     # Формирование контекста для шаблона
+#     context = {
+#         'cart_items': cart_items,  # Данные корзины
+#         'total_price': total_price,  # Общая сумма
+#     }
+#     return render(request, 'orders/cart.html', context)
+
 def cart_view(request):
-    # Инициализация данных
     cart_items = []
     cart_session = request.session.get('cart', {})
     total_price = 0
 
     if request.user.is_authenticated:
         # Для авторизованных пользователей
-        cart_items = CartItem.objects.filter(user=request.user)  # Получение корзины пользователя
+        cart_items = CartItem.objects.filter(user=request.user).select_related('product')  # Предзагрузка product
         for item in cart_items:
-            # Рассчёт subtotal для каждого элемента
-            item.subtotal = item.quantity * item.product.price
-            total_price += item.subtotal
-            # Отладочный вывод данных корзины пользователя
-            print(f"User Cart Item: ID={item.id}, Product={item.product.name}, Price={item.product.price}, Quantity={item.quantity}, Subtotal={item.subtotal}")
+            total_price += item.quantity * item.product.price
     else:
         # Для гостей
         for product_id, product_data in cart_session.items():
-            product_data['subtotal'] = float(product_data['price']) * product_data['quantity']
-            total_price += product_data['subtotal']
-            # Добавляем product_id в данные для шаблона
+            subtotal = float(product_data['price']) * product_data['quantity']
+            total_price += subtotal
             cart_items.append({
-                'product_id': product_id,  # Убедитесь, что передаётся product_id
-                'name': product_data.get('name', 'Unknown Product'),  # Обработка отсутствия имени
-                'quantity': product_data.get('quantity', 1),  # Обработка отсутствия количества
-                'price': product_data.get('price', 0.0),  # Обработка отсутствия цены
-                'subtotal': product_data['subtotal'],
-                'image_main': product_data.get('image_main')  # Проверка изображения
+                'product_id': product_id,
+                'name': product_data.get('name', 'Unknown Product'),
+                'quantity': product_data.get('quantity', 1),
+                'price': product_data.get('price', 0.0),
+                'image_main': product_data.get('image_main'),
             })
-            # Отладочный вывод данных корзины гостя
-            print(f"Guest Cart Item: Product ID={product_id}, Name={product_data.get('name')}, Price={product_data.get('price')}, Quantity={product_data.get('quantity')}, Subtotal={product_data['subtotal']}")
 
-    # Отладочный вывод общего количества товаров и суммы
-    print(f"Total Items: {len(cart_items)}, Total Price: {total_price}")
-    for item in cart_items:
-        print(f"Item Data: {item}")
-
-    # Формирование контекста для шаблона
     context = {
-        'cart_items': cart_items,  # Данные корзины
-        'total_price': total_price,  # Общая сумма
+        'cart_items': cart_items,
+        'total_price': total_price,
     }
     return render(request, 'orders/cart.html', context)
 
 
 # Добавление товара в Корзину
-def add_to_cart(request, product_id):
-    # Проверяем наличие product_id
-    if not product_id:
-        messages.error(request, "Invalid product ID.")
-        return redirect('cart')
+# def add_to_cart(request, product_id):
+#     # Проверяем наличие product_id
+#     if not product_id:
+#         messages.error(request, "Invalid product ID.")
+#         return redirect('cart')
+#
+#     # Пытаемся получить продукт, возвращаем 404, если он не найден
+#     product = get_object_or_404(Product, id=product_id)
+#
+#     if request.user.is_authenticated:
+#         # Получаем корзину пользователя или создаём новую
+#         user_cart, created = Cart.objects.get_or_create(user=request.user)
+#
+#         # Если пользователь авторизован, добавляем в его корзину
+#         cart_item, created = CartItem.objects.get_or_create(
+#             user=request.user,
+#             product=product,
+#             cart=user_cart  # Привязываем элемент корзины к корзине пользователя
+#         )
+#         if not created:
+#             # Если товар уже в корзине, увеличиваем его количество
+#             cart_item.quantity += 1
+#             cart_item.save()
+#         messages.success(request, f"Товар {product.name} добавлен в корзину.")
+#     else:
+#         # Если пользователь не авторизован, используем сессии
+#         cart = request.session.get('cart', {})
+#         if str(product_id) in cart:
+#             # Если товар уже в корзине сессии, увеличиваем количество
+#             cart[str(product_id)]['quantity'] += 1
+#         else:
+#             # Если товара нет в корзине, добавляем его
+#             image_url = product.image_main.url if product.image_main else None
+#             cart[str(product_id)] = {
+#                 'quantity': 1,
+#                 'name': product.name,
+#                 'price': str(product.price),
+#                 'image_main': image_url,
+#                 'size': product.size if hasattr(product, 'size') else "N/A"
+#             }
+#         request.session['cart'] = cart
+#         messages.success(request, f"Товар {product.name} добавлен в корзину.")
+#
+#     return redirect('cart')
 
-    # Пытаемся получить продукт, возвращаем 404, если он не найден
+def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
     if request.user.is_authenticated:
-        # Получаем корзину пользователя или создаём новую
-        user_cart, created = Cart.objects.get_or_create(user=request.user)
-
-        # Если пользователь авторизован, добавляем в его корзину
         cart_item, created = CartItem.objects.get_or_create(
             user=request.user,
             product=product,
-            cart=user_cart  # Привязываем элемент корзины к корзине пользователя
+            defaults={'quantity': 1}
         )
         if not created:
-            # Если товар уже в корзине, увеличиваем его количество
             cart_item.quantity += 1
             cart_item.save()
-        messages.success(request, f"Товар {product.name} добавлен в корзину.")
     else:
-        # Если пользователь не авторизован, используем сессии
         cart = request.session.get('cart', {})
         if str(product_id) in cart:
-            # Если товар уже в корзине сессии, увеличиваем количество
             cart[str(product_id)]['quantity'] += 1
         else:
-            # Если товара нет в корзине, добавляем его
-            image_url = product.image_main.url if product.image_main else None
             cart[str(product_id)] = {
                 'quantity': 1,
                 'name': product.name,
                 'price': str(product.price),
-                'image_main': image_url,
-                'size': product.size if hasattr(product, 'size') else "N/A"
+                'image_main': product.image_main.url if product.image_main else None,
             }
         request.session['cart'] = cart
-        messages.success(request, f"Товар {product.name} добавлен в корзину.")
 
     return redirect('cart')
 
 
 # Удаление из Корзины
-def remove_from_cart(request, item_id):
-    if not item_id:
-        messages.error(request, "Invalid item ID.")
-        return redirect('cart')
+# def remove_from_cart(request, item_id):
+#     if not item_id:
+#         messages.error(request, "Invalid item ID.")
+#         return redirect('cart')
+#
+#     if request.user.is_authenticated:
+#         # Удаление из корзины авторизованного пользователя
+#         try:
+#             cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
+#             cart_item.delete()
+#             messages.success(request, "Товар был удалён из корзины.")
+#         except Exception as e:
+#             print(f"Error while removing item from user cart: {e}")
+#             messages.error(request, "Не удалось удалить товар из корзины.")
+#     else:
+#         # Удаление из корзины в сессии
+#         cart = request.session.get('cart', {})
+#         if str(item_id) in cart:
+#             del cart[str(item_id)]
+#             request.session['cart'] = cart
+#             messages.success(request, "Товар был удалён из корзины.")
+#         else:
+#             messages.error(request, "Товар не найден в корзине.")
+#
+#     return redirect('cart')
 
+def remove_from_cart(request, item_id):
     if request.user.is_authenticated:
-        # Удаление из корзины авторизованного пользователя
-        try:
-            cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
-            cart_item.delete()
-            messages.success(request, "Товар был удалён из корзины.")
-        except Exception as e:
-            print(f"Error while removing item from user cart: {e}")
-            messages.error(request, "Не удалось удалить товар из корзины.")
+        cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
+        cart_item.delete()
     else:
-        # Удаление из корзины в сессии
         cart = request.session.get('cart', {})
         if str(item_id) in cart:
             del cart[str(item_id)]
             request.session['cart'] = cart
-            messages.success(request, "Товар был удалён из корзины.")
-        else:
-            messages.error(request, "Товар не найден в корзине.")
-
     return redirect('cart')
+
 
 def about(request):
     best_sellers = BestSeller.objects.filter(is_featured=True)
