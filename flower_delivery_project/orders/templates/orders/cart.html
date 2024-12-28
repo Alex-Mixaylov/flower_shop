@@ -77,20 +77,13 @@
                                 </div>
 
                                 <div class="crat-linl-pay">
-<!--                                    <h4>-->
-<!--                                        {% if item.product and item.product.old_price %}-->
-<!--                                            <span>${{ item.product.old_price }}</span>-->
-<!--                                        {% elif item.old_price %}-->
-<!--                                            <span>${{ item.old_price }}</span>-->
-<!--                                        {% endif %}-->
-<!--                                        ${{ item.product.price|default:item.price|default:"0.00" }}-->
-<!--                                    </h4>-->
                                     <h4>
-                                        {% if item.product and item.product.price %}
-                                            ${{ item.product.price }}
-                                        {% else %}
-                                            Price not available
+                                        {% if item.product and item.product.old_price %}
+                                            <span>${{ item.product.old_price }}</span>
+                                        {% elif item.old_price %}
+                                            <span>${{ item.old_price }}</span>
                                         {% endif %}
+                                        ${{ item.product.price|default:item.price }}
                                     </h4>
                                     <h6>
                                         {% if item.product and item.product.old_price %}
