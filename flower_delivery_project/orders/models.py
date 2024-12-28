@@ -6,6 +6,9 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from flower_delivery_project.flower_delivery_project import settings
+
+
 # Пользователи (User)
 class User(AbstractUser):
     email = models.EmailField(unique=True)
@@ -103,15 +106,62 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
 
+# class Cart(models.Model):
+#     user = models.ForeignKey(
+#         User, on_delete=models.SET_NULL, null=True, blank=True, related_name="carts"
+#     )  # Привязка к пользователю (если авторизован)
+#     session_id = models.CharField(
+#         max_length=255, blank=True, null=True, verbose_name="ID сессии"
+#     )  # Для неавторизованных пользователей
+#     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+#     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+#
+#     def __str__(self):
+#         user_info = f"User: {self.user.username}" if self.user else "Session"
+#         return f"Cart #{self.id} ({user_info})"
+#
+#     def total_price(self):
+#         """
+#         Calculate the total price of items in the cart.
+#         """
+#         return sum(item.total_price() for item in self.items.all())
+#
+#     total_price.short_description = "Total Price"
+#
+#     def total_items(self):
+#         """
+#         Calculate the total number of items in the cart.
+#         """
+#         return sum(item.quantity for item in self.items.all())
+#
+#     total_items.short_description = "Total Items"
+#
+#     def item_count(self):
+#         """
+#         Alias for total_items to use in admin or other visual representation.
+#         """
+#         return self.total_items()
+#
+#     item_count.short_description = "Item Count"  # Отображение в админке
+
+# Корзина
 class Cart(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="carts"
-    )  # Привязка к пользователю (если авторизован)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,  # Поддержка кастомной модели пользователя
+        on_delete=models.SET_NULL,  # Корзина сохраняется даже если пользователь удален
+        null=True,
+        blank=True,
+        related_name='cart',
+        verbose_name="Пользователь"
+    )
     session_id = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="ID сессии"
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="ID сессии"
     )  # Для неавторизованных пользователей
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")  # Отслеживание изменений
 
     def __str__(self):
         user_info = f"User: {self.user.username}" if self.user else "Session"
@@ -143,16 +193,39 @@ class Cart(models.Model):
 
 
 # Элементы корзины
+# class CartItem(models.Model):
+#     user = models.ForeignKey(
+#         User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Пользователь"
+#     )  # Добавляем связь с пользователем
+#     cart = models.ForeignKey(
+#         Cart, on_delete=models.CASCADE, related_name="items", verbose_name="Корзина"
+#     )
+#     product = models.ForeignKey(
+#         Product, on_delete=models.CASCADE, related_name="cart_items", verbose_name="Товар"
+#     )
+#     quantity = models.PositiveIntegerField(default=1, verbose_name="Количество")
+#     added_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+#
+#     def __str__(self):
+#         return f"{self.quantity} x {self.product.name}"
+#
+#     def total_price(self):
+#         return self.product.price * self.quantity
+
+# Элемент Корзины
 class CartItem(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Пользователь"
-    )  # Добавляем связь с пользователем
     cart = models.ForeignKey(
-        Cart, on_delete=models.CASCADE, related_name="items", verbose_name="Корзина"
-    )
+        Cart,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="Корзина"
+    )  # Связь с корзиной
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="cart_items", verbose_name="Товар"
-    )
+        Product,
+        on_delete=models.CASCADE,
+        related_name="cart_items",
+        verbose_name="Товар"
+    )  # Связь с товаром
     quantity = models.PositiveIntegerField(default=1, verbose_name="Количество")
     added_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
@@ -160,7 +233,26 @@ class CartItem(models.Model):
         return f"{self.quantity} x {self.product.name}"
 
     def total_price(self):
+        """
+        Calculate the total price for the cart item.
+        """
         return self.product.price * self.quantity
+
+    total_price.short_description = "Total Price"
+
+    def get_cart_user(self):
+        """
+        Returns the user associated with the cart, if any.
+        """
+        return self.cart.user
+
+    get_cart_user.short_description = "Cart User"
+
+    def is_for_guest(self):
+        """
+        Check if the cart item belongs to a guest (not linked to a user).
+        """
+        return self.cart.user is None
 
 
 # Заказы (Order)
