@@ -180,10 +180,12 @@ def cart_view(request):
                 'product_id': product_id,
                 'name': product_data.get('name', 'Unknown Product'),
                 'quantity': product_data.get('quantity', 1),
-                #'price': product_data.get('price', 0.0),
                 'price': float(product_data['price']),
+                'old_price': float(product_data.get('old_price', 0)),
                 'image_main': product_data.get('image_main'),
             })
+    # Отладочный вывод
+    print(f"Total Price: {total_price}")
 
     context = {
         'cart_items': cart_items,
@@ -211,14 +213,18 @@ def add_to_cart(request, product_id):
         if str(product_id) in cart:
             cart[str(product_id)]['quantity'] += 1
         else:
+            # Добавляем цену и старую цену с округлением до двух знаков
             cart[str(product_id)] = {
                 'quantity': 1,
                 'name': product.name,
-                'price': str(product.price),  # Приводим к строке
-                'old_price': str(product.old_price) if product.old_price else "0.00",  # Приводим к строке
+                'price': round(float(product.price), 2),
+                'old_price': round(float(product.old_price), 2) if product.old_price else None,
                 'image_main': product.image_main.url if product.image_main else None,
             }
+
+        # Сохраняем корзину в сессию
         request.session['cart'] = cart
+
         # Отладочный вывод
         print(f"Добавлено в корзину: {cart[str(product_id)]}")
 

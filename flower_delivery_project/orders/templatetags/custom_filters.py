@@ -16,9 +16,9 @@ def multiply(value, arg):
     except (ValueError, TypeError):
         return ''
 
-@register.filter(name='subtract')
-def subtract(value, arg):
+@register.filter
+def float_subtract(value, arg):
     try:
         return float(value) - float(arg)
     except (ValueError, TypeError):
-        return ''
+        return 0.0

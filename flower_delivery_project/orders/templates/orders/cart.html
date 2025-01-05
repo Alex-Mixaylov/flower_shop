@@ -68,7 +68,11 @@
                                             </li>
                                             <li>
                                                 <span>Qty:</span>
-                                                <span>{{ item.quantity }}</span>
+                                                <div class="quantity-field">
+                                                    <button class="value-button decrease-button" data-product-id="{{ item.product_id }}" onclick="updateQuantity(this, -1)">-</button>
+                                                    <div class="number">{{ item.quantity }}</div>
+                                                    <button class="value-button increase-button" data-product-id="{{ item.product_id }}" onclick="updateQuantity(this, 1)">+</button>
+                                                </div>
                                             </li>
                                         </ul>
                                         <a href="{% if item.product_id %}{% url 'remove_from_cart' item.product_id %}{% else %}#{% endif %}" class="btn remove-btn p-0 mt-2">
@@ -92,10 +96,10 @@
                                         {% endif %}
                                     </h4>
                                     <h6>
-                                        {% if item.product and item.product.old_price %}
-                                            Вы экономите ${{ item.product.old_price|floatformat:2|subtract:item.product.price|floatformat:2 }}
-                                        {% elif item.old_price and item.price %}
-                                            Вы экономите ${{ item.old_price|floatformat:2|subtract:item.price|floatformat:2 }}
+                                        {% if item.old_price and item.price %}
+                                            Вы экономите ${{ item.old_price|float_subtract:item.price|floatformat:2 }}
+                                        {% elif item.product and item.product.old_price %}
+                                            Вы экономите ${{ item.product.old_price|float_subtract:item.product.price|floatformat:2 }}
                                         {% endif %}
                                     </h6>
                                 </div>
@@ -103,7 +107,11 @@
                             {% endfor %}
                         {% else %}
                         <div class="text-center mt-5">
-                            <p>Your cart is empty. <a href="{% url 'shop' %}">Continue shopping</a></p>
+                            {% if request.user.is_authenticated %}
+                                <p>Dear <span class="text-center sub-heading">{{ request.user.username|default:"User" }}</span>, your cart is empty. <a href="{% url 'shop' %}">Continue shopping</a></p>
+                            {% else %}
+                                <p>Dear <span class="text-center sub-heading">Guest</span>, your cart is empty. <a href="{% url 'shop' %}">Continue shopping</a></p>
+                            {% endif %}
                         </div>
                         {% endif %}
                     </div>
@@ -125,14 +133,12 @@
                                 <span class="list-payt">Subtotal <b>({{ cart_items|length }} Items)</b></span>
                                 <span class="price-bn">${{ total_price|floatformat:2 }}</span>
                             </li>
-                            <li>
-                                <span class="list-payt">Delivery charges</span>
-                                <span class="price-bn">$5.00</span>
-                            </li>
                         </ul>
                         <hr>
-
-                        <h3><span>Total Cost</span> <span>${{ total_price|add:"5.00"|floatformat:2 }}</span></h3>
+                        <h3>
+                            <span>Total Cost</span>
+                            <span>${{ total_price|floatformat:2 }}</span>
+                        </h3>
                         <a href="{% url 'checkout' %}" class="btn btncheck-btn mt-4">Checkout</a>
                     </div>
                 </div>
