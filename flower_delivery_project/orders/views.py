@@ -166,7 +166,7 @@ def cart_view(request):
     if request.user.is_authenticated:
         # Получение корзины пользователя
         cart, created = Cart.objects.get_or_create(user=request.user)
-        cart_items = cart.items.select_related('product')
+        cart_items = cart.items.select_related('product').filter(product__isnull=False)
         for item in cart_items:
             print(f"Cart Item ID: {item.id}, Product: {item.product}, Price: {item.product.price}")
             total_price += item.total_price()
@@ -180,7 +180,8 @@ def cart_view(request):
                 'product_id': product_id,
                 'name': product_data.get('name', 'Unknown Product'),
                 'quantity': product_data.get('quantity', 1),
-                'price': product_data.get('price', 0.0),
+                #'price': product_data.get('price', 0.0),
+                'price': float(product_data['price']),
                 'image_main': product_data.get('image_main'),
             })
 
@@ -233,9 +234,6 @@ def remove_from_cart(request, item_id):
             request.session['cart'] = cart
 
     return redirect('cart')
-
-
-
 
 
 def about(request):

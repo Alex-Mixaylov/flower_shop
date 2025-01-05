@@ -83,7 +83,13 @@
                                         {% elif item.old_price %}
                                             <span>${{ item.old_price }}</span>
                                         {% endif %}
-                                        ${{ item.product.price|default:item.price|default:"0.00" }}
+                                        {% if item.product %}
+                                            ${{ item.product.price }}
+                                        {% elif item.price %}
+                                            ${{ item.price }}
+                                        {% else %}
+                                            <span class="text-danger">Продукт отсутствует</span>
+                                        {% endif %}
                                     </h4>
                                     <h6>
                                         {% if item.product and item.product.old_price %}

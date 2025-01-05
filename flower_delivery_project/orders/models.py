@@ -104,45 +104,6 @@ class Product(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
-
-# class Cart(models.Model):
-#     user = models.ForeignKey(
-#         User, on_delete=models.SET_NULL, null=True, blank=True, related_name="carts"
-#     )  # Привязка к пользователю (если авторизован)
-#     session_id = models.CharField(
-#         max_length=255, blank=True, null=True, verbose_name="ID сессии"
-#     )  # Для неавторизованных пользователей
-#     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
-#     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
-#
-#     def __str__(self):
-#         user_info = f"User: {self.user.username}" if self.user else "Session"
-#         return f"Cart #{self.id} ({user_info})"
-#
-#     def total_price(self):
-#         """
-#         Calculate the total price of items in the cart.
-#         """
-#         return sum(item.total_price() for item in self.items.all())
-#
-#     total_price.short_description = "Total Price"
-#
-#     def total_items(self):
-#         """
-#         Calculate the total number of items in the cart.
-#         """
-#         return sum(item.quantity for item in self.items.all())
-#
-#     total_items.short_description = "Total Items"
-#
-#     def item_count(self):
-#         """
-#         Alias for total_items to use in admin or other visual representation.
-#         """
-#         return self.total_items()
-#
-#     item_count.short_description = "Item Count"  # Отображение в админке
-
 # Корзина
 class Cart(models.Model):
     user = models.OneToOneField(
@@ -189,27 +150,6 @@ class Cart(models.Model):
         return self.total_items()
 
     item_count.short_description = "Item Count"  # Отображение в админке
-
-
-# Элементы корзины
-# class CartItem(models.Model):
-#     user = models.ForeignKey(
-#         User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Пользователь"
-#     )  # Добавляем связь с пользователем
-#     cart = models.ForeignKey(
-#         Cart, on_delete=models.CASCADE, related_name="items", verbose_name="Корзина"
-#     )
-#     product = models.ForeignKey(
-#         Product, on_delete=models.CASCADE, related_name="cart_items", verbose_name="Товар"
-#     )
-#     quantity = models.PositiveIntegerField(default=1, verbose_name="Количество")
-#     added_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
-#
-#     def __str__(self):
-#         return f"{self.quantity} x {self.product.name}"
-#
-#     def total_price(self):
-#         return self.product.price * self.quantity
 
 # Элемент Корзины
 class CartItem(models.Model):
@@ -404,4 +344,4 @@ class Slide(models.Model):
     def __str__(self):
         return self.title
 
-# Модель корзины
+
