@@ -76,18 +76,17 @@
                                         </a>
                                     </div>
                                 </div>
-
                                 <div class="crat-linl-pay">
                                     <h4>
-                                        {% if item.product and item.product.old_price %}
-                                            <span>${{ item.product.old_price }}</span>
-                                        {% elif item.old_price %}
-                                            <span>${{ item.old_price }}</span>
+                                        {% if item.old_price %}
+                                            <span>${{ item.old_price|floatformat:2 }}</span>
+                                        {% elif item.product and item.product.old_price %}
+                                            <span>${{ item.product.old_price|floatformat:2 }}</span>
                                         {% endif %}
                                         {% if item.product %}
-                                            ${{ item.product.price }}
+                                            ${{ item.product.price|floatformat:2 }}
                                         {% elif item.price %}
-                                            ${{ item.price }}
+                                            ${{ item.price|floatformat:2 }}
                                         {% else %}
                                             <span class="text-danger">Продукт отсутствует</span>
                                         {% endif %}

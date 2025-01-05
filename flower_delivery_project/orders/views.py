@@ -214,13 +214,16 @@ def add_to_cart(request, product_id):
             cart[str(product_id)] = {
                 'quantity': 1,
                 'name': product.name,
-                'price': float(product.price),
-                'old_price': float(product.old_price) if product.old_price else 0.0,
+                'price': str(product.price),  # Приводим к строке
+                'old_price': str(product.old_price) if product.old_price else "0.00",  # Приводим к строке
                 'image_main': product.image_main.url if product.image_main else None,
             }
         request.session['cart'] = cart
+        # Отладочный вывод
+        print(f"Добавлено в корзину: {cart[str(product_id)]}")
 
     return redirect('cart')
+
 
 def remove_from_cart(request, item_id):
     if request.user.is_authenticated:
