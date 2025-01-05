@@ -1,5 +1,6 @@
 {% extends 'orders/layout.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Shopping Cart - Flower Shop{% endblock %}
 
@@ -70,7 +71,7 @@
                                                 <span>{{ item.quantity }}</span>
                                             </li>
                                         </ul>
-                                        <a href="{% if item.id %}{% url 'remove_from_cart' item.id %}{% else %}#{% endif %}" class="btn remove-btn p-0 mt-2">
+                                        <a href="{% if item.product_id %}{% url 'remove_from_cart' item.product_id %}{% else %}#{% endif %}" class="btn remove-btn p-0 mt-2">
                                             <span><i class="fas fa-trash"></i></span> Remove
                                         </a>
                                     </div>
@@ -93,12 +94,11 @@
                                     </h4>
                                     <h6>
                                         {% if item.product and item.product.old_price %}
-                                            Вы экономите ${{ item.product.old_price|floatformat:2|add:"-"|add:item.product.price }}
+                                            Вы экономите ${{ item.product.old_price|floatformat:2|subtract:item.product.price|floatformat:2 }}
                                         {% elif item.old_price and item.price %}
-                                            Вы экономите ${{ item.old_price|floatformat:2|add:"-"|add:item.price }}
+                                            Вы экономите ${{ item.old_price|floatformat:2|subtract:item.price|floatformat:2 }}
                                         {% endif %}
                                     </h6>
-
                                 </div>
                             </div>
                             {% endfor %}

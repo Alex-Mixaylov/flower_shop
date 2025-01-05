@@ -195,7 +195,7 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
     if request.user.is_authenticated:
-        # Получение корзины пользователя
+        # Корзина для зарегистрированных пользователей
         cart, created = Cart.objects.get_or_create(user=request.user)
         cart_item, created = CartItem.objects.get_or_create(
             cart=cart,
@@ -206,7 +206,7 @@ def add_to_cart(request, product_id):
             cart_item.quantity += 1
             cart_item.save()
     else:
-        # Для гостей
+        # Корзина для гостей
         cart = request.session.get('cart', {})
         if str(product_id) in cart:
             cart[str(product_id)]['quantity'] += 1
@@ -224,25 +224,21 @@ def add_to_cart(request, product_id):
 
 def remove_from_cart(request, item_id):
     if request.user.is_authenticated:
-        # Удаление товара из корзины пользователя
-        cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
-        cart_item.delete()
+        # Проверяем, есть ли такой товар в корзине пользователя
+        try:
+            cart_item = CartItem.objects.filter(product_id=item_id, cart__user=request.user).first()
+            if cart_item:
+                cart_item.delete()
+        except CartItem.DoesNotExist:
+            pass
     else:
         # Удаление товара из корзины сессии
         cart = request.session.get('cart', {})
         if str(item_id) in cart:
             del cart[str(item_id)]
             request.session['cart'] = cart
-        else:
-            # Попробуем удалить по product_id
-            for key, value in list(cart.items()):
-                if int(key) == item_id:
-                    del cart[key]
-                    break
-            request.session['cart'] = cart
 
     return redirect('cart')
-
 
 
 def about(request):
