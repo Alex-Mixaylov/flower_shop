@@ -93,9 +93,12 @@
                                     </h4>
                                     <h6>
                                         {% if item.product and item.product.old_price %}
-                                            You Save ${{ item.product.old_price|floatformat:2|add:"-"|add:item.product.price }}
+                                            Вы экономите ${{ item.product.old_price|floatformat:2|add:"-"|add:item.product.price }}
+                                        {% elif item.old_price and item.price %}
+                                            Вы экономите ${{ item.old_price|floatformat:2|add:"-"|add:item.price }}
                                         {% endif %}
                                     </h6>
+
                                 </div>
                             </div>
                             {% endfor %}

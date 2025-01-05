@@ -214,7 +214,8 @@ def add_to_cart(request, product_id):
             cart[str(product_id)] = {
                 'quantity': 1,
                 'name': product.name,
-                'price': str(product.price),
+                'price': float(product.price),
+                'old_price': float(product.old_price) if product.old_price else 0.0,
                 'image_main': product.image_main.url if product.image_main else None,
             }
         request.session['cart'] = cart
@@ -232,8 +233,16 @@ def remove_from_cart(request, item_id):
         if str(item_id) in cart:
             del cart[str(item_id)]
             request.session['cart'] = cart
+        else:
+            # Попробуем удалить по product_id
+            for key, value in list(cart.items()):
+                if int(key) == item_id:
+                    del cart[key]
+                    break
+            request.session['cart'] = cart
 
     return redirect('cart')
+
 
 
 def about(request):
