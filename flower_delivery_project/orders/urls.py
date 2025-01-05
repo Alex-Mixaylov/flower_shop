@@ -20,6 +20,8 @@ urlpatterns = [
     # Маршруты для коллекций и категорий в footer
     path('collection/<slug:slug>/', views.shop_by_collection, name='shop_by_collection'),
     path('category/<slug:slug>/', views.shop_by_category, name='shop_by_category'),
+    # Маршрут для AJAX изменения кол-ва товара в Корзине
+    path('update-cart-quantity/', views.update_cart_quantity, name='update_cart_quantity'),
 ]
 
 # Подключение статических файлов в режиме разработки
