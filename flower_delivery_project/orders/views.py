@@ -12,6 +12,8 @@ from django.contrib import messages
 from django.db.models import Count
 from django.db.models import Avg
 
+from django.http import JsonResponse
+
 def index(request):
     # Получение данных для категорий
     categories = Category.objects.annotate(product_count=Count('products'))
@@ -248,6 +250,23 @@ def remove_from_cart(request, item_id):
             request.session['cart'] = cart
 
     return redirect('cart')
+
+# Обновление кол-ва товара в Корзине
+def update_cart_quantity(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        change = int(request.POST.get('change'))
+
+        cart = request.session.get('cart', {})
+        if product_id in cart:
+            cart[product_id]['quantity'] = max(1, cart[product_id]['quantity'] + change)
+            request.session['cart'] = cart
+
+            # Пересчёт общей стоимости
+            total_price = sum(float(item['price']) * item['quantity'] for item in cart.values())
+            return JsonResponse({'success': True, 'total_price': total_price})
+
+    return JsonResponse({'success': False})
 
 
 def about(request):

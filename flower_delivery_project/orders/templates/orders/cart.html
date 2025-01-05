@@ -146,4 +146,27 @@
         </div>
     </div>
 </main>
+<!-- Обновление количества товара в Корзине -->
+<script>
+    function updateQuantity(button, change) {
+        const productId = button.getAttribute('data-product-id');
+
+        fetch("{% url 'update_cart_quantity' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({
+                'product_id': productId,
+                'change': change
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+</script>
 {% endblock %}
