@@ -110,3 +110,7 @@ EMAIL_HOST_PASSWORD = 'your-password'
 
 # --- Django 5.1: Primary key field type ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# settings.py
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
+
