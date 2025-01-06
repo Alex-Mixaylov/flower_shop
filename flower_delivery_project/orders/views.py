@@ -266,7 +266,10 @@ def update_cart_quantity(request):
         product_id = request.POST.get('product_id')
         change = request.POST.get('change')
 
+        logger.info(f"Получены данные: product_id={product_id}, change={change}")
+
         if not product_id or not change:
+            logger.warning("Некорректные данные в запросе.")
             return JsonResponse({'success': False, 'error': 'Invalid request'})
 
         try:
@@ -277,31 +280,47 @@ def update_cart_quantity(request):
                 cart_item.quantity = max(1, cart_item.quantity + int(change))
                 cart_item.save()
                 total_price = cart.total_price()
+                logger.info(f"Обновлено количество товара для зарегистрированного пользователя: product_id={product_id}, quantity={cart_item.quantity}")
+
             else:
                 # Для незарегистрированных пользователей
                 session_id = request.session.session_key
                 if not session_id:
                     request.session.create()
                     session_id = request.session.session_key
+                logger.info(f"Session ID: {session_id}")
 
+                # Получаем корзину по session_id
                 cart, created = Cart.objects.get_or_create(session_id=session_id)
+
+                # Получаем или создаём товар в корзине
+                try:
+                    product = Product.objects.get(id=product_id)
+                except Product.DoesNotExist:
+                    logger.error(f"Товар с ID {product_id} не найден.")
+                    return JsonResponse({'success': False, 'error': 'Product not found'})
+
                 cart_item, created = CartItem.objects.get_or_create(
                     cart=cart,
-                    product_id=product_id,
+                    product=product,
                     defaults={'quantity': 0}
                 )
                 cart_item.quantity = max(1, cart_item.quantity + int(change))
                 cart_item.save()
                 total_price = cart.total_price()
 
+                logger.info(f"Обновлено количество товара для гостя: product_id={product_id}, quantity={cart_item.quantity}")
+
             return JsonResponse({'success': True, 'total_price': total_price})
 
         except Exception as e:
+            logger.error(f"Ошибка при обновлении корзины: {str(e)}")
             return JsonResponse({'success': False, 'error': str(e)})
 
+    logger.warning("Некорректный метод запроса.")
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
-
+# О Компании
 def about(request):
     best_sellers = BestSeller.objects.filter(is_featured=True)
     team_members = TeamMember.objects.all()

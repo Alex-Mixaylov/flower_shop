@@ -159,6 +159,8 @@
         const productId = button.getAttribute('data-product-id');
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
+        console.log(`Отправка запроса: product_id=${productId}, change=${change}`);
+
         fetch("{% url 'update_cart_quantity' %}", {
             method: 'POST',
             headers: {
