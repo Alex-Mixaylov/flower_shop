@@ -276,7 +276,7 @@ def update_cart_quantity(request):
                 cart_item = cart.items.get(product_id=product_id)
                 cart_item.quantity = max(1, cart_item.quantity + int(change))
                 cart_item.save()
-                total_price = float(cart.total_price())  # Преобразуем в float
+                total_price = float(cart.total_price())  # Преобразуем в float-формат
             else:
                 # Для гостей
                 cart_session = request.session.get('cart', {})
