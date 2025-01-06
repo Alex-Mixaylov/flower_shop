@@ -4,7 +4,6 @@ from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection, Slide, ComboOffer, Cart, CartItem
 
-
 from django.db.models import F
 
 from django.conf import settings
@@ -15,6 +14,8 @@ from django.db.models import Avg
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
+
+import logging
 
 
 def index(request):
@@ -255,31 +256,41 @@ def remove_from_cart(request, item_id):
     return redirect('cart')
 
 # Обновление кол-ва товара в Корзине
+#@csrf_protect
 
-
-@csrf_protect
+logger = logging.getLogger(__name__)
+@csrf_exempt  # Временно отключаем CSRF для отладки
 def update_cart_quantity(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         change = request.POST.get('change')
 
-        if product_id and change:
-            try:
+        if not product_id or not change:
+            return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+        try:
+            if request.user.is_authenticated:
+                # Для зарегистрированных пользователей — корзина из базы данных
+                cart, created = Cart.objects.get_or_create(user=request.user)
+                cart_item = cart.items.get(product_id=product_id)
+                cart_item.quantity = max(1, cart_item.quantity + int(change))
+                cart_item.save()
+                total_price = sum(item.product.price * item.quantity for item in cart.items.all())
+            else:
+                # Для незарегистрированных пользователей — корзина из сессии
                 cart = request.session.get('cart', {})
                 product_id = str(product_id)
-
                 if product_id in cart:
                     cart[product_id]['quantity'] = max(1, cart[product_id]['quantity'] + int(change))
                     request.session['cart'] = cart
+                total_price = sum(float(item['price']) * item['quantity'] for item in cart.values())
 
-                    total_price = sum(float(item['price']) * item['quantity'] for item in cart.values())
-                    return JsonResponse({'success': True, 'total_price': total_price})
+            return JsonResponse({'success': True, 'total_price': total_price})
 
-            except Exception as e:
-                return JsonResponse({'success': False, 'error': str(e)})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'error': 'Invalid request'})
-
 
 def about(request):
     best_sellers = BestSeller.objects.filter(is_featured=True)
