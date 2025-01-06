@@ -259,7 +259,8 @@ def remove_from_cart(request, item_id):
 #@csrf_protect
 
 logger = logging.getLogger(__name__)
-@csrf_exempt  # Временно отключаем CSRF для отладки
+
+@csrf_exempt
 def update_cart_quantity(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
@@ -270,20 +271,28 @@ def update_cart_quantity(request):
 
         try:
             if request.user.is_authenticated:
-                # Для зарегистрированных пользователей — корзина из базы данных
+                # Для зарегистрированных пользователей
                 cart, created = Cart.objects.get_or_create(user=request.user)
                 cart_item = cart.items.get(product_id=product_id)
                 cart_item.quantity = max(1, cart_item.quantity + int(change))
                 cart_item.save()
-                total_price = sum(item.product.price * item.quantity for item in cart.items.all())
+                total_price = cart.total_price()
             else:
-                # Для незарегистрированных пользователей — корзина из сессии
-                cart = request.session.get('cart', {})
-                product_id = str(product_id)
-                if product_id in cart:
-                    cart[product_id]['quantity'] = max(1, cart[product_id]['quantity'] + int(change))
-                    request.session['cart'] = cart
-                total_price = sum(float(item['price']) * item['quantity'] for item in cart.values())
+                # Для незарегистрированных пользователей
+                session_id = request.session.session_key
+                if not session_id:
+                    request.session.create()
+                    session_id = request.session.session_key
+
+                cart, created = Cart.objects.get_or_create(session_id=session_id)
+                cart_item, created = CartItem.objects.get_or_create(
+                    cart=cart,
+                    product_id=product_id,
+                    defaults={'quantity': 0}
+                )
+                cart_item.quantity = max(1, cart_item.quantity + int(change))
+                cart_item.save()
+                total_price = cart.total_price()
 
             return JsonResponse({'success': True, 'total_price': total_price})
 
@@ -291,6 +300,7 @@ def update_cart_quantity(request):
             return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'error': 'Invalid request'})
+
 
 def about(request):
     best_sellers = BestSeller.objects.filter(is_featured=True)

@@ -115,4 +115,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
 # settings.py
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 1209600  # Время жизни сессии (2 недели)
+SESSION_SAVE_EVERY_REQUEST = True
+
 
