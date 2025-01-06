@@ -14,6 +14,7 @@ from django.db.models import Avg
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_protect
 
 
 def index(request):
@@ -254,7 +255,9 @@ def remove_from_cart(request, item_id):
     return redirect('cart')
 
 # Обновление кол-ва товара в Корзине
-@csrf_exempt  # Отключаем CSRF-токен для этой функции
+
+
+@csrf_protect
 def update_cart_quantity(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
@@ -262,16 +265,13 @@ def update_cart_quantity(request):
 
         if product_id and change:
             try:
-                # Получаем корзину из сессии
                 cart = request.session.get('cart', {})
                 product_id = str(product_id)
 
-                # Обновляем количество товара
                 if product_id in cart:
                     cart[product_id]['quantity'] = max(1, cart[product_id]['quantity'] + int(change))
                     request.session['cart'] = cart
 
-                    # Пересчёт общей стоимости
                     total_price = sum(float(item['price']) * item['quantity'] for item in cart.values())
                     return JsonResponse({'success': True, 'total_price': total_price})
 
@@ -279,6 +279,7 @@ def update_cart_quantity(request):
                 return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'error': 'Invalid request'})
+
 
 def about(request):
     best_sellers = BestSeller.objects.filter(is_featured=True)
