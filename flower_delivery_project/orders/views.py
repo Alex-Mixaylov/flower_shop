@@ -16,6 +16,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 
 import logging
+from django.core.paginator import Paginator
+
 
 
 def index(request):
@@ -80,18 +82,17 @@ def product_details(request, slug):
         'related_products': related_products,
         'combo_offers': combo_offers,
     })
-
+# Каталог на сайте
 def shop(request):
-    products = Product.objects.all()
-    categories = Category.objects.all()
+    products_list = Product.objects.all()
+    paginator = Paginator(products_list, 9)  # По 9 товаров на страницу
+    page_number = request.GET.get('page')
+    products = paginator.get_page(page_number)
 
-    context = {
+    return render(request, 'orders/shop.html', {
         'products': products,
-        'categories': categories,
-    }
-
-    return render(request, 'orders/shop.html', context)
-
+        'categories': Category.objects.all()
+    })
 
 def thanks(request):
     # Рендеринг HTML-шаблона thanks.html
