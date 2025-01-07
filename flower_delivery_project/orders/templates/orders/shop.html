@@ -26,6 +26,7 @@
                 <!-- Filter Section -->
                 <div class="col-lg-3 filter-divgb">
                     <h2 class="filter-by d-none d-lg-block">Filter by</h2>
+                    <span class="hed-line"></span>
                     <div class="accordion mt-0 list-serach-acd" id="accordionFilters">
                         <div class="accordion-item">
                             <h2 class="accordion-header">
@@ -82,20 +83,18 @@
                                 <div class="position-relative">
                                     <img src="{{ product.image_main.url }}" class="card-img-top" alt="{{ product.name }}">
                                     <button class="btn btn-wishlio">
-                                        <i data-feather="heart"></i>
+                                        <i class="fa fa-heart"></i>
                                     </button>
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title">{{ product.name }}</h5>
                                     <p class="card-text">
                                         <span class="rating">
-                                            <!-- Filled stars -->
                                             {% for i in product.rating|range_filter %}
-                                                <i class="fas fa-star"></i>
+                                                <i class="fa fa-star"></i>
                                             {% endfor %}
-                                            <!-- Empty stars -->
                                             {% for i in 5|add:"-product.rating"|range_filter %}
-                                                <i class="far fa-star"></i>
+                                                <i class="fa fa-star-o"></i>
                                             {% endfor %}
                                         </span>
                                         <span class="rv-text">({{ product.review_count }} Reviews)</span>
@@ -113,6 +112,15 @@
                         {% empty %}
                         <p>No products available.</p>
                         {% endfor %}
+                    </div>
+                    <div class="pagination justify-content-center mt-4">
+                        <ul class="pagination justify-content-center mt-4">
+                            {% for page_num in products.paginator|custom_pagination:products.number %}
+                                <li class="page-item {% if products.number == page_num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
             </div>
