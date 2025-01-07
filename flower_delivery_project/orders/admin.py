@@ -123,7 +123,10 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ('is_featured',)  # Позволяет редактировать is_featured прямо из списка
     ordering = ('-created_at',)  # Последние добавленные товары сверху
     inlines = [SizeOptionInline, RelatedProductInline, ComboOfferInline]
+    def size_option(self, obj):
+        return f"{obj.size_option.size} ({obj.size_option.stems_count} стеблей)" if obj.size_option else "N/A"
 
+    size_option.short_description = "Размер (Количество стеблей)"
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):

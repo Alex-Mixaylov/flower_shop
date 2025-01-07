@@ -293,14 +293,17 @@ class Review(models.Model):
     def __str__(self):
         return f"Отзыв от {self.author} для {self.product.name}"
 
-# Размеры товара
+# Количество стеблей в букете
 class SizeOption(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="size_options", verbose_name="Товар")
+    product = models.OneToOneField(
+        Product, on_delete=models.CASCADE, related_name="size_option", unique=True, verbose_name="Товар"
+    )
     size = models.CharField(max_length=50, verbose_name="Размер")
     stems_count = models.PositiveIntegerField(verbose_name="Количество стеблей")
 
     def __str__(self):
-        return f"{self.size} ({self.stems_count} стеблей) - {self.product.name}"
+        return f"{self.size} ({self.stems_count} стеблей)"
+
 
 # Связанные товары
 class RelatedProduct(models.Model):
