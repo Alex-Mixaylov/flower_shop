@@ -172,14 +172,26 @@ def cart_view(request):
     if request.user.is_authenticated:
         # Получение корзины пользователя
         cart, created = Cart.objects.get_or_create(user=request.user)
-        cart_items = cart.items.select_related('product').filter(product__isnull=False)
-        for item in cart_items:
-            print(f"Cart Item ID: {item.id}, Product: {item.product}, Price: {item.product.price}")
+        for item in cart.items.select_related('product'):
+            size_option = item.product.size_option
+            cart_items.append({
+                'product_id': item.product.id,
+                'name': item.product.name,
+                'quantity': item.quantity,
+                'price': item.product.price,
+                'old_price': item.product.old_price,
+                'image_main': item.product.image_main.url if item.product.image_main else None,
+                'size': size_option.size if size_option else "N/A",
+                'stems_count': size_option.stems_count if size_option else 0,
+            })
+            print(f"Cart Item ID: {item.id}, Product: {item.product}, Price: {item.product.price}, Size: {size_option.size if size_option else 'N/A'}")
             total_price += item.total_price()
     else:
         # Для гостей
         cart_session = request.session.get('cart', {})
         for product_id, product_data in cart_session.items():
+            product = Product.objects.get(id=product_id)
+            size_option = product.size_option
             subtotal = float(product_data['price']) * product_data['quantity']
             total_price += subtotal
             cart_items.append({
@@ -189,7 +201,11 @@ def cart_view(request):
                 'price': float(product_data['price']),
                 'old_price': float(product_data.get('old_price', 0)),
                 'image_main': product_data.get('image_main'),
+                'size': size_option.size if size_option else "N/A",
+                'stems_count': size_option.stems_count if size_option else 0,
             })
+            print(f"Guest Cart Item ID: {product_id}, Product: {product.name}, Size: {size_option.size if size_option else 'N/A'}")
+
     # Отладочный вывод
     print(f"Total Price: {total_price}")
 

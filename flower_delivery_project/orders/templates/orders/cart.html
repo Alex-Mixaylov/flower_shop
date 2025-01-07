@@ -55,8 +55,8 @@
                                             <li>
                                                 <span>Size:</span>
                                                 <span>
-                                                    {% if item.product and item.product.size_option %}
-                                                        {{ item.product.size_option.size }} ({{ item.product.size_option.stems_count }} stems)
+                                                    {% if item.size %}
+                                                        {{ item.size }} ({{ item.stems_count }} stems)
                                                     {% else %}
                                                         N/A
                                                     {% endif %}
