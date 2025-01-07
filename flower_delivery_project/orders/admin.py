@@ -66,9 +66,9 @@ class OrderAdmin(admin.ModelAdmin):
 class BestSellerAdmin(admin.ModelAdmin):
     list_display = ('get_title', 'get_price', 'get_old_price', 'is_featured', 'created_at')
 
-    def get_title(self, obj):
-        return obj.product.title
-    get_title.short_description = "Название товара"
+    def get_name(self, obj):
+        return obj.product.name
+    get_name.short_description = "Название товара"
 
     def get_price(self, obj):
         return obj.product.price

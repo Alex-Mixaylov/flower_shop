@@ -257,7 +257,7 @@ class BestSeller(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
     def __str__(self):
-        return self.product.title
+        return self.product.name
 
     class Meta:
         verbose_name = "Лучший товар"
