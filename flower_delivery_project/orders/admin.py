@@ -64,7 +64,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(BestSeller)
 class BestSellerAdmin(admin.ModelAdmin):
-    list_display = ('get_title', 'get_price', 'get_old_price', 'is_featured', 'created_at')
+    list_display = ('get_name', 'get_price', 'get_old_price', 'is_featured', 'created_at')
 
     def get_name(self, obj):
         return obj.product.name
