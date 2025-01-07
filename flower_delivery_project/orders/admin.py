@@ -64,28 +64,19 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(BestSeller)
 class BestSellerAdmin(admin.ModelAdmin):
-    # Отображение в списке
-    list_display = ('title', 'price', 'old_price', 'tag', 'is_featured', 'created_at')
-    # Фильтры для быстрого поиска
-    list_filter = ('is_featured', 'tag', 'created_at')
-    # Поля для поиска
-    search_fields = ('title', 'description', 'tag')
-    # Поля, которые можно редактировать прямо в списке
-    list_editable = ('is_featured',)
-    # Группировка в админке
-    fieldsets = (
-        (None, {
-            'fields': ('title', 'description', 'image')
-        }),
-        ('Цены и метки', {
-            'fields': ('price', 'old_price', 'tag', 'is_featured')
-        }),
-        ('Дополнительные данные', {
-            'fields': ('created_at',),
-        }),
-    )
-    # Поля, которые нельзя редактировать
-    readonly_fields = ('created_at',)
+    list_display = ('get_title', 'get_price', 'get_old_price', 'is_featured', 'created_at')
+
+    def get_title(self, obj):
+        return obj.product.title
+    get_title.short_description = "Название товара"
+
+    def get_price(self, obj):
+        return obj.product.price
+    get_price.short_description = "Цена"
+
+    def get_old_price(self, obj):
+        return obj.product.old_price
+    get_old_price.short_description = "Старая цена"
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(admin.ModelAdmin):
