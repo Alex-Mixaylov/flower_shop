@@ -18,6 +18,8 @@ from .models import (
     Slide,
     Cart,
     CartItem,
+    FlowerType,
+    FlowerColor,
 )
 
 # Регистрация моделей в админке
@@ -106,17 +108,30 @@ class ComboOfferInline(admin.TabularInline):
     model = ComboOffer
     extra = 1
 
+# Регистрация модели FlowerType
+@admin.register(FlowerType)
+class FlowerTypeAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
+# Регистрация модели FlowerColor
+@admin.register(FlowerColor)
+class FlowerColorAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+# Регистрация модели Product
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'category', 'rating', 'is_featured', 'created_at')  # Добавили rating и created_at
-    list_filter = ('category', 'is_featured', 'rating')  # Добавили rating
-    search_fields = ('name', 'category__name')
-    list_editable = ('is_featured',)  # Позволяет редактировать is_featured прямо из списка
-    ordering = ('-created_at',)  # Последние добавленные товары сверху
-    inlines = [SizeOptionInline, RelatedProductInline, ComboOfferInline]
+    list_display = ('name', 'price', 'category', 'rating', 'is_featured', 'created_at')
+    list_filter = ('category', 'flower_types', 'flower_colors', 'is_featured', 'rating')  # Добавлены flower_types и flower_colors
+    search_fields = ('name', 'description', 'category__name')
+    list_editable = ('is_featured',)
+    ordering = ('-created_at',)
+    inlines = [SizeOptionInline, RelatedProductInline, ComboOfferInline]  
+
+    # Пользовательский метод для отображения размера и количества стеблей
     def size_option(self, obj):
         return f"{obj.size_option.size} ({obj.size_option.stems_count} стеблей)" if obj.size_option else "N/A"
-
     size_option.short_description = "Размер (Количество стеблей)"
 
 @admin.register(Review)
