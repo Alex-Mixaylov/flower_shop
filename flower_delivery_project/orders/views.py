@@ -84,16 +84,53 @@ def product_details(request, slug):
     })
 # Каталог на сайте
 def shop(request):
+    # Получение всех фильтров
+    category_ids = request.GET.getlist('categories')  # Список ID категорий
+    min_price = request.GET.get('min_price')  # Минимальная цена
+    max_price = request.GET.get('max_price')  # Максимальная цена
+    flower_type_ids = request.GET.getlist('flower_types')  # Список ID типов цветов
+    flower_color_ids = request.GET.getlist('flower_colors')  # Список ID цветов цветов
+
+    # Базовый QuerySet для всех продуктов
     products_list = Product.objects.all()
+
+    # Фильтрация по категориям
+    if category_ids:
+        products_list = products_list.filter(category__id__in=category_ids)
+
+    # Фильтрация по ценовому диапазону
+    if min_price and max_price:
+        products_list = products_list.filter(price__gte=min_price, price__lte=max_price)
+
+    # Фильтрация по типу цветов
+    if flower_type_ids:
+        products_list = products_list.filter(flower_types__id__in=flower_type_ids)
+
+    # Фильтрация по цвету цветов
+    if flower_color_ids:
+        products_list = products_list.filter(flower_colors__id__in=flower_color_ids)
+
+    # Удаление дублирующихся продуктов (если фильтры приводят к повторным объектам)
+    products_list = products_list.distinct()
+
+    # Пагинация
     paginator = Paginator(products_list, 9)  # По 9 товаров на страницу
     page_number = request.GET.get('page')
     products = paginator.get_page(page_number)
 
-    return render(request, 'orders/shop.html', {
+    # Контекст для передачи данных в шаблон
+    context = {
         'products': products,
-        'categories': Category.objects.all()
-    })
-
+        'categories': Category.objects.all(),
+        'flower_types': FlowerType.objects.all(),
+        'flower_colors': FlowerColor.objects.all(),
+        'selected_categories': category_ids,
+        'selected_flower_types': flower_type_ids,
+        'selected_flower_colors': flower_color_ids,
+        'min_price': min_price,
+        'max_price': max_price,
+    }
+    return render(request, 'orders/shop.html', context)
 def thanks(request):
     # Рендеринг HTML-шаблона thanks.html
     return render(request, 'orders/thanks.html')

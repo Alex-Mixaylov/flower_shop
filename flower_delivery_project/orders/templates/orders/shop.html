@@ -63,6 +63,61 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Фильтр по типу цветов -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flowerTypeFilter" aria-expanded="true" aria-controls="flowerTypeFilter">
+                                Flower Type
+                            </button>
+                        </h2>
+                        <div id="flowerTypeFilter" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                <div class="radiou" style="display: block;">
+                                    {% for flower_type in flower_types %}
+                                    <div class="form-check">
+                                        <input class="form-check-input flower-type-filter" type="checkbox" value="{{ flower_type.id }}" id="flowerType{{ flower_type.id }}">
+                                        <label class="form-check-label" for="flowerType{{ flower_type.id }}">
+                                            {{ flower_type.name }} <span class="ciu">({{ flower_type.products.count }})</span>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <a href="#" class="load-more" style="display: none;">
+                                    <span class="icou">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
+                                        </svg>
+                                    </span>
+                                    Show More
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Конец Фильтр по типу цветов -->
+
+                    <!-- Фильтр по цвету цветов -->
+                    <div class="accordion-item mt-4">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flowerColorFilter" aria-expanded="false" aria-controls="flowerColorFilter">
+                                Flower Color
+                            </button>
+                        </h2>
+                        <div id="flowerColorFilter" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                <div class="form-group radion-div d-flex align-items-center flex-wrap">
+                                    {% for flower_color in flower_colors %}
+                                    <div class="form-check">
+                                        <input class="form-check-input flower-color-filter" type="checkbox" value="{{ flower_color.id }}" id="flowerColor{{ flower_color.id }}">
+                                        <label class="form-check-label" for="flowerColor{{ flower_color.id }}" style="background-color: {{ flower_color.color_code }}; width: 20px; height: 20px; display: inline-block; border-radius: 50%; border: 1px solid #ddd;">
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Конец Фильтра по цвету цветов -->
+
                     <button type="submit" class="btn submit-btn mt-3">Apply Filters</button>
                 </div>
 
@@ -187,6 +242,47 @@
                     showCartNotification();
                 });
             });
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Собираем фильтры и отправляем запрос
+        function applyFilters() {
+            const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const selectedFlowerTypes = Array.from(document.querySelectorAll('.flower-type-filter:checked')).map(cb => cb.value);
+            const selectedFlowerColors = Array.from(document.querySelectorAll('.flower-color-filter:checked')).map(cb => cb.value);
+            const priceRange = Array.from(document.querySelectorAll('#priceFilter input')).map(input => input.value);
+
+            // Формируем параметры GET-запроса
+            const params = new URLSearchParams();
+            selectedCategories.forEach(cat => params.append('categories', cat));
+            selectedFlowerTypes.forEach(type => params.append('flower_types', type));
+            selectedFlowerColors.forEach(color => params.append('flower_colors', color));
+            if (priceRange.length === 2) {
+                params.append('min_price', priceRange[0]);
+                params.append('max_price', priceRange[1]);
+            }
+
+            // Отправляем запрос на сервер
+            fetch(`/shop/?${params.toString()}`)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const productsContainer = doc.querySelector('.row');
+                    document.querySelector('.row').innerHTML = productsContainer.innerHTML;
+                })
+                .catch(error => console.error('Ошибка при применении фильтров:', error));
+        }
+
+        // Добавляем обработчики событий для фильтров
+        document.querySelectorAll('.category-filter, .flower-type-filter, .flower-color-filter').forEach(input => {
+            input.addEventListener('change', applyFilters);
+        });
+
+        document.querySelectorAll('#priceFilter input').forEach(input => {
+            input.addEventListener('input', applyFilters);
         });
     });
 </script>
