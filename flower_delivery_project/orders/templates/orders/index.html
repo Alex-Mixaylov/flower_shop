@@ -332,9 +332,7 @@
                             <h6>{{ product.category.name }}</h6>
                             <h5 class="mt-2">{{ product.name }}</h5>
                             <p class="mt-2">{{ product.description|truncatewords:15 }}</p>
-                            <!-- Вывод количества стеблей -->
                             <h6 class="mt-1" style="font-size:12px;">{{ product.size_option.stems_count }} stems</h6>
-                            <!-- Вывод количества стеблей -->
                             <h3 class="pric mt-4">${{ product.price }}
                                 {% if product.old_price %}
                                 <span class="d-block">${{ product.old_price }}</span>
@@ -342,19 +340,18 @@
                             </h3>
                             <!-- Кнопка добавления в корзину -->
                             <div class="btn btn-cart mt-4">
-                                <button type="button" class="btn btn-cart add-to-cart" data-product-id="{{ product.id }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="9" cy="21" r="1"></circle>
-                                        <circle cx="20" cy="21" r="1"></circle>
-                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                    </svg>
-                                </button>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart add-to-cart" data-product-id="{{ product.id }}">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
+
             <!-- Most Popular -->
             <div class="tab-pane fade" id="pills-popular" role="tabpanel" aria-labelledby="pills-popular-tab">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 gy-5 g-lg-4 mt-0">
@@ -367,9 +364,7 @@
                             <h6>{{ product.category.name }}</h6>
                             <h5 class="mt-2">{{ product.name }}</h5>
                             <p class="mt-2">{{ product.description|truncatewords:15 }}</p>
-                            <!-- Вывод количества стеблей -->
                             <h6 class="mt-1" style="font-size:12px;">{{ product.size_option.stems_count }} stems</h6>
-                            <!-- Вывод количества стеблей -->
                             <h3 class="pric mt-4">${{ product.price }}
                                 {% if product.old_price %}
                                 <span class="d-block">${{ product.old_price }}</span>
@@ -377,19 +372,18 @@
                             </h3>
                             <!-- Кнопка добавления в корзину -->
                             <div class="btn btn-cart mt-4">
-                                <button type="button" class="btn btn-cart add-to-cart" data-product-id="{{ product.id }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="9" cy="21" r="1"></circle>
-                                        <circle cx="20" cy="21" r="1"></circle>
-                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                    </svg>
-                                </button>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart add-to-cart" data-product-id="{{ product.id }}">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
+
             <!-- Top Rated -->
             <div class="tab-pane fade" id="pills-rated" role="tabpanel" aria-labelledby="pills-rated-tab">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 gy-5 g-lg-4 mt-0">
@@ -402,9 +396,7 @@
                             <h6>{{ product.category.name }}</h6>
                             <h5 class="mt-2">{{ product.name }}</h5>
                             <p class="mt-2">{{ product.description|truncatewords:15 }}</p>
-                            <!-- Вывод количества стеблей -->
                             <h6 class="mt-1" style="font-size:12px;">{{ product.size_option.stems_count }} stems</h6>
-                            <!-- Вывод количества стеблей -->
                             <h3 class="pric mt-4">${{ product.price }}
                                 {% if product.old_price %}
                                 <span class="d-block">${{ product.old_price }}</span>
@@ -412,13 +404,11 @@
                             </h3>
                             <!-- Кнопка добавления в корзину -->
                             <div class="btn btn-cart mt-4">
-                                <button type="button" class="btn btn-cart add-to-cart" data-product-id="{{ product.id }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="9" cy="21" r="1"></circle>
-                                        <circle cx="20" cy="21" r="1"></circle>
-                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                    </svg>
-                                </button>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart add-to-cart" data-product-id="{{ product.id }}">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
                             </div>
                         </div>
                     </div>
@@ -429,6 +419,7 @@
     </div>
 </section>
 <!-- End Products Tab Section -->
+
 
 <!-- Static 3 banners Section -->
 <section>
