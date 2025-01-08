@@ -79,13 +79,25 @@ class FlowerType(models.Model):
 
 # Модель для цвета цветов
 class FlowerColor(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=50, verbose_name="Название цвета")
+    color_code = models.CharField(
+        max_length=7,
+        verbose_name="Код цвета (HEX)",
+        help_text=(
+            "Примеры HEX-кодов:<br>"
+            "<strong>Красный:</strong> #FF0000<br>"
+            "<strong>Белый:</strong> #FFFFFF<br>"
+            "<strong>Желтый:</strong> #FFFF00<br>"
+            "<strong>Черный:</strong> #000000<br>"
+            "<strong>Салатовый:</strong> #32CD32<br>"
+            "<strong>Оранжевый:</strong> #FFA500<br>"
+            "<strong>Фиолетовый:</strong> #800080<br>"
+            "<strong>Синий:</strong> #0000FF"
+        )
+    )
 
     def __str__(self):
         return self.name
-from django.db import models
-from django.utils.text import slugify
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Товары
 class Product(models.Model):

@@ -21,6 +21,7 @@ from .models import (
     FlowerType,
     FlowerColor,
 )
+from django.utils.html import format_html
 
 # Регистрация моделей в админке
 admin.site.register(User)
@@ -117,8 +118,57 @@ class FlowerTypeAdmin(admin.ModelAdmin):
 # Регистрация модели FlowerColor
 @admin.register(FlowerColor)
 class FlowerColorAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'color_code')
     search_fields = ('name',)
+    readonly_fields = ('color_reference',)
+
+    # Метод для отображения справочного списка HEX-кодов
+    def color_reference(self, obj):
+        return format_html(
+            """
+            <table style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Цвет</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">HEX-код</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Красный</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">#FF0000</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Белый</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">#FFFFFF</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Желтый</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">#FFFF00</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Черный</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">#000000</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Салатовый</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">#32CD32</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Оранжевый</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">#FFA500</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Фиолетовый</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">#800080</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Синий</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">#0000FF</td>
+                </tr>
+            </table>
+            """
+        )
+
+    color_reference.short_description = "Справочник HEX-кодов цветов"
+
 # Регистрация модели Product
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -127,7 +177,7 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description', 'category__name')
     list_editable = ('is_featured',)
     ordering = ('-created_at',)
-    inlines = [SizeOptionInline, RelatedProductInline, ComboOfferInline]  
+    inlines = [SizeOptionInline, RelatedProductInline, ComboOfferInline]
 
     # Пользовательский метод для отображения размера и количества стеблей
     def size_option(self, obj):
