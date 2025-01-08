@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import Product, Category, BestSeller, TeamMember, Testimonial, Collection, Slide, ComboOffer, Cart, CartItem
+from .models import Product, FlowerType, FlowerColor, Category, BestSeller, TeamMember, Testimonial, Collection, Slide, ComboOffer, Cart, CartItem
 
 from django.db.models import F
 

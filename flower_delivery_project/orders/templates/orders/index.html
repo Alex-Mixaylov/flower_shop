@@ -531,21 +531,20 @@
                         <h5 class="mt-2">{{ product.name }}</h5>
                         <!-- Вывод количества стеблей -->
                         <h6 class="mt-1" style="font-size:12px;">{{ product.size_option.stems_count }} stems</h6>
-                        <!-- Вывод количества стеблей -->
+                        <!-- Цена -->
                         <h3 class="pric mt-4">
                             ${{ product.price }}
                             {% if product.old_price %}
                             <span>${{ product.old_price }}</span>
                             {% endif %}
                         </h3>
+                        <!-- Кнопка добавления в корзину -->
                         <div class="btn btn-cart mt-4">
-                            <a href="{% url 'add_to_cart' product.id %}" class="text-decoration-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="9" cy="21" r="1"></circle>
-                                    <circle cx="20" cy="21" r="1"></circle>
-                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                </svg>
-                            </a>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart add-to-cart" data-product-id="{{ product.id }}">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
                         </div>
                     </div>
                     {% empty %}
@@ -557,6 +556,7 @@
     </div>
 </section>
 <!-- End Products With Discount Section -->
+
 
 <!-- Gifts Worth Waiting For Section -->
 <section class="gift-sections d-inline-block w-100">

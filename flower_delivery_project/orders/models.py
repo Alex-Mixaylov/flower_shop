@@ -70,6 +70,22 @@ class Category(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+# Модель для типа цветов
+class FlowerType(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+# Модель для цвета цветов
+class FlowerColor(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+from django.db import models
+from django.utils.text import slugify
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Товары
 class Product(models.Model):
@@ -83,18 +99,26 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
     old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Старая цена")
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, related_name="products", verbose_name="Категория"
+        'Category', on_delete=models.CASCADE, related_name="products", verbose_name="Категория"
     )
     collection = models.ForeignKey(
-        Collection, on_delete=models.CASCADE, related_name="products", verbose_name="Коллекция"
+        'Collection', on_delete=models.CASCADE, related_name="products", verbose_name="Коллекция"
     )
     rating = models.IntegerField(
         default=0,
         validators=[MinValueValidator(0), MaxValueValidator(5)],
         verbose_name="Рейтинг"
-    )  # Новое поле рейтинга
+    )
     is_featured = models.BooleanField(default=False, verbose_name="Показывать на главной странице")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+
+    # Новые поля для связей с FlowerType и FlowerColor
+    flower_types = models.ManyToManyField(
+        'FlowerType', related_name='products', blank=True, verbose_name="Типы цветов"
+    )
+    flower_colors = models.ManyToManyField(
+        'FlowerColor', related_name='products', blank=True, verbose_name="Цвета цветов"
+    )
 
     def __str__(self):
         return self.name
@@ -103,6 +127,7 @@ class Product(models.Model):
         if not self.slug and self.name:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+
 
 # Корзина
 class Cart(models.Model):
