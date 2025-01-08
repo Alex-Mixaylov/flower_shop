@@ -180,8 +180,12 @@
                         <p>No products available.</p>
                         {% endfor %}
                     </div>
-                    <<div class="pagination justify-content-center mt-4">
-                        {{ products.paginator|custom_pagination:products.number }}
+                    <div class="pagination justify-content-center mt-4">
+                        {% for page_num in products.paginator.page_range %}
+                            <a href="?page={{ page_num }}" class="{% if products.number == page_num %}active{% endif %}">
+                                {{ page_num }}
+                            </a>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -246,63 +250,56 @@
     });
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Собираем фильтры и отправляем запрос
-        function applyFilters() {
-            const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
-            const selectedFlowerTypes = Array.from(document.querySelectorAll('.flower-type-filter:checked')).map(cb => cb.value);
-            const selectedFlowerColors = Array.from(document.querySelectorAll('.flower-color-filter:checked')).map(cb => cb.value);
-            const priceRange = Array.from(document.querySelectorAll('#priceFilter input')).map(input => input.value);
+function applyFilters() {
+    const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+    const selectedFlowerTypes = Array.from(document.querySelectorAll('.flower-type-filter:checked')).map(cb => cb.value);
+    const selectedFlowerColors = Array.from(document.querySelectorAll('.flower-color-filter:checked')).map(cb => cb.value);
+    const priceRange = Array.from(document.querySelectorAll('#priceFilter input')).map(input => input.value);
 
-            // Формируем параметры GET-запроса
-            const params = new URLSearchParams();
-            selectedCategories.forEach(cat => params.append('categories', cat));
-            selectedFlowerTypes.forEach(type => params.append('flower_types', type));
-            selectedFlowerColors.forEach(color => params.append('flower_colors', color));
-            if (priceRange.length === 2) {
-                params.append('min_price', priceRange[0]);
-                params.append('max_price', priceRange[1]);
+    // Формируем параметры GET-запроса
+    const params = new URLSearchParams();
+    selectedCategories.forEach(cat => params.append('categories', cat));
+    selectedFlowerTypes.forEach(type => params.append('flower_types', type));
+    selectedFlowerColors.forEach(color => params.append('flower_colors', color));
+    if (priceRange.length === 2) {
+        params.append('min_price', priceRange[0]);
+        params.append('max_price', priceRange[1]);
+    }
+
+    // Обновляем URL в адресной строке без перезагрузки страницы
+    const newUrl = `/shop/?${params.toString()}`;
+    history.pushState(null, '', newUrl);
+
+    // Отправляем AJAX-запрос на сервер
+    fetch(newUrl)
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Обновляем карточки товаров
+            const productsContainer = doc.querySelector('.col-lg-9 .row:nth-of-type(2)');
+            if (productsContainer) {
+                document.querySelector('.col-lg-9 .row:nth-of-type(2)').innerHTML = productsContainer.innerHTML;
+                console.log('Полученные товары:', productsContainer.innerHTML);
             }
 
-            // Отправляем запрос на сервер
-            fetch(`/shop/?${params.toString()}`)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
+            // Обновляем счетчик результатов
+            const resultsCount = doc.querySelector('.sub-iti');
+            if (resultsCount) {
+                document.querySelector('.sub-iti').innerHTML = resultsCount.innerHTML;
+            }
 
-                    // Обновляем карточки товаров
-                    const productsContainer = doc.querySelector('.row:nth-of-type(2)');
-                    if (productsContainer) {
-                        document.querySelector('.row:nth-of-type(2)').innerHTML = productsContainer.innerHTML;
-                    }
-
-                    // Обновляем счетчик результатов
-                    const resultsCount = doc.querySelector('.sub-iti');
-                    if (resultsCount) {
-                        document.querySelector('.sub-iti').innerHTML = resultsCount.innerHTML;
-                    }
-
-                    // Обновляем пагинацию
-                    const pagination = doc.querySelector('.pagination');
-                    if (pagination) {
-                        const paginationContainer = document.querySelector('.pagination');
-                        if (paginationContainer) {
-                            paginationContainer.innerHTML = pagination.innerHTML;
-                        }
-                    }
-                })
-                .catch(error => console.error('Ошибка при применении фильтров:', error));
-        }
-
-        // Добавляем обработчики событий для фильтров
-        document.querySelectorAll('.category-filter, .flower-type-filter, .flower-color-filter').forEach(input => {
-            input.addEventListener('change', applyFilters);
-        });
-
-        document.querySelectorAll('#priceFilter input').forEach(input => {
-            input.addEventListener('input', applyFilters);
-        });
-    });
+            // Обновляем пагинацию
+            const pagination = doc.querySelector('.pagination');
+            if (pagination) {
+                const paginationContainer = document.querySelector('.pagination');
+                if (paginationContainer) {
+                    paginationContainer.innerHTML = pagination.innerHTML;
+                }
+            }
+        })
+        .catch(error => console.error('Ошибка при применении фильтров:', error));
+}
 </script>
 {% endblock %}
