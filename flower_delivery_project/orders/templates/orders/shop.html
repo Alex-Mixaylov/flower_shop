@@ -180,7 +180,7 @@
                         <p>No products available.</p>
                         {% endfor %}
                     </div>
-                    <div class="pagination justify-content-center mt-4">
+                    <<div class="pagination justify-content-center mt-4">
                         {{ products.paginator|custom_pagination:products.number }}
                     </div>
                 </div>
@@ -270,8 +270,27 @@
                 .then(html => {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
-                    const productsContainer = doc.querySelector('.row');
-                    document.querySelector('.row').innerHTML = productsContainer.innerHTML;
+
+                    // Обновляем карточки товаров
+                    const productsContainer = doc.querySelector('.row:nth-of-type(2)');
+                    if (productsContainer) {
+                        document.querySelector('.row:nth-of-type(2)').innerHTML = productsContainer.innerHTML;
+                    }
+
+                    // Обновляем счетчик результатов
+                    const resultsCount = doc.querySelector('.sub-iti');
+                    if (resultsCount) {
+                        document.querySelector('.sub-iti').innerHTML = resultsCount.innerHTML;
+                    }
+
+                    // Обновляем пагинацию
+                    const pagination = doc.querySelector('.pagination');
+                    if (pagination) {
+                        const paginationContainer = document.querySelector('.pagination');
+                        if (paginationContainer) {
+                            paginationContainer.innerHTML = pagination.innerHTML;
+                        }
+                    }
                 })
                 .catch(error => console.error('Ошибка при применении фильтров:', error));
         }

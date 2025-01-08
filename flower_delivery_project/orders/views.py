@@ -16,8 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 
 import logging
-from django.core.paginator import Paginator
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 def index(request):
@@ -92,7 +91,7 @@ def shop(request):
     flower_color_ids = request.GET.getlist('flower_colors')  # Список ID цветов цветов
 
     # Базовый QuerySet для всех продуктов
-    products_list = Product.objects.all()
+    products_list = Product.objects.all().order_by('id')  # Добавляем сортировку по ID для пагинации
 
     # Фильтрация по категориям
     if category_ids:
@@ -116,7 +115,13 @@ def shop(request):
     # Пагинация
     paginator = Paginator(products_list, 9)  # По 9 товаров на страницу
     page_number = request.GET.get('page')
-    products = paginator.get_page(page_number)
+
+    try:
+        products = paginator.page(page_number)
+    except PageNotAnInteger:
+        products = paginator.page(1)  # Если номер страницы не число, показать первую страницу
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)  # Если страница пуста, показать последнюю страницу
 
     # Контекст для передачи данных в шаблон
     context = {
@@ -130,6 +135,7 @@ def shop(request):
         'min_price': min_price,
         'max_price': max_price,
     }
+    print(products)  # Вывод списка продуктов
     return render(request, 'orders/shop.html', context)
 def thanks(request):
     # Рендеринг HTML-шаблона thanks.html
