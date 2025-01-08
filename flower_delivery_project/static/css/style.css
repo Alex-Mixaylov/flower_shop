@@ -3313,5 +3313,32 @@ footer hr {
     height: 130px;
   }
 }
+/* Уведомление о добавлении товара в корзину */
+.cart-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--second-color, #28a745); /* Использует основной цвет сайта */
+    color: #fff;
+    padding: 20px 30px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: "Poppins", sans-serif;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    z-index: 9999;
+    transition: all 0.4s ease-in-out;
+}
+
+/* Анимация появления */
+.cart-notification.show {
+    opacity: 1;
+    visibility: visible;
+}
+
 
 /*# sourceMappingURL=style.css.map */

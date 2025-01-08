@@ -185,22 +185,20 @@
                 <h6 class="mt-1" style="font-size: 12px;">
                     {{ bestseller.product.size_option.stems_count }} stems
                 </h6>
-                <!-- Вывод количества стеблей -->
                 <h3 class="pric mt-4">
                     ${{ bestseller.product.price }}
                     {% if bestseller.product.old_price %}
                     <span>${{ bestseller.product.old_price }}</span>
                     {% endif %}
                 </h3>
-                <div class="btn btn-cart mt-4">
-                    <a href="{% url 'add_to_cart' bestseller.product.id %}" class="text-decoration-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart">
-                            <circle cx="9" cy="21" r="1"></circle>
-                            <circle cx="20" cy="21" r="1"></circle>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                        </svg>
-                    </a>
-                </div>
+                <!-- Кнопка добавления в корзину -->
+                <button type="button" class="btn btn-cart mt-4 add-to-cart" data-product-id="{{ bestseller.product.id }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </button>
             </div>
             {% empty %}
             <p class="text-center">No best sellers available this month.</p>
@@ -208,8 +206,7 @@
         </div>
     </div>
 </section>
-<!-- End Best Seller Section -->
-
+<!--End Best Seller Section -->
 
 <!-- Who We Are Section -->
 <section class="about-parts d-inline-block w-100">
@@ -338,21 +335,20 @@
                             <!-- Вывод количества стеблей -->
                             <h6 class="mt-1" style="font-size:12px;">{{ product.size_option.stems_count }} stems</h6>
                             <!-- Вывод количества стеблей -->
-                            <div class="mt-4">
-                                <h3 class="pric">${{ product.price }}
-                                    {% if product.old_price %}
-                                    <span class="d-block">${{ product.old_price }}</span>
-                                    {% endif %}
-                                </h3>
-                                <div class="btn btn-cart mt-4">
-                                    <a href="{% url 'add_to_cart' product.id %}" class="text-decoration-none">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="9" cy="21" r="1"></circle>
-                                            <circle cx="20" cy="21" r="1"></circle>
-                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                        </svg>
-                                    </a>
-                                </div>
+                            <h3 class="pric mt-4">${{ product.price }}
+                                {% if product.old_price %}
+                                <span class="d-block">${{ product.old_price }}</span>
+                                {% endif %}
+                            </h3>
+                            <!-- Кнопка добавления в корзину -->
+                            <div class="btn btn-cart mt-4">
+                                <button type="button" class="btn btn-cart add-to-cart" data-product-id="{{ product.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="9" cy="21" r="1"></circle>
+                                        <circle cx="20" cy="21" r="1"></circle>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -374,21 +370,20 @@
                             <!-- Вывод количества стеблей -->
                             <h6 class="mt-1" style="font-size:12px;">{{ product.size_option.stems_count }} stems</h6>
                             <!-- Вывод количества стеблей -->
-                            <div class="mt-4">
-                                <h3 class="pric">${{ product.price }}
-                                    {% if product.old_price %}
-                                    <span class="d-block">${{ product.old_price }}</span>
-                                    {% endif %}
-                                </h3>
-                                <div class="btn btn-cart mt-4">
-                                    <a href="{% url 'add_to_cart' product.id %}" class="text-decoration-none">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="9" cy="21" r="1"></circle>
-                                            <circle cx="20" cy="21" r="1"></circle>
-                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                        </svg>
-                                    </a>
-                                </div>
+                            <h3 class="pric mt-4">${{ product.price }}
+                                {% if product.old_price %}
+                                <span class="d-block">${{ product.old_price }}</span>
+                                {% endif %}
+                            </h3>
+                            <!-- Кнопка добавления в корзину -->
+                            <div class="btn btn-cart mt-4">
+                                <button type="button" class="btn btn-cart add-to-cart" data-product-id="{{ product.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="9" cy="21" r="1"></circle>
+                                        <circle cx="20" cy="21" r="1"></circle>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -410,21 +405,20 @@
                             <!-- Вывод количества стеблей -->
                             <h6 class="mt-1" style="font-size:12px;">{{ product.size_option.stems_count }} stems</h6>
                             <!-- Вывод количества стеблей -->
-                            <div class="mt-4">
-                                <h3 class="pric">${{ product.price }}
-                                    {% if product.old_price %}
-                                    <span class="d-block">${{ product.old_price }}</span>
-                                    {% endif %}
-                                </h3>
-                                <div class="btn btn-cart mt-4">
-                                    <a href="{% url 'add_to_cart' product.id %}" class="text-decoration-none">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="9" cy="21" r="1"></circle>
-                                            <circle cx="20" cy="21" r="1"></circle>
-                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                        </svg>
-                                    </a>
-                                </div>
+                            <h3 class="pric mt-4">${{ product.price }}
+                                {% if product.old_price %}
+                                <span class="d-block">${{ product.old_price }}</span>
+                                {% endif %}
+                            </h3>
+                            <!-- Кнопка добавления в корзину -->
+                            <div class="btn btn-cart mt-4">
+                                <button type="button" class="btn btn-cart add-to-cart" data-product-id="{{ product.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="9" cy="21" r="1"></circle>
+                                        <circle cx="20" cy="21" r="1"></circle>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -644,7 +638,14 @@
     </div>
 </section>
 <!-- End Testimonials Section -->
-
+<!-- Уведомление о добавлении в корзину -->
+<div id="cart-notification" class="cart-notification">
+    <p>Flowers added to Cart</p>
+</div>
+<!-- Форма для CSRF-токена -->
+<form method="post" id="csrf-form">
+    {% csrf_token %}
+</form>
 {% endblock %}
 
 {% block scripts %}
@@ -715,5 +716,58 @@ $(document).ready(function(){
         }
     });
 });
+</script>
+<script>
+    // Функция показа статического уведомления
+    function showCartNotification() {
+        const notification = document.createElement('div');
+        notification.classList.add('cart-notification');
+        notification.innerHTML = '<p>Flowers added to Cart</p>';
+        document.body.appendChild(notification);
+
+        // Показать уведомление
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        // Скрыть уведомление через 1.5 секунды
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 400);
+        }, 1500);
+    }
+
+    // Делегирование событий для добавления товара в корзину
+    document.addEventListener('DOMContentLoaded', function () {
+        feather.replace();
+
+        document.body.addEventListener('click', function (e) {
+            if (e.target.closest('.add-to-cart')) {
+                const button = e.target.closest('.add-to-cart');
+                const productId = button.getAttribute('data-product-id');
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch(`/cart/add/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        showCartNotification();
+                    } else {
+                        console.error('Failed to add product to cart.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    });
 </script>
 {% endblock %}

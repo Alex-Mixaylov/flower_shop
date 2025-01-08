@@ -18,7 +18,6 @@
         </div>
     </div>
 </section>
-
 <main class="main-body float-start w-100">
     <div class="tiop-listing-div d-inline-block w-100">
         <div class="container">
@@ -133,11 +132,37 @@
             </div>
         </div>
     </div>
+    <!-- Уведомление о добавлении в корзину -->
+<div id="cart-notification" class="cart-notification">
+    <p>Flowers added to Cart</p>
+</div>
 </main>
 <form method="post" id="csrf-form">
     {% csrf_token %}
 </form>
 <script>
+    // Функция показа статического уведомления
+    function showCartNotification() {
+        const notification = document.createElement('div');
+        notification.classList.add('cart-notification');
+        notification.innerHTML = '<p>Flowers added to Cart</p>';
+        document.body.appendChild(notification);
+
+        // Показать уведомление
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        // Скрыть уведомление через 1.5 секунды
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 400);
+        }, 1500);
+    }
+
+    // Добавление товара в корзину
     document.addEventListener('DOMContentLoaded', function() {
         feather.replace();
         const cartButtons = document.querySelectorAll('.add-to-cart');
@@ -154,15 +179,12 @@
                     }
                 })
                 .then(response => {
-                    if (response.ok) {
-                        alert('Product added to cart!');
-                    } else {
-                        throw new Error('Failed to add product to cart.');
-                    }
+                    // Показать статическое уведомление
+                    showCartNotification();
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert(error.message);
+                    showCartNotification();
                 });
             });
         });
