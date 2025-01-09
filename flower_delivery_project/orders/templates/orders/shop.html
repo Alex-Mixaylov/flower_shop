@@ -200,6 +200,44 @@
     {% csrf_token %}
 </form>
 <script>
+    // Восстанавливаем состояние фильтров из URL
+    document.addEventListener('DOMContentLoaded', restoreFiltersFromURL);
+
+    // Функция восстановления фильтров
+    function restoreFiltersFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Восстанавливаем состояние фильтров категорий
+        document.querySelectorAll('.category-filter').forEach(input => {
+            if (urlParams.getAll('categories').includes(input.value)) {
+                input.checked = true;
+            }
+        });
+
+        // Восстанавливаем состояние фильтров по типу цветов
+        document.querySelectorAll('.flower-type-filter').forEach(input => {
+            if (urlParams.getAll('flower_types').includes(input.value)) {
+                input.checked = true;
+            }
+        });
+
+        // Восстанавливаем состояние фильтров по цвету цветов
+        document.querySelectorAll('.flower-color-filter').forEach(input => {
+            if (urlParams.getAll('flower_colors').includes(input.value)) {
+                input.checked = true;
+            }
+        });
+
+        // Восстанавливаем состояние фильтров по цене
+        const minPrice = urlParams.get('min_price');
+        const maxPrice = urlParams.get('max_price');
+        if (minPrice && maxPrice) {
+            document.querySelectorAll('#priceFilter input')[0].value = minPrice;
+            document.querySelectorAll('#priceFilter input')[1].value = maxPrice;
+        }
+    }
+</script>
+<script>
     // Функция показа статического уведомления
     function showCartNotification() {
         const notification = document.createElement('div');
@@ -277,30 +315,6 @@
         const selectedFlowerColors = Array.from(document.querySelectorAll('.flower-color-filter:checked')).map(cb => cb.value);
         const priceRange = Array.from(document.querySelectorAll('#priceFilter input')).map(input => input.value);
 
-        // Если все фильтры пустые — сбрасываем URL и товары
-        if (selectedCategories.length === 0 && selectedFlowerTypes.length === 0 && selectedFlowerColors.length === 0 && priceRange.every(val => val === '')) {
-            console.log('Все фильтры сброшены');
-            history.pushState(null, '', '/shop/');
-            fetch('/shop/')
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-
-                    // Обновляем карточки товаров
-                    const productsContainer = doc.querySelector('.col-lg-9 .row:nth-of-type(2)');
-                    if (productsContainer) {
-                        document.querySelector('.col-lg-9 .row:nth-of-type(2)').innerHTML = productsContainer.innerHTML;
-                        console.log('Полученные товары:', productsContainer.innerHTML);
-
-                        // Повторно запускаем иконки и привязываем обработчики кнопок "Добавить в корзину"
-                        feather.replace();
-                        bindAddToCartButtons();
-                    }
-                });
-            return;  // Прерываем выполнение функции, если фильтры пустые
-        }
-
         // Формируем параметры GET-запроса
         const params = new URLSearchParams();
         selectedCategories.forEach(cat => params.append('categories', cat));
@@ -323,15 +337,23 @@
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
 
-                // Обновляем карточки товаров
-                const productsContainer = doc.querySelector('.col-lg-9 .row:nth-of-type(2)');
+                // Найдем более точный селектор для контейнера с товарами
+                const productsContainer = doc.querySelector('.col-lg-9 > .row:nth-of-type(2)');
                 if (productsContainer) {
-                    document.querySelector('.col-lg-9 .row:nth-of-type(2)').innerHTML = productsContainer.innerHTML;
-                    console.log('Полученные товары:', productsContainer.innerHTML);
+                    // Убедимся, что мы заменяем только внутреннее содержимое
+                    const currentContainer = document.querySelector('.col-lg-9 > .row:nth-of-type(2)');
+                    if (currentContainer) {
+                        currentContainer.innerHTML = productsContainer.innerHTML;
+                        console.log('Полученные товары обновлены:', productsContainer.innerHTML);
 
-                    // Повторно запускаем иконки и привязываем обработчики кнопок "Добавить в корзину"
-                    feather.replace();
-                    bindAddToCartButtons();
+                        // Повторно запускаем иконки и привязываем обработчики кнопок "Добавить в корзину"
+                        feather.replace();
+                        bindAddToCartButtons();
+                    } else {
+                        console.error('Ошибка: Текущий контейнер с товарами не найден!');
+                    }
+                } else {
+                    console.error('Ошибка: Контейнер с товарами не найден в ответе сервера!');
                 }
 
                 // Обновляем счетчик результатов
@@ -348,6 +370,21 @@
                         paginationContainer.innerHTML = pagination.innerHTML;
                         addPaginationListeners();
                     }
+                }
+
+                // Перезапускаем скрипты и плагины
+                console.log('Перезапуск скриптов и плагинов...');
+                if (typeof $ !== 'undefined' && typeof $.fn.modal === 'function') {
+                    console.log('Перезапускаем Bootstrap...');
+                    $('[data-toggle="tooltip"]').tooltip();
+                    $('[data-toggle="popover"]').popover();
+                }
+                feather.replace();
+
+                // Если есть кастомные плагины, запускаем их
+                if (typeof initCustomCards === 'function') {
+                    console.log('Перезапускаем кастомный плагин карточек...');
+                    initCustomCards();
                 }
             })
             .catch(error => {
@@ -372,9 +409,9 @@
                         const doc = parser.parseFromString(html, 'text/html');
 
                         // Обновляем карточки товаров
-                        const productsContainer = doc.querySelector('.col-lg-9 .row:nth-of-type(2)');
+                        const productsContainer = doc.querySelector('.col-lg-9 > .row:nth-of-type(2)');
                         if (productsContainer) {
-                            document.querySelector('.col-lg-9 .row:nth-of-type(2)').innerHTML = productsContainer.innerHTML;
+                            document.querySelector('.col-lg-9 > .row:nth-of-type(2)').innerHTML = productsContainer.innerHTML;
                             console.log('Обновленные товары через пагинацию:', productsContainer.innerHTML);
 
                             // Повторно запускаем иконки и привязываем обработчики кнопок "Добавить в корзину"
