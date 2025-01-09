@@ -277,6 +277,30 @@
         const selectedFlowerColors = Array.from(document.querySelectorAll('.flower-color-filter:checked')).map(cb => cb.value);
         const priceRange = Array.from(document.querySelectorAll('#priceFilter input')).map(input => input.value);
 
+        // Если все фильтры пустые — сбрасываем URL и товары
+        if (selectedCategories.length === 0 && selectedFlowerTypes.length === 0 && selectedFlowerColors.length === 0 && priceRange.every(val => val === '')) {
+            console.log('Все фильтры сброшены');
+            history.pushState(null, '', '/shop/');
+            fetch('/shop/')
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Обновляем карточки товаров
+                    const productsContainer = doc.querySelector('.col-lg-9 .row:nth-of-type(2)');
+                    if (productsContainer) {
+                        document.querySelector('.col-lg-9 .row:nth-of-type(2)').innerHTML = productsContainer.innerHTML;
+                        console.log('Полученные товары:', productsContainer.innerHTML);
+
+                        // Повторно запускаем иконки и привязываем обработчики кнопок "Добавить в корзину"
+                        feather.replace();
+                        bindAddToCartButtons();
+                    }
+                });
+            return;  // Прерываем выполнение функции, если фильтры пустые
+        }
+
         // Формируем параметры GET-запроса
         const params = new URLSearchParams();
         selectedCategories.forEach(cat => params.append('categories', cat));
@@ -308,8 +332,6 @@
                     // Повторно запускаем иконки и привязываем обработчики кнопок "Добавить в корзину"
                     feather.replace();
                     bindAddToCartButtons();
-                } else {
-                    console.error('Контейнер с товарами не найден!');
                 }
 
                 // Обновляем счетчик результатов
