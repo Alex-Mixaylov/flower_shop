@@ -70,17 +70,28 @@ def index(request):
     return render(request, 'orders/index.html', context)
 
 
+# Страница товара
 def product_details(request, slug):
+    # Получаем основной товар по slug
     product = get_object_or_404(Product, slug=slug)
+
+    # Получаем отзывы о товаре
     reviews = product.reviews.all()
-    related_products = product.related_products.all()
+
+    # Получаем связанные товары через метод get_related_products()
+    related_products = product.get_related_products()
+
+    # Получаем предложения комбо-товаров
     combo_offers = product.combo_offers.all()
+
+    # Рендерим шаблон с контекстом
     return render(request, 'orders/product-details.html', {
         'product': product,
         'reviews': reviews,
         'related_products': related_products,
         'combo_offers': combo_offers,
     })
+
 # Каталог на сайте
 def shop(request):
     # Получение всех фильтров

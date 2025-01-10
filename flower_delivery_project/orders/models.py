@@ -140,6 +140,14 @@ class Product(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+    # Метод для поиска связанных товаров
+    def get_related_products(self):
+        """
+        Возвращает товары с аналогичным префиксом в slug, ограничиваясь 3 записями.
+        """
+        prefix = self.slug.split('-')[0]  # Извлекаем префикс из slug
+        related_products = Product.objects.filter(slug__startswith=prefix).exclude(id=self.id).order_by('-created_at')[:3]
+        return related_products
 
 # Корзина
 class Cart(models.Model):
