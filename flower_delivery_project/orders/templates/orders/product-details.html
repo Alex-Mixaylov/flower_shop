@@ -23,6 +23,7 @@
     <div class="products-details-sec py-5">
         <div class="container">
             <div class="row gx-lg-5">
+                <!-- Блок с изображениями товара -->
                 <div class="col-lg-5">
                     <div class="products-slide-1">
                         <div id="sync1" class="owl-carousel owl-theme">
@@ -41,6 +42,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Блок с описанием товара -->
                 <div class="col-lg-7">
                     <div class="menu-dl-right mt-5 mt-lg-0">
                         <h2>{{ product.name }}</h2>
@@ -54,21 +57,22 @@
                             {% endif %}
                         </div>
                         <p>{{ product.description }}</p>
+
+                        <!-- Блок выбора вариаций товара -->
                         <h5 class="mt-3">Size Options</h5>
-                        <ul class="list-unstyled d-flex flex-wrap mt-2">
-                            {% for size in product.size_options.all %}
+                        <ul class="list-unstyled d-flex flex-wrap mt-2 size-menu-q">
+                            {% for related_product in related_products %}
                             <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="size_option" id="size-{{ forloop.counter }}">
-                                    <label class="form-check-label" for="size-{{ forloop.counter }}">
-                                        {{ size.size }} ({{ size.stems_count }} stems)
-                                    </label>
-                                </div>
+                                <a href="{% url 'product_details' related_product.slug %}" class="btn btn-outline-primary {% if product == related_product %}active{% endif %}">
+                                    {{ related_product.name }} ({{ related_product.price }}$)
+                                </a>
                             </li>
                             {% endfor %}
                         </ul>
+
+                        <!-- Блок выбора количества -->
                         <h5 class="mt-4">Quantity</h5>
-                        <div class="quantity-control">
+                        <div class="quantity-control" data-quantity="">
                             <button class="quantity-btn" data-quantity-minus="">
                                 <i data-feather="minus"></i>
                             </button>
@@ -77,20 +81,29 @@
                                 <i data-feather="plus"></i>
                             </button>
                         </div>
-                        <button class="btn crat-btnh mt-5">
-                            <i data-feather="shopping-cart" class="me-2"></i> Add to Cart
-                        </button>
+
+                        <!-- Кнопка добавления товара в корзину -->
+                        <form method="post" id="csrf-form">
+                            {% csrf_token %}
+                            <button type="button" class="btn crat-btnh mt-5 add-to-cart" data-product-id="{{ product.id }}">
+                                <i data-feather="shopping-cart" class="me-2"></i> Add to Cart
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
+
+            <!-- Описание товара -->
             <div class="bottom-details mt-5">
                 <h2>Product Description</h2>
                 <p>{{ product.description }}</p>
             </div>
+
+            <!-- Блок с отзывами -->
             <div class="review-div-sec mt-4">
                 <h2>Reviews</h2>
                 {% for review in reviews %}
-                <div>
+                <div class="comment-user-div">
                     <h6>{{ review.author }} - {{ review.rating }} stars</h6>
                     <p>{{ review.text }}</p>
                 </div>
@@ -98,19 +111,59 @@
                 <p>No reviews yet.</p>
                 {% endfor %}
             </div>
-            <div class="related-produc mt-5">
-                <h2>Related Products</h2>
-                <div class="owl-carousel owl-theme">
-                    {% for related in related_products %}
-                    <div>
-                        <img src="{{ related.related_product.image_main.url }}" alt="{{ related.related_product.name }}">
-                        <h5>{{ related.related_product.name }}</h5>
-                        <p>${{ related.related_product.price }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
         </div>
     </div>
 </main>
+
+<!-- Скрипт для добавления товара в корзину -->
+<script>
+    function showCartNotification() {
+        const notification = document.createElement('div');
+        notification.classList.add('cart-notification');
+        notification.innerHTML = '<p>Flowers added to Cart</p>';
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 400);
+        }, 1500);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        feather.replace();
+
+        document.body.addEventListener('click', function (e) {
+            if (e.target.closest('.add-to-cart')) {
+                const button = e.target.closest('.add-to-cart');
+                const productId = button.getAttribute('data-product-id');
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch(`/cart/add/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        showCartNotification();
+                    } else {
+                        console.error('Failed to add product to cart.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    });
+</script>
+
 {% endblock %}
