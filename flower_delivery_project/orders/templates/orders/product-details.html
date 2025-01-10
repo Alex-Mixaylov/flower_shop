@@ -59,17 +59,18 @@
                         <p>{{ product.description }}</p>
 
                         <!-- Блок выбора вариаций товара -->
-                        <h5 class="mt-3">Size Options</h5>
+                        <h5 class="mt-3">Size of Crust</h5>
                         <ul class="list-unstyled d-flex flex-wrap mt-2 size-menu-q">
-                            {% for related_product in related_products %}
+                            {% for related_product in related_products_with_stems %}
                             <li>
-                                <a href="{% url 'product_details' related_product.slug %}" class="btn btn-outline-primary {% if product == related_product %}active{% endif %}">
-                                    {{ related_product.name }} ({{ related_product.price }}$)
+                                <a href="{% url 'product_details' related_product.slug %}"
+                                   class="btn btn-outline-primary {% if related_product.is_active %}active{% endif %}">
+                                    {{ related_product.name }} ({{ related_product.stems }} stems)
                                 </a>
                             </li>
                             {% endfor %}
                         </ul>
-
+                        
                         <!-- Блок выбора количества -->
                         <h5 class="mt-4">Quantity</h5>
                         <div class="quantity-control" data-quantity="">

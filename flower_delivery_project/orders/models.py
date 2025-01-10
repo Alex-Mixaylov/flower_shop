@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.utils.timezone import now
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models.functions import Substr
 
 
 # Пользователи (User)
@@ -140,14 +141,14 @@ class Product(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
-    # Метод для поиска связанных товаров
+    # Метод для поиска связанных товаров по входжению slug в url
+    # и поиска связанных товаров (вариаций)
     def get_related_products(self):
-        """
-        Возвращает товары с аналогичным префиксом в slug, ограничиваясь 3 записями.
-        """
-        prefix = self.slug.split('-')[0]  # Извлекаем префикс из slug
-        related_products = Product.objects.filter(slug__startswith=prefix).exclude(id=self.id).order_by('-created_at')[:3]
-        return related_products
+        # Получаем основную часть slug без количества стеблей
+        base_slug = '-'.join(self.slug.split('-')[:-1])
+
+        # Ищем товары с таким же base_slug
+        return Product.objects.filter(slug__startswith=base_slug).exclude(id=self.id)
 
 # Корзина
 class Cart(models.Model):

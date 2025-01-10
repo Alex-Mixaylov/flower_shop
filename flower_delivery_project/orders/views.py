@@ -72,25 +72,36 @@ def index(request):
 
 # Страница товара
 def product_details(request, slug):
-    # Получаем основной товар по slug
     product = get_object_or_404(Product, slug=slug)
-
-    # Получаем отзывы о товаре
     reviews = product.reviews.all()
-
-    # Получаем связанные товары через метод get_related_products()
     related_products = product.get_related_products()
 
-    # Получаем предложения комбо-товаров
-    combo_offers = product.combo_offers.all()
+    # Подготовка данных для шаблона с количеством стеблей
+    related_products_with_stems = [
+        {
+            'name': related_product.name,
+            'slug': related_product.slug,
+            'stems': related_product.slug.split('-')[-1],
+            'is_active': related_product == product  # Помечаем активный товар
+        }
+        for related_product in related_products
+    ]
 
-    # Рендерим шаблон с контекстом
+    # Добавляем текущий товар в список вариаций, если его там еще нет
+    if product.slug not in [p['slug'] for p in related_products_with_stems]:
+        related_products_with_stems.append({
+            'name': product.name,
+            'slug': product.slug,
+            'stems': product.slug.split('-')[-1],
+            'is_active': True
+        })
+
     return render(request, 'orders/product-details.html', {
         'product': product,
         'reviews': reviews,
-        'related_products': related_products,
-        'combo_offers': combo_offers,
+        'related_products_with_stems': related_products_with_stems,
     })
+
 
 # Каталог на сайте
 def shop(request):
