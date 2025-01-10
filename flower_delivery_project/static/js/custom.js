@@ -1,6 +1,6 @@
 	
  $(document).ready(function(){
-	$('.slider-div').owlCarousel({
+		$('.slider-div').owlCarousel({
 		loop: true,
 		margin:30,
 		autoplay:true,
@@ -24,6 +24,7 @@
 	  
 		}
 	  })
+
 
 
 	  $('.best-slider').owlCarousel({
@@ -229,16 +230,26 @@ $(document).ready(function(){
 	});
 
 
+	// Показываем первые 12 товаров при загрузке страницы
+    $(".collist").slice(0, 12).show();
 
+    // Проверяем, есть ли больше 12 товаров и скрываем остальные
+    if ($(".collist").length > 12) {
+        $(".collist").slice(12).hide();
+    }
 
-	$(".collist").slice(0, 12).show();
-	$(".load-more3").click(function(e){
-		e.preventDefault();
-		$(".collist:hidden").slice(0, 4).slideDown();
-		if ($(".collist:hidden").length == 0) {
-			$(".load-more3").fadeOut("slow");
-		}
-	});
+    // Обработчик для кнопки "Load More"
+    $(".load-more3").click(function (e) {
+        e.preventDefault();
+
+        // Показываем еще по 4 товара при каждом клике
+        $(".collist:hidden").slice(0, 4).slideDown();
+
+        // Если скрытых товаров больше нет, скрываем кнопку "Load More"
+        if ($(".collist:hidden").length === 0) {
+            $(".load-more3").fadeOut("slow");
+        }
+    });
 
 	
 });

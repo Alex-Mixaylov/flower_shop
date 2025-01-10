@@ -180,14 +180,8 @@
                         <p>No products available.</p>
                         {% endfor %}
                     </div>
-                    <div class="pagination justify-content-center mt-4">
-                        {% for page_num in products.paginator.page_range %}
-                            <a href="?page={{ page_num }}" class="{% if products.number == page_num %}active{% endif %}">
-                                {{ page_num }}
-                            </a>
-                        {% endfor %}
+                    <a class="btn btn-venu load-more3">Load More</a>
                     </div>
-                </div>
             </div>
         </div>
     </div>
@@ -245,12 +239,10 @@
         notification.innerHTML = '<p>Flowers added to Cart</p>';
         document.body.appendChild(notification);
 
-        // Показать уведомление
         setTimeout(() => {
             notification.classList.add('show');
         }, 100);
 
-        // Скрыть уведомление через 1.5 секунды
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -277,7 +269,6 @@
                     }
                 })
                 .then(response => {
-                    // Показать статическое уведомление
                     showCartNotification();
                 })
                 .catch(error => {
@@ -291,7 +282,7 @@
     // Привязываем обработчики событий при загрузке страницы
     document.addEventListener('DOMContentLoaded', function () {
         console.log('Скрипт загружен!');
-        bindAddToCartButtons();  // Привязываем обработчики кнопок "Добавить в корзину"
+        bindAddToCartButtons();
 
         // Добавляем обработчики событий для фильтров
         document.querySelectorAll('.category-filter, .flower-type-filter, .flower-color-filter').forEach(input => {
@@ -309,13 +300,11 @@
     function applyFilters() {
         console.log('Фильтрация началась');
 
-        // Собираем выбранные значения фильтров
         const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
         const selectedFlowerTypes = Array.from(document.querySelectorAll('.flower-type-filter:checked')).map(cb => cb.value);
         const selectedFlowerColors = Array.from(document.querySelectorAll('.flower-color-filter:checked')).map(cb => cb.value);
         const priceRange = Array.from(document.querySelectorAll('#priceFilter input')).map(input => input.value);
 
-        // Формируем параметры GET-запроса
         const params = new URLSearchParams();
         selectedCategories.forEach(cat => params.append('categories', cat));
         selectedFlowerTypes.forEach(type => params.append('flower_types', type));
@@ -325,102 +314,51 @@
             params.append('max_price', priceRange[1]);
         }
 
-        // Обновляем URL в адресной строке без перезагрузки страницы
         const newUrl = `/shop/?${params.toString()}`;
         history.pushState(null, '', newUrl);
 
-        // Отправляем AJAX-запрос на сервер
-        console.log('Отправка запроса на сервер:', newUrl);
         fetch(newUrl)
             .then(response => response.text())
             .then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
 
-                // Найдем более точный селектор для контейнера с товарами
                 const productsContainer = doc.querySelector('.col-lg-9 > .row:nth-of-type(2)');
                 if (productsContainer) {
-                    // Убедимся, что мы заменяем только внутреннее содержимое
                     const currentContainer = document.querySelector('.col-lg-9 > .row:nth-of-type(2)');
                     if (currentContainer) {
                         currentContainer.innerHTML = productsContainer.innerHTML;
                         console.log('Полученные товары обновлены:', productsContainer.innerHTML);
 
-                        // Повторно запускаем иконки и привязываем обработчики кнопок "Добавить в корзину"
+                        // Показываем все товары после фильтрации
+                        $(".collist").show();
+
+                        // Привязываем обработчики
                         feather.replace();
                         bindAddToCartButtons();
-                    } else {
-                        console.error('Ошибка: Текущий контейнер с товарами не найден!');
-                    }
-                } else {
-                    console.error('Ошибка: Контейнер с товарами не найден в ответе сервера!');
-                }
-
-                // Обновляем счетчик результатов
-                const resultsCount = doc.querySelector('.sub-iti');
-                if (resultsCount) {
-                    document.querySelector('.sub-iti').innerHTML = resultsCount.innerHTML;
-                }
-
-                // Обновляем пагинацию
-                const pagination = doc.querySelector('.pagination');
-                if (pagination) {
-                    const paginationContainer = document.querySelector('.pagination');
-                    if (paginationContainer) {
-                        paginationContainer.innerHTML = pagination.innerHTML;
-                        addPaginationListeners();
                     }
                 }
 
-                // Перезапускаем скрипты и плагины
-                console.log('Перезапуск скриптов и плагинов...');
-                if (typeof $ !== 'undefined' && typeof $.fn.modal === 'function') {
-                    console.log('Перезапускаем Bootstrap...');
-                    $('[data-toggle="tooltip"]').tooltip();
-                    $('[data-toggle="popover"]').popover();
+                // Обновляем состояние кнопки "Load More"
+                const loadMoreButton = document.querySelector('.load-more3');
+                if (loadMoreButton) {
+                    loadMoreButton.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        $(".collist:hidden").slice(0, 4).slideDown();
+                        if ($(".collist:hidden").length === 0) {
+                            $(".load-more3").fadeOut("slow");
+                        }
+                    });
                 }
-                feather.replace();
 
-                // Если есть кастомные плагины, запускаем их
-                if (typeof initCustomCards === 'function') {
-                    console.log('Перезапускаем кастомный плагин карточек...');
-                    initCustomCards();
-                }
+                // Обновляем количество отображаемых товаров
+                const resultsCount = $(".collist:visible").length;
+                document.querySelector('.sub-iti').innerHTML = `Showing ${resultsCount} results`;
             })
             .catch(error => {
                 console.error('Ошибка при применении фильтров:', error);
                 alert('Произошла ошибка: ' + error);
             });
-    }
-
-    // Функция привязки обработчиков событий к пагинации
-    function addPaginationListeners() {
-        console.log('Привязка обработчиков к ссылкам пагинации');
-        document.querySelectorAll('.pagination a').forEach(link => {
-            link.addEventListener('click', function (e) {
-                e.preventDefault();
-                const url = this.getAttribute('href');
-                console.log('Переход по пагинации:', url);
-
-                fetch(url)
-                    .then(response => response.text())
-                    .then(html => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-
-                        // Обновляем карточки товаров
-                        const productsContainer = doc.querySelector('.col-lg-9 > .row:nth-of-type(2)');
-                        if (productsContainer) {
-                            document.querySelector('.col-lg-9 > .row:nth-of-type(2)').innerHTML = productsContainer.innerHTML;
-                            console.log('Обновленные товары через пагинацию:', productsContainer.innerHTML);
-
-                            // Повторно запускаем иконки и привязываем обработчики кнопок "Добавить в корзину"
-                            feather.replace();
-                            bindAddToCartButtons();
-                        }
-                    });
-            });
-        });
     }
 </script>
 
