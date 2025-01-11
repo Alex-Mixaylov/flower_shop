@@ -3339,5 +3339,10 @@ footer hr {
     opacity: 1;
     visibility: visible;
 }
+/* Модальное окно авторизации регистрации*/
+.modal-content {
+    background-color: #fff !important;
+    opacity: 1;
+}
 
 /*# sourceMappingURL=style.css.map */

@@ -59,6 +59,43 @@
     <!-- Footer -->
     {% include 'orders/footer.html' %}
 
+    <!-- Модальное окно авторизации -->
+    <div class="modal fade login-div-modal show" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+                    </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username or Email</label>
+                            <input type="text" class="form-control" id="username" name="username" autocomplete="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" autocomplete="current-password" required>
+                        </div>
+                        <button type="submit" class="btn continue-bn">
+                            <i class="fas fa-lock"></i> SIGN IN
+                        </button>
+                    </form>
+                    <p class="text-center mt-3">
+                        <a data-bs-toggle="modal" class="regster-bn" data-bs-target="#lostpsModal" data-bs-dismiss="modal">Lost Password?</a>
+                    </p>
+                    <p class="text-center mt-3">Do not have an account?
+                        <a data-bs-toggle="modal" class="regster-bn" data-bs-target="#registerModal" data-bs-dismiss="modal">Register</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     {% block scripts %}
