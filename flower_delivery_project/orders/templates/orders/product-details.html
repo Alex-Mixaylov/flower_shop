@@ -104,19 +104,40 @@
             <div class="review-div-sec mt-4">
                 <h2>Reviews</h2>
                 {% for review in reviews %}
-                <div class="comment-user-div">
-                    <h6>{{ review.author }} - {{ review.rating }} stars</h6>
-                    <p>{{ review.text }}</p>
-                </div>
+                    <div class="comment-user-div">
+                        <h6>{{ review.author }} - {{ review.rating }} stars</h6>
+                        <p>{{ review.text }}</p>
+                    </div>
                 {% empty %}
-                <p>No reviews yet.</p>
+                    <p>No reviews yet.</p>
                 {% endfor %}
+            </div>
+
+            <!-- Форма добавления отзыва -->
+            <div class="submit-review mt-5">
+                <h2 class="comon-heading m-0">Leave a Comment</h2>
+                <p class="my-2">Your email address will not be published. Required fields are marked *</p>
+
+                {% if user.is_authenticated %}
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn crat-btnh ms-2 ms-lg-0">
+                            Submit
+                            <span>
+                                <i class="fas fa-paper-plane"></i>
+                            </span>
+                        </button>
+                    </form>
+                {% else %}
+                    <p class="text-danger">You must <a href="{% url 'login' %}">log in</a> to leave a review.</p>
+                {% endif %}
             </div>
         </div>
     </div>
 </main>
 
-<!-- Скрипт для добавления товара в корзину -->
+<!-- Скрипт для AJAX добавления товара в корзину -->
 <script>
     // Функция показа статического уведомления
     function showCartNotification() {

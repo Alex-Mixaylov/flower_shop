@@ -2,11 +2,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import Product, FlowerType, FlowerColor, Category, BestSeller, TeamMember, Testimonial, Collection, Slide, ComboOffer, Cart, CartItem
+from .models import Product, FlowerType, FlowerColor, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem
+from .forms import ReviewForm
 
 from django.db.models import F
 
 from django.conf import settings
+from django.contrib import messages
 
 from django.db.models import Count
 from django.db.models import Avg
@@ -72,17 +74,20 @@ def index(request):
 
 # Страница товара
 def product_details(request, slug):
+    # Получаем текущий товар по slug
     product = get_object_or_404(Product, slug=slug)
-    reviews = product.reviews.all()
-    related_products = product.get_related_products()
 
-    # Подготовка данных для шаблона с количеством стеблей
+    # Получаем только одобренные отзывы
+    reviews = product.reviews.filter(is_approved=True)
+
+    # Подготовка связанных продуктов для отображения вариаций
+    related_products = product.get_related_products()
     related_products_with_stems = [
         {
             'name': related_product.name,
             'slug': related_product.slug,
             'stems': related_product.slug.split('-')[-1],
-            'is_active': related_product == product  # Помечаем активный товар
+            'is_active': related_product == product
         }
         for related_product in related_products
     ]
@@ -96,12 +101,39 @@ def product_details(request, slug):
             'is_active': True
         })
 
+    # Обработка формы отзыва
+    if request.method == 'POST':
+        # Проверяем, авторизован ли пользователь
+        if not request.user.is_authenticated:
+            messages.error(request, 'Вы должны войти в систему, чтобы оставить отзыв.')
+            return redirect('login')
+
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            # Проверяем, оставлял ли пользователь уже отзыв для этого товара
+            if not Review.objects.filter(product=product, author=request.user).exists():
+                # Сохраняем новый отзыв
+                review = form.save(commit=False)
+                review.product = product
+                review.author = request.user
+                review.save()
+                messages.success(request, 'Ваш отзыв отправлен и ожидает модерации.')
+            else:
+                messages.error(request, 'Вы уже оставили отзыв для этого товара.')
+        else:
+            messages.error(request, 'Ошибка при отправке отзыва. Пожалуйста, попробуйте еще раз.')
+
+    else:
+        # Инициализируем пустую форму для GET-запросов
+        form = ReviewForm()
+
+    # Рендеринг страницы с передачей данных в шаблон
     return render(request, 'orders/product-details.html', {
         'product': product,
         'reviews': reviews,
         'related_products_with_stems': related_products_with_stems,
+        'form': form,
     })
-
 
 # Каталог на сайте
 def shop(request):
