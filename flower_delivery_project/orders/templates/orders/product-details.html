@@ -118,6 +118,7 @@
 
 <!-- Скрипт для добавления товара в корзину -->
 <script>
+    // Функция показа статического уведомления
     function showCartNotification() {
         const notification = document.createElement('div');
         notification.classList.add('cart-notification');
@@ -136,35 +137,61 @@
         }, 1500);
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        feather.replace();
+    // Функция изменения количества товара
+    function updateQuantity(action) {
+        const quantityInput = document.querySelector('.quantity-input');
+        let currentQuantity = parseInt(quantityInput.value);
 
-        document.body.addEventListener('click', function (e) {
-            if (e.target.closest('.add-to-cart')) {
-                const button = e.target.closest('.add-to-cart');
-                const productId = button.getAttribute('data-product-id');
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        if (action === 'increase' && currentQuantity < 30) {
+            currentQuantity++;
+        } else if (action === 'decrease' && currentQuantity > 1) {
+            currentQuantity--;
+        }
 
-                fetch(`/cart/add/${productId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        showCartNotification();
-                    } else {
-                        console.error('Failed to add product to cart.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            }
-        });
+        quantityInput.value = currentQuantity;
+    }
+
+    // Обработчики для кнопок "+" и "-"
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('[data-quantity-plus]')) {
+            updateQuantity('increase');
+        } else if (e.target.closest('[data-quantity-minus]')) {
+            updateQuantity('decrease');
+        }
+    });
+
+    // Обработчик кнопки "Add to Cart"
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('.crat-btnh')) {
+            e.preventDefault();
+
+            const button = e.target.closest('.crat-btnh');
+            const productId = button.getAttribute('data-product-id');
+            const quantityInput = document.querySelector('.quantity-input');
+            const quantity = parseInt(quantityInput.value);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch(`/cart/add/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quantity: quantity })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showCartNotification();
+                } else {
+                    console.error('Failed to add product to cart.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
     });
 </script>
+
 
 {% endblock %}
