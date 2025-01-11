@@ -149,6 +149,12 @@
         }
 
         quantityInput.value = currentQuantity;
+
+        // Перерисовка Feather Icons после изменения DOM
+        feather.replace();
+
+        // Отладочный вывод
+        console.log(`Количество товара изменено: ${currentQuantity}`);
     }
 
     // Обработчики для кнопок "+" и "-"
@@ -162,14 +168,24 @@
 
     // Обработчик кнопки "Add to Cart"
     document.addEventListener('click', function (e) {
-        if (e.target.closest('.crat-btnh')) {
+        if (e.target.closest('.add-to-cart')) {
             e.preventDefault();
 
-            const button = e.target.closest('.crat-btnh');
+            const button = e.target.closest('.add-to-cart');
             const productId = button.getAttribute('data-product-id');
             const quantityInput = document.querySelector('.quantity-input');
             const quantity = parseInt(quantityInput.value);
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // Отладочный вывод перед запросом
+            console.log(`Попытка добавить в корзину: Product ID = ${productId}, Quantity = ${quantity}`);
+
+            // Проверка количества перед отправкой запроса
+            if (isNaN(quantity) || quantity <= 0) {
+                console.error('Некорректное количество товара!');
+                alert('Некорректное количество товара! Пожалуйста, введите число больше нуля.');
+                return;
+            }
 
             fetch(`/cart/add/${productId}/`, {
                 method: 'POST',
@@ -182,16 +198,22 @@
             .then(response => {
                 if (response.ok) {
                     showCartNotification();
+                    console.log('Товар успешно добавлен в корзину.');
                 } else {
-                    console.error('Failed to add product to cart.');
+                    console.error('Ошибка при добавлении товара в корзину.');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Произошла ошибка при выполнении запроса:', error);
             });
         }
     });
-</script>
 
+    // Перерисовка иконок при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function () {
+        feather.replace();
+        console.log('Feather Icons успешно перерисованы.');
+    });
+</script>
 
 {% endblock %}
