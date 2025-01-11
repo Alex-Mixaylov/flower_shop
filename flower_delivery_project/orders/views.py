@@ -282,42 +282,62 @@ def cart_view(request):
     return render(request, 'orders/cart.html', context)
 
 def add_to_cart(request, product_id):
+    """
+    Функция добавления товара в корзину.
+    Работает как для зарегистрированных пользователей, так и для гостей.
+    Учитывает количество товара, переданное в POST-запросе.
+    """
     product = get_object_or_404(Product, id=product_id)
+
+    # Получаем количество товара из POST-запроса (по умолчанию 1, если не передано)
+    quantity = int(request.POST.get('quantity', 1))
 
     if request.user.is_authenticated:
         # Корзина для зарегистрированных пользователей
         cart, created = Cart.objects.get_or_create(user=request.user)
+
+        # Проверяем, есть ли уже этот товар в корзине
         cart_item, created = CartItem.objects.get_or_create(
             cart=cart,
             product=product,
-            defaults={'quantity': 1}
+            defaults={'quantity': quantity}  # Используем переданное количество для нового товара
         )
+
         if not created:
-            cart_item.quantity += 1
+            # Если товар уже есть в корзине, увеличиваем количество
+            cart_item.quantity += quantity
             cart_item.save()
+            print(f"Обновлено количество товара в корзине для пользователя {request.user}: {cart_item.quantity} шт.")
+        else:
+            print(f"Добавлен новый товар в корзину для пользователя {request.user}: {quantity} шт.")
+
     else:
         # Корзина для гостей
         cart = request.session.get('cart', {})
+
         if str(product_id) in cart:
-            cart[str(product_id)]['quantity'] += 1
+            # Если товар уже есть в корзине, увеличиваем количество
+            cart[str(product_id)]['quantity'] += quantity
+            print(f"Обновлено количество товара в корзине для гостя: {cart[str(product_id)]['quantity']} шт.")
         else:
-            # Добавляем цену и старую цену с округлением до двух знаков
+            # Если товара нет в корзине, добавляем его с указанным количеством
             cart[str(product_id)] = {
-                'quantity': 1,
+                'quantity': quantity,
                 'name': product.name,
                 'price': round(float(product.price), 2),
                 'old_price': round(float(product.old_price), 2) if product.old_price else None,
                 'image_main': product.image_main.url if product.image_main else None,
             }
+            print(f"Добавлен новый товар в корзину для гостя: {quantity} шт.")
 
         # Сохраняем корзину в сессию
         request.session['cart'] = cart
 
-        # Отладочный вывод
-        print(f"Добавлено в корзину: {cart[str(product_id)]}")
-
-    return redirect('cart')
-
+    # Отправляем JSON-ответ с подтверждением добавления товара и его количеством
+    return JsonResponse({
+        'message': 'Товар успешно добавлен в корзину!',
+        'quantity': quantity
+    })
 
 def remove_from_cart(request, item_id):
     if request.user.is_authenticated:

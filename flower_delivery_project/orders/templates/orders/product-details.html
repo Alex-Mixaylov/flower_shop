@@ -125,10 +125,12 @@
         notification.innerHTML = '<p>Flowers added to Cart</p>';
         document.body.appendChild(notification);
 
+        // Показ уведомления
         setTimeout(() => {
             notification.classList.add('show');
         }, 100);
 
+        // Скрытие уведомления через 1.5 секунды
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -187,21 +189,24 @@
                 return;
             }
 
+            // Отправка AJAX-запроса на сервер
             fetch(`/cart/add/${productId}/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: JSON.stringify({ quantity: quantity })
+                body: `quantity=${quantity}`
             })
             .then(response => {
-                if (response.ok) {
-                    showCartNotification();
-                    console.log('Товар успешно добавлен в корзину.');
-                } else {
-                    console.error('Ошибка при добавлении товара в корзину.');
+                if (!response.ok) {
+                    throw new Error('Ошибка при добавлении товара в корзину!');
                 }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data.message);
+                showCartNotification();
             })
             .catch(error => {
                 console.error('Произошла ошибка при выполнении запроса:', error);
