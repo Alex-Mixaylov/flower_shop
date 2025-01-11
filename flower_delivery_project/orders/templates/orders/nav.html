@@ -2,7 +2,7 @@
 {% load static %}
 <nav class="navbar navbar-expand-lg navbar-light">
     <!-- Modal Login -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal fade cart-notification" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -10,22 +10,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" action="{% url 'login' %}">
+                    <form method="post" action="{% url 'custom_login' %}" autocomplete="on">
                         {% csrf_token %}
-                        {% if form.errors %}
-                        <div class="alert alert-danger">
-                            {% for field, errors in form.errors.items %}
-                                {{ field }}: {{ errors|join:", " }}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <input type="text" class="form-control" id="username" name="username" required autocomplete="username">
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
