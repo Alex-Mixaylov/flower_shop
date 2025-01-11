@@ -166,7 +166,7 @@
         } else if (e.target.closest('[data-quantity-minus]')) {
             updateQuantity('decrease');
         }
-    });
+    }, { passive: true });
 
     // Обработчик кнопки "Add to Cart"
     document.addEventListener('click', function (e) {
@@ -212,13 +212,13 @@
                 console.error('Произошла ошибка при выполнении запроса:', error);
             });
         }
-    });
+    }, { passive: true });
 
     // Перерисовка иконок при загрузке страницы
     document.addEventListener('DOMContentLoaded', function () {
         feather.replace();
         console.log('Feather Icons успешно перерисованы.');
-    });
+    }, { passive: true });
 </script>
 
 {% endblock %}

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.utils.timezone import now
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 from django.db.models.functions import Substr
 
 
@@ -331,14 +332,42 @@ class Testimonial(models.Model):
 
 # Отзывы о продуктах
 class Review(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews", verbose_name="Товар")
-    author = models.CharField(max_length=255, verbose_name="Автор")
-    rating = models.PositiveIntegerField(verbose_name="Рейтинг", help_text="Укажите рейтинг от 1 до 5")
+    product = models.ForeignKey(
+        Product,
+        related_name='reviews',
+        on_delete=models.CASCADE,
+        verbose_name="Товар"
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Автор"
+    )
+    rating = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Рейтинг",
+        help_text="Укажите рейтинг от 1 до 5"
+    )
     text = models.TextField(verbose_name="Текст отзыва")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    is_approved = models.BooleanField(default=False, verbose_name="Одобрен")
 
+    # Метод очистки данных (валидация)
+    def clean(self):
+        """
+        Проверяем, что пользователь не оставил более одного отзыва для одного и того же товара.
+        """
+        if Review.objects.filter(product=self.product, author=self.author).exists():
+            raise ValidationError('Вы уже оставили отзыв для этого товара.')
+
+    # Представление объекта в виде строки
     def __str__(self):
-        return f"Отзыв от {self.author} для {self.product.name}"
+        return f'{self.author.username} - {self.product.name} ({self.rating} звёзд)'
+
+    # Метод для получения статуса одобрения
+    @property
+    def status(self):
+        return "Одобрен" if self.is_approved else "На модерации"
 
 # Количество стеблей в букете
 class SizeOption(models.Model):
