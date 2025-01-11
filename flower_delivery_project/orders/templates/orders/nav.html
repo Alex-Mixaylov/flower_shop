@@ -2,33 +2,32 @@
 {% load static %}
 <nav class="navbar navbar-expand-lg navbar-light">
     <!-- Modal Login -->
-    <div class="modal fade cart-notification" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog">
+    <div class="modal fade login-div-modal" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                    <h5 class="modal-title text-center" id="loginModalLabel">Login</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" action="{% url 'login' %}" autocomplete="on">
+                    <form method="post" action="{% url 'login' %}">
                         {% csrf_token %}
-                        {% if form.errors %}
-                        <div class="alert alert-danger">
-                            {% for field, errors in form.errors.items %}
-                                {{ field }}: {{ errors|join:", " }}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <input type="text" name="username" class="form-control" placeholder="Username Or Email" required autocomplete="username">
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" name="password" class="form-control" placeholder="Password" required autocomplete="current-password">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                        <button type="submit" class="btn continue-bn w-100">
+                            <i class="fas fa-lock"></i> SIGN IN
+                        </button>
                     </form>
+                    <p class="text-center mt-3">
+                        <a data-bs-toggle="modal" class="regster-bn" data-bs-target="#lostpsModal" data-bs-dismiss="modal">Lost Password?</a>
+                    </p>
+                    <p class="text-center mt-3">
+                        Do not have an account? <a data-bs-toggle="modal" class="regster-bn" data-bs-target="#registerModal" data-bs-dismiss="modal">Register</a>
+                    </p>
                 </div>
             </div>
         </div>
