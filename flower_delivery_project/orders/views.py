@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
@@ -9,6 +8,8 @@ from django.db.models import F
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 
 from django.db.models import Count
 from django.db.models import Avg
@@ -71,50 +72,38 @@ def index(request):
     }
     return render(request, 'orders/index.html', context)
 
+#регистрация пользователей на сайте
+def custom_login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, 'Вы успешно вошли в систему.')
+            return redirect('index')
+        else:
+            messages.error(request, 'Неверное имя пользователя или пароль.')
+
+    return render(request, 'orders/login.html')
+
 
 # Страница товара
 def product_details(request, slug):
-    # Получаем текущий товар по slug
     product = get_object_or_404(Product, slug=slug)
-
-    # Получаем только одобренные отзывы
-    reviews = product.reviews.filter(is_approved=True)
-
-    # Подготовка связанных продуктов для отображения вариаций
-    related_products = product.get_related_products()
-    related_products_with_stems = [
-        {
-            'name': related_product.name,
-            'slug': related_product.slug,
-            'stems': related_product.slug.split('-')[-1],
-            'is_active': related_product == product
-        }
-        for related_product in related_products
-    ]
-
-    # Добавляем текущий товар в список вариаций, если его там еще нет
-    if product.slug not in [p['slug'] for p in related_products_with_stems]:
-        related_products_with_stems.append({
-            'name': product.name,
-            'slug': product.slug,
-            'stems': product.slug.split('-')[-1],
-            'is_active': True
-        })
+    reviews = product.reviews.filter(is_approved=True)  # Показываем только одобренные отзывы
 
     # Обработка формы отзыва
     if request.method == 'POST':
-        # Проверяем, авторизован ли пользователь
         if not request.user.is_authenticated:
             messages.error(request, 'Вы должны войти в систему, чтобы оставить отзыв.')
-            return redirect('login')
+            return redirect('custom_login')  # Изменяем редирект на кастомную страницу логина
 
         form = ReviewForm(request.POST)
         if form.is_valid():
-            # Проверяем, оставлял ли пользователь уже отзыв для этого товара
             if not Review.objects.filter(product=product, author=request.user).exists():
-                # Сохраняем новый отзыв
                 review = form.save(commit=False)
-                review.product = product
+                review.product = product  # Привязываем отзыв к текущему продукту
                 review.author = request.user
                 review.save()
                 messages.success(request, 'Ваш отзыв отправлен и ожидает модерации.')
@@ -124,14 +113,11 @@ def product_details(request, slug):
             messages.error(request, 'Ошибка при отправке отзыва. Пожалуйста, попробуйте еще раз.')
 
     else:
-        # Инициализируем пустую форму для GET-запросов
         form = ReviewForm()
 
-    # Рендеринг страницы с передачей данных в шаблон
     return render(request, 'orders/product-details.html', {
         'product': product,
         'reviews': reviews,
-        'related_products_with_stems': related_products_with_stems,
         'form': form,
     })
 

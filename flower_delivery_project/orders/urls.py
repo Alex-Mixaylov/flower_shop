@@ -22,6 +22,8 @@ urlpatterns = [
     path('category/<slug:slug>/', views.shop_by_category, name='shop_by_category'),
     # Маршрут для AJAX изменения кол-ва товара в Корзине
     path('update-cart-quantity/', views.update_cart_quantity, name='update_cart_quantity'),
+    # Новый путь для логина
+    path('login/', views.custom_login, name='custom_login'),
 ]
 
 # Подключение статических файлов в режиме разработки

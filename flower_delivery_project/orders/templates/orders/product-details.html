@@ -130,7 +130,9 @@
                         </button>
                     </form>
                 {% else %}
-                    <p class="text-danger">You must <a href="{% url 'login' %}">log in</a> to leave a review.</p>
+                    <p class="text-danger">
+                        You must <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">log in</a> to leave a review.
+                    </p>
                 {% endif %}
             </div>
         </div>
