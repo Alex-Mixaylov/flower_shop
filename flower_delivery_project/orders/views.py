@@ -72,22 +72,6 @@ def index(request):
     }
     return render(request, 'orders/index.html', context)
 
-#регистрация пользователей на сайте
-def custom_login(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            messages.success(request, 'Вы успешно вошли в систему.')
-            return redirect('index')
-        else:
-            messages.error(request, 'Неверное имя пользователя или пароль.')
-
-    return render(request, 'orders/login.html')
-
-
 # Страница товара
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug)
