@@ -3340,5 +3340,10 @@ footer hr {
     visibility: visible;
 }
 
+/* Для корректного отображения модального окна login-logout*/
+.modal-open {
+    overflow: hidden;
+}
+
 
 /*# sourceMappingURL=style.css.map */
