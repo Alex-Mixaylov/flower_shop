@@ -105,38 +105,26 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="registerModalLabel">Free Register</h5>
-                    <!-- Кнопка закрытия для модального окна регистрации -->
-                    <button type="button" class="btn-close" id="registerModal-close-btn" data-bs-dismiss="modal" aria-label="Close">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
-                        </svg>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Форма регистрации -->
-                    <form method="post" action="{% url 'register' %}">
+                    <form id="registerForm">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="register-fullname" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="register-fullname" name="fullname" required>
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
                         </div>
                         <div class="mb-3">
-                            <label for="register-email" class="form-label">Email or Phone Number</label>
-                            <input type="email" class="form-control" id="register-email" name="email" required>
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                         <div class="mb-3">
-                            <label for="register-password" class="form-label">Create Password</label>
-                            <input type="password" class="form-control" id="register-password" name="password" required>
+                            <label for="password1" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password1" name="password1" required>
                         </div>
                         <div class="mb-3">
-                            <label for="register-confirmpassword" class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="register-confirmpassword" name="confirmpassword" required>
-                        </div>
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="register-termsCheck" required>
-                            <label class="form-check-label" for="register-termsCheck">
-                                By clicking Register, you agree to our Terms of Use and Cookie Policy
-                            </label>
+                            <label for="password2" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="password2" name="password2" required>
                         </div>
                         <button type="submit" class="btn continue-bn">Register</button>
                     </form>
@@ -164,6 +152,36 @@
                 autoplay: true,
             });
         });
+    </script>
+    <script>
+        $(document).ready(function () {
+        // Обработчик формы регистрации
+        $('#registerForm').on('submit', function (e) {
+            e.preventDefault();  // Предотвращаем стандартное поведение формы
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "register" %}',
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        // Показать сообщение об успешной регистрации
+                        $('.alert-success').text('Registration successful! Please log in.').show();
+
+                        // Автоматически открыть модальное окно авторизации
+                        $('#registerModal').modal('hide');
+                        $('#loginModal').modal('show');
+                    } else {
+                        // Показать ошибки
+                        $('.alert-danger').text(response.error).show();
+                    }
+                },
+                error: function () {
+                    $('.alert-danger').text('Something went wrong. Please try again.').show();
+                }
+            });
+        });
+    });
     </script>
     {% endblock %}
 </body>

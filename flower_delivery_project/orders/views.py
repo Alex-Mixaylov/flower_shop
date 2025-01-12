@@ -72,35 +72,40 @@ def index(request):
     }
     return render(request, 'orders/index.html', context)
 
-# Регистрация
+# Регистрация нового пользователя
 def register(request):
     if request.method == 'POST':
-        fullname = request.POST['fullname']
-        email = request.POST['email']
-        password = request.POST['password']
-        confirmpassword = request.POST['confirmpassword']
+        # Безопасно извлекаем данные из формы
+        fullname = request.POST.get('fullname', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '').strip()
+        confirmpassword = request.POST.get('confirmpassword', '').strip()
 
+        # Проверка: все поля должны быть заполнены
+        if not fullname or not email or not password or not confirmpassword:
+            return JsonResponse({'success': False, 'error': 'All fields are required.'})
+
+        # Проверка: совпадают ли пароли
         if password != confirmpassword:
-            messages.error(request, 'Passwords do not match.')
-            return redirect('register')
+            return JsonResponse({'success': False, 'error': 'Passwords do not match.'})
 
+        # Проверка: существует ли пользователь с таким именем
         if User.objects.filter(username=fullname).exists():
-            messages.error(request, 'Username already exists.')
-            return redirect('register')
+            return JsonResponse({'success': False, 'error': 'Username already exists.'})
 
+        # Проверка: существует ли пользователь с таким email
         if User.objects.filter(email=email).exists():
-            messages.error(request, 'Email is already registered.')
-            return redirect('register')
+            return JsonResponse({'success': False, 'error': 'Email is already registered.'})
 
+        # Создание нового пользователя
         user = User.objects.create_user(username=fullname, email=email, password=password)
         user.save()
-        messages.success(request, 'Registration successful! Please log in.')
-        return redirect('login')
 
+        # Возвращаем успешный JSON-ответ
+        return JsonResponse({'success': True, 'message': 'Registration successful! Please log in.'})
+
+    # Отображение страницы регистрации (для GET-запросов)
     return render(request, 'orders/register.html')
-
-
-
 
 
 # Страница товара
