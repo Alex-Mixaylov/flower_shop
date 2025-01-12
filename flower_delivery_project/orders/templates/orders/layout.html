@@ -60,27 +60,29 @@
     {% include 'orders/footer.html' %}
 
     <!-- Модальное окно авторизации -->
-    <div class="modal fade login-div-modal show" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal fade login-div-modal" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="loginModalLabel">Login</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
-                    </svg>
+                    <!-- Кнопка закрытия для модального окна авторизации -->
+                    <button type="button" class="btn-close" id="loginModal-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+                        </svg>
                     </button>
                 </div>
                 <div class="modal-body">
+                    <!-- Форма авторизации -->
                     <form method="post" action="{% url 'login' %}">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username or Email</label>
-                            <input type="text" class="form-control" id="username" name="username" autocomplete="username" required>
+                            <label for="login-username" class="form-label">Username or Email</label>
+                            <input type="text" class="form-control" id="login-username" name="username" autocomplete="username" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" autocomplete="current-password" required>
+                            <label for="login-password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="login-password" name="password" autocomplete="current-password" required>
                         </div>
                         <button type="submit" class="btn continue-bn">
                             <i class="fas fa-lock"></i> SIGN IN
@@ -96,36 +98,43 @@
             </div>
         </div>
     </div>
+
     <!-- Модальное окно регистрации -->
     <div class="modal fade login-div-modal" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="registerModalLabel">Free Register</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <!-- Кнопка закрытия для модального окна регистрации -->
+                    <button type="button" class="btn-close" id="registerModal-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+                        </svg>
+                    </button>
                 </div>
                 <div class="modal-body">
+                    <!-- Форма регистрации -->
                     <form method="post" action="{% url 'register' %}">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="fullname" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="fullname" name="fullname" required>
+                            <label for="register-fullname" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="register-fullname" name="fullname" required>
                         </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email or Phone Number</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="register-email" class="form-label">Email or Phone Number</label>
+                            <input type="email" class="form-control" id="register-email" name="email" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Create Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <label for="register-password" class="form-label">Create Password</label>
+                            <input type="password" class="form-control" id="register-password" name="password" required>
                         </div>
                         <div class="mb-3">
-                            <label for="confirmpassword" class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="confirmpassword" name="confirmpassword" required>
+                            <label for="register-confirmpassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="register-confirmpassword" name="confirmpassword" required>
                         </div>
                         <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="termsCheck" required>
-                            <label class="form-check-label" for="termsCheck">
+                            <input type="checkbox" class="form-check-input" id="register-termsCheck" required>
+                            <label class="form-check-label" for="register-termsCheck">
                                 By clicking Register, you agree to our Terms of Use and Cookie Policy
                             </label>
                         </div>
