@@ -10,6 +10,7 @@ urlpatterns = [
     path('', include('orders.urls')),
     path('login/', auth_views.LoginView.as_view(template_name='orders/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), {'next_page': '/'}, name='logout'),
+    path('register/', order_views.register, name='register'),
 ]
 
 # Добавляем обработку медиа-файлов в режиме разработки

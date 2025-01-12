@@ -1,7 +1,7 @@
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import Product, FlowerType, FlowerColor, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem
+from .models import User, Product, FlowerType, FlowerColor, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem
 from .forms import ReviewForm
 
 from django.db.models import F
@@ -71,6 +71,37 @@ def index(request):
         **footer_context,  # Добавление динамических данных в футер
     }
     return render(request, 'orders/index.html', context)
+
+# Регистрация
+def register(request):
+    if request.method == 'POST':
+        fullname = request.POST['fullname']
+        email = request.POST['email']
+        password = request.POST['password']
+        confirmpassword = request.POST['confirmpassword']
+
+        if password != confirmpassword:
+            messages.error(request, 'Passwords do not match.')
+            return redirect('register')
+
+        if User.objects.filter(username=fullname).exists():
+            messages.error(request, 'Username already exists.')
+            return redirect('register')
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Email is already registered.')
+            return redirect('register')
+
+        user = User.objects.create_user(username=fullname, email=email, password=password)
+        user.save()
+        messages.success(request, 'Registration successful! Please log in.')
+        return redirect('login')
+
+    return render(request, 'orders/register.html')
+
+
+
+
 
 # Страница товара
 def product_details(request, slug):
