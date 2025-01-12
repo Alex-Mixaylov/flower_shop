@@ -73,39 +73,36 @@ def index(request):
     return render(request, 'orders/index.html', context)
 
 # Регистрация нового пользователя
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
-        # Безопасно извлекаем данные из формы
         fullname = request.POST.get('fullname', '').strip()
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '').strip()
         confirmpassword = request.POST.get('confirmpassword', '').strip()
 
-        # Проверка: все поля должны быть заполнены
+        # Проверка заполненности полей
         if not fullname or not email or not password or not confirmpassword:
             return JsonResponse({'success': False, 'error': 'All fields are required.'})
 
-        # Проверка: совпадают ли пароли
+        # Проверка совпадения паролей
         if password != confirmpassword:
             return JsonResponse({'success': False, 'error': 'Passwords do not match.'})
 
-        # Проверка: существует ли пользователь с таким именем
+        # Проверка существующего пользователя
         if User.objects.filter(username=fullname).exists():
             return JsonResponse({'success': False, 'error': 'Username already exists.'})
 
-        # Проверка: существует ли пользователь с таким email
         if User.objects.filter(email=email).exists():
             return JsonResponse({'success': False, 'error': 'Email is already registered.'})
 
-        # Создание нового пользователя
+        # Создание пользователя
         user = User.objects.create_user(username=fullname, email=email, password=password)
         user.save()
 
-        # Возвращаем успешный JSON-ответ
         return JsonResponse({'success': True, 'message': 'Registration successful! Please log in.'})
 
-    # Отображение страницы регистрации (для GET-запросов)
-    return render(request, 'orders/register.html')
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 
 # Страница товара

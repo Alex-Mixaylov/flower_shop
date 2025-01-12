@@ -10,3 +10,33 @@
     </form>
 </div>
 {% endblock %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const registerForm = document.getElementById('registerForm');
+
+    registerForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(registerForm);
+
+        try {
+            const response = await fetch('/register/', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                alert(data.message);
+                // Закрытие модального окна
+                const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                modal.hide();
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+        }
+    });
+});
+</script>

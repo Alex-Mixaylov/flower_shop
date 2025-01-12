@@ -60,39 +60,33 @@
     {% include 'orders/footer.html' %}
 
     <!-- Модальное окно авторизации -->
-    <div class="modal fade login-div-modal" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal fade login-div-modal show" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="loginModalLabel">Login</h5>
-                    <!-- Кнопка закрытия для модального окна авторизации -->
-                    <button type="button" class="btn-close" id="loginModal-close-btn" data-bs-dismiss="modal" aria-label="Close">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
-                        </svg>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Форма авторизации -->
-                    <form method="post" action="{% url 'login' %}">
+                    <form id="loginForm" method="post" action="{% url 'login' %}">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="login-username" class="form-label">Username or Email</label>
-                            <input type="text" class="form-control" id="login-username" name="username" autocomplete="username" required>
+                            <label for="username" class="form-label">Username or Email</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
                         </div>
                         <div class="mb-3">
-                            <label for="login-password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="login-password" name="password" autocomplete="current-password" required>
+                            <label for="login_password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="login_password" name="password" required>
                         </div>
                         <button type="submit" class="btn continue-bn">
                             <i class="fas fa-lock"></i> SIGN IN
                         </button>
                     </form>
                     <p class="text-center mt-3">
-                        <a data-bs-toggle="modal" class="regster-bn" data-bs-target="#lostpsModal" data-bs-dismiss="modal">Lost Password?</a>
+                        <a data-bs-toggle="modal" data-bs-target="#lostpsModal" data-bs-dismiss="modal">Lost Password?</a>
                     </p>
                     <p class="text-center mt-3">Do not have an account?
-                        <a data-bs-toggle="modal" class="regster-bn" data-bs-target="#registerModal" data-bs-dismiss="modal">Register</a>
+                        <a data-bs-toggle="modal" data-bs-target="#registerModal" data-bs-dismiss="modal">Register</a>
                     </p>
                 </div>
             </div>
@@ -108,29 +102,30 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="registerForm">
+                    <form id="registerForm" method="post">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <label for="fullname" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullname" name="fullname" required>
                         </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
+                            <label for="email" class="form-label">Email or Phone Number</label>
                             <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password1" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password1" name="password1" required>
+                            <label for="register_password" class="form-label">Create Password</label>
+                            <input type="password" class="form-control" id="register_password" name="password" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password2" class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="password2" name="password2" required>
+                            <label for="register_confirmpassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="register_confirmpassword" name="confirmpassword" required>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="termsCheck" required>
+                            <label class="form-check-label" for="termsCheck">By clicking Register, you agree to our Terms of Use and Cookie Policy</label>
                         </div>
                         <button type="submit" class="btn continue-bn">Register</button>
                     </form>
-                    <p class="text-center mt-3">Already have an account?
-                        <a data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Login</a>
-                    </p>
                 </div>
             </div>
         </div>
@@ -153,34 +148,66 @@
             });
         });
     </script>
+    <!-- JavaScript-код для обработки авторизации -->
     <script>
-        $(document).ready(function () {
-        // Обработчик формы регистрации
-        $('#registerForm').on('submit', function (e) {
-            e.preventDefault();  // Предотвращаем стандартное поведение формы
+    document.addEventListener('DOMContentLoaded', function () {
+        // Обработка формы регистрации
+        const registerForm = document.getElementById('registerForm');
 
-            $.ajax({
-                type: 'POST',
-                url: '{% url "register" %}',
-                data: $(this).serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        // Показать сообщение об успешной регистрации
-                        $('.alert-success').text('Registration successful! Please log in.').show();
+        if (registerForm) {
+            registerForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
 
-                        // Автоматически открыть модальное окно авторизации
-                        $('#registerModal').modal('hide');
-                        $('#loginModal').modal('show');
+                const formData = new FormData(registerForm);
+
+                try {
+                    const response = await fetch('/register/', {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert(data.message);
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                        modal.hide();
+                        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                        loginModal.show();
                     } else {
-                        // Показать ошибки
-                        $('.alert-danger').text(response.error).show();
+                        alert(data.error);
                     }
-                },
-                error: function () {
-                    $('.alert-danger').text('Something went wrong. Please try again.').show();
+                } catch (error) {
+                    console.error('Ошибка:', error);
                 }
             });
-        });
+        }
+
+        // Обработка формы авторизации
+        const loginForm = document.getElementById('loginForm');
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(loginForm);
+
+                try {
+                    const response = await fetch('/login/', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        window.location.reload(); // Перезагрузка страницы после успешной авторизации
+                    } else {
+                        const errorData = await response.json();
+                        alert(errorData.error || 'Login failed.');
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                }
+            });
+        }
     });
     </script>
     {% endblock %}
