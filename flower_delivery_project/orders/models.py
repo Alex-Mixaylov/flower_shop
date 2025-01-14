@@ -354,9 +354,9 @@ class Review(models.Model):
 
     # Метод очистки данных (валидация)
     def clean(self):
-        """
-        Проверяем, что пользователь не оставил более одного отзыва для одного и того же товара.
-        """
+        if not self.product_id:
+            raise ValidationError('Продукт должен быть указан.')
+
         if Review.objects.filter(product=self.product, author=self.author).exists():
             raise ValidationError('Вы уже оставили отзыв для этого товара.')
 

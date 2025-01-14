@@ -119,7 +119,7 @@
                 <p class="my-2">Your email address will not be published. Required fields are marked *</p>
 
                 {% if user.is_authenticated %}
-                    <form method="post" action="">
+                    <form method="post">
                         {% csrf_token %}
                         {{ form.as_p }}
                         <button type="submit" class="btn crat-btnh ms-2 ms-lg-0">

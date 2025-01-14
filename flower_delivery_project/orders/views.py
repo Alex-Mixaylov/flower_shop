@@ -1,7 +1,7 @@
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import User, Product, FlowerType, FlowerColor, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem
+from .models import User, Product, FlowerType, FlowerColor, SizeOption, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem
 from .forms import ReviewForm
 
 from django.db.models import F
@@ -105,38 +105,64 @@ def register(request):
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 
-# Страница товара
+# Страница товара и добавление отзыва
+
 def product_details(request, slug):
+    # Получаем текущий продукт
     product = get_object_or_404(Product, slug=slug)
-    reviews = product.reviews.filter(is_approved=True)  # Показываем только одобренные отзывы
+
+    # Получаем одобренные отзывы для текущего продукта
+    reviews = Review.objects.filter(product=product, is_approved=True)
+
+    # Получаем все связанные товары с разным количеством стеблей
+    related_products = product.get_related_products()
+    related_products_with_stems = [
+        {
+            'name': related_product.name,
+            'slug': related_product.slug,
+            'stems': related_product.slug.split('-')[-1],
+            'is_active': related_product == product,
+        }
+        for related_product in related_products
+    ]
+
+    # Добавляем текущий продукт в список, если его еще нет
+    if product.slug not in [p['slug'] for p in related_products_with_stems]:
+        related_products_with_stems.append({
+            'name': product.name,
+            'slug': product.slug,
+            'stems': product.slug.split('-')[-1],
+            'is_active': True,
+        })
 
     # Обработка формы отзыва
+    form = ReviewForm()
     if request.method == 'POST':
-        if not request.user.is_authenticated:
-            messages.error(request, 'Вы должны войти в систему, чтобы оставить отзыв.')
-            return redirect('custom_login')  # Изменяем редирект на кастомную страницу логина
-
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            if not Review.objects.filter(product=product, author=request.user).exists():
+        if request.user.is_authenticated:
+            form = ReviewForm(request.POST)
+            if form.is_valid():
+                # Создаем объект отзыва, но пока не сохраняем его
                 review = form.save(commit=False)
-                review.product = product  # Привязываем отзыв к текущему продукту
+                # Привязываем продукт и автора
+                review.product = product
                 review.author = request.user
+                # Сохраняем отзыв
                 review.save()
-                messages.success(request, 'Ваш отзыв отправлен и ожидает модерации.')
+                messages.success(request, 'Your review has been added successfully!')
+                return redirect('product_details', slug=slug)
             else:
-                messages.error(request, 'Вы уже оставили отзыв для этого товара.')
+                messages.error(request, 'Please correct the errors in the form.')
         else:
-            messages.error(request, 'Ошибка при отправке отзыва. Пожалуйста, попробуйте еще раз.')
+            messages.error(request, 'You must be logged in to leave a review.')
 
-    else:
-        form = ReviewForm()
-
+    # Передаем данные в шаблон
     return render(request, 'orders/product-details.html', {
         'product': product,
         'reviews': reviews,
+        'related_products_with_stems': related_products_with_stems,
         'form': form,
     })
+
 
 # Каталог на сайте
 def shop(request):
