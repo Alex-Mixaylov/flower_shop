@@ -106,16 +106,11 @@ def register(request):
 
 
 # Страница товара и добавление отзыва
-
 def product_details(request, slug):
-    # Получаем текущий продукт
     product = get_object_or_404(Product, slug=slug)
-
-    # Получаем одобренные отзывы для текущего продукта
     reviews = Review.objects.filter(product=product, is_approved=True)
-
-    # Получаем все связанные товары с разным количеством стеблей
     related_products = product.get_related_products()
+
     related_products_with_stems = [
         {
             'name': related_product.name,
@@ -126,7 +121,6 @@ def product_details(request, slug):
         for related_product in related_products
     ]
 
-    # Добавляем текущий продукт в список, если его еще нет
     if product.slug not in [p['slug'] for p in related_products_with_stems]:
         related_products_with_stems.append({
             'name': product.name,
@@ -135,34 +129,27 @@ def product_details(request, slug):
             'is_active': True,
         })
 
-    # Обработка формы отзыва
-    form = ReviewForm()
+    form = ReviewForm(request.POST or None)
     if request.method == 'POST':
         if request.user.is_authenticated:
-            form = ReviewForm(request.POST)
             if form.is_valid():
-                # Создаем объект отзыва, но пока не сохраняем его
                 review = form.save(commit=False)
-                # Привязываем продукт и автора
-                review.product = product
-                review.author = request.user
-                # Сохраняем отзыв
+                review.product = product  # Привязываем продукт
+                review.author = request.user  # Привязываем автора
                 review.save()
                 messages.success(request, 'Your review has been added successfully!')
                 return redirect('product_details', slug=slug)
             else:
-                messages.error(request, 'Please correct the errors in the form.')
+                messages.error(request, f'Error: {form.errors.as_json()}')
         else:
             messages.error(request, 'You must be logged in to leave a review.')
 
-    # Передаем данные в шаблон
     return render(request, 'orders/product-details.html', {
         'product': product,
         'reviews': reviews,
         'related_products_with_stems': related_products_with_stems,
         'form': form,
     })
-
 
 # Каталог на сайте
 def shop(request):
