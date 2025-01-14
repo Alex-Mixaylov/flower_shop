@@ -107,10 +107,14 @@ def register(request):
 
 # Страница товара и добавление отзыва
 def product_details(request, slug):
+    # Получаем текущий продукт по slug
     product = get_object_or_404(Product, slug=slug)
-    reviews = Review.objects.filter(product=product, is_approved=True)
-    related_products = product.get_related_products()
 
+    # Получаем все одобренные отзывы для текущего продукта
+    reviews = Review.objects.filter(product=product, is_approved=True)
+
+    # Получаем связанные продукты с разным количеством стеблей
+    related_products = product.get_related_products()
     related_products_with_stems = [
         {
             'name': related_product.name,
@@ -121,6 +125,7 @@ def product_details(request, slug):
         for related_product in related_products
     ]
 
+    # Добавляем текущий продукт в список вариаций, если его там еще нет
     if product.slug not in [p['slug'] for p in related_products_with_stems]:
         related_products_with_stems.append({
             'name': product.name,
@@ -129,21 +134,32 @@ def product_details(request, slug):
             'is_active': True,
         })
 
+    # Создаем форму для отзыва
     form = ReviewForm(request.POST or None)
+
+    # Обрабатываем POST-запрос при отправке формы
     if request.method == 'POST':
         if request.user.is_authenticated:
             if form.is_valid():
+                # Создаем объект отзыва, но не сохраняем сразу
                 review = form.save(commit=False)
-                review.product = product  # Привязываем продукт
-                review.author = request.user  # Привязываем автора
+                # Привязываем продукт и автора к отзыву
+                review.product = product
+                review.author = request.user
+                # Сохраняем отзыв в базе данных
                 review.save()
+                # Выводим сообщение об успешном добавлении отзыва
                 messages.success(request, 'Your review has been added successfully!')
+                # Перенаправляем обратно на страницу продукта
                 return redirect('product_details', slug=slug)
             else:
+                # Если форма невалидна, выводим ошибки
                 messages.error(request, f'Error: {form.errors.as_json()}')
         else:
+            # Если пользователь не авторизован, выводим сообщение
             messages.error(request, 'You must be logged in to leave a review.')
 
+    # Передаем данные в шаблон для отображения
     return render(request, 'orders/product-details.html', {
         'product': product,
         'reviews': reviews,

@@ -331,32 +331,41 @@ class Testimonial(models.Model):
 
 
 # Отзывы о продуктах
+
 class Review(models.Model):
+    # Связь с моделью продукта
     product = models.ForeignKey(
-        Product,
+        'Product',
         related_name='reviews',
         on_delete=models.CASCADE,
         verbose_name="Товар"
     )
+    # Связь с пользователем
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name="Автор"
     )
+    # Поле рейтинга с валидаторами и диапазоном от 1 до 5
     rating = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         verbose_name="Рейтинг",
         help_text="Укажите рейтинг от 1 до 5"
     )
+    # Текст отзыва
     text = models.TextField(verbose_name="Текст отзыва")
+    # Дата создания отзыва
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    # Статус одобрения отзыва
     is_approved = models.BooleanField(default=False, verbose_name="Одобрен")
 
     # Метод очистки данных (валидация)
     def clean(self):
+        # Проверка на указание продукта
         if not self.product_id:
             raise ValidationError('Продукт должен быть указан.')
 
+        # Проверка на уникальность отзыва от данного автора для данного продукта
         if Review.objects.filter(product=self.product, author=self.author).exists():
             raise ValidationError('Вы уже оставили отзыв для этого товара.')
 
@@ -368,6 +377,7 @@ class Review(models.Model):
     @property
     def status(self):
         return "Одобрен" if self.is_approved else "На модерации"
+
 
 # Количество стеблей в букете
 class SizeOption(models.Model):
