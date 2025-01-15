@@ -98,7 +98,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # --- Кастомная модель пользователя ---
-AUTH_USER_MODEL = 'orders.User'
+AUTH_USER_MODEL = 'orders.CustomUser'
 
 # --- Отправка email (для обратной связи) ---
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

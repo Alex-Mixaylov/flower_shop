@@ -10,7 +10,7 @@ from django.db.models.functions import Substr
 
 
 # Пользователи (User)
-class User(AbstractUser):
+class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
     is_admin = models.BooleanField(default=False)
@@ -250,7 +250,7 @@ class Order(models.Model):
         ('READY', 'Ready'),  # Готов
     ]
 
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     # Связь с пользователем, который сделал заказ. Если пользователь удалён, заказы сохраняются.
     customer_name = models.CharField(max_length=255)  # Имя клиента (для неавторизованных пользователей)
     customer_email = models.EmailField()  # Email клиента (для неавторизованных пользователей)
@@ -340,7 +340,7 @@ class Review(models.Model):
     )
     # Связь с пользователем
     author = models.ForeignKey(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         verbose_name="Автор"
     )
