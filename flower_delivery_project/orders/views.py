@@ -104,6 +104,7 @@ def register(request):
         return JsonResponse({'success': True, 'message': 'Registration successful! Please log in.'})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
 # Страница товара и добавление отзыва
 def product_details(request, slug):
     # Получаем текущий продукт по slug
@@ -151,25 +152,26 @@ def product_details(request, slug):
         # Режим "создания" нового отзыва
         form = ReviewForm(request.POST or None)
 
-    # ВАЖНО: Назначаем продукт до вызова form.is_valid()
+        # Назначаем product
     form.instance.product = product
+    # Назначаем author, если пользователь авторизован
+    if request.user.is_authenticated:
+        form.instance.author = request.user
+        if request.method == 'POST':
+            if request.user.is_authenticated:
+                if form.is_valid():
+                    review = form.save(commit=False)
+                    # Тут *можно* повторно указать, но уже не обязательно:
+                    # review.author = request.user
+                    # review.product = product
 
-    # Обрабатываем POST-запрос при отправке формы
-    if request.method == 'POST':
-        if request.user.is_authenticated:
-            if form.is_valid():
-                # Здесь product уже есть в экземпляре формы
-                review = form.save(commit=False)
-                review.author = request.user
-                review.save()
-                messages.success(request, 'Your review has been submitted successfully!')
-                return redirect('product_details', slug=slug)
+                    review.save()
+                    messages.success(request, 'Your review has been submitted successfully!')
+                    return redirect('product_details', slug=slug)
+                else:
+                    messages.error(request, 'There were errors in your form. Please check below.')
             else:
-                # Если форма невалидна, срабатывают ValidationError и т. п.
-                # Выведем их через messages, чтобы пользователь их увидел
-                messages.error(request, 'There were errors in your form. Please check below.')
-        else:
-            messages.error(request, 'You must be logged in to leave a review.')
+                messages.error(request, 'You must be logged in to leave a review.')
 
     # Передаем данные в шаблон для отображения
     return render(request, 'orders/product-details.html', {
