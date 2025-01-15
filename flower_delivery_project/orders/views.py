@@ -1,7 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import User, Product, FlowerType, FlowerColor, SizeOption, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem
+from .models import CustomUser, Product, FlowerType, FlowerColor, SizeOption, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem
 from .forms import ReviewForm
 
 from django.db.models import F
@@ -87,22 +88,22 @@ def register(request):
         if password != confirmpassword:
             return JsonResponse({'success': False, 'error': 'Passwords do not match.'})
 
+        UserModel = get_user_model()  # Получаем текущую модель (CustomUser, если она в settings)
+
         # Проверка существующего пользователя
-        if User.objects.filter(username=fullname).exists():
+        if UserModel.objects.filter(username=fullname).exists():
             return JsonResponse({'success': False, 'error': 'Username already exists.'})
 
-        if User.objects.filter(email=email).exists():
+        if UserModel.objects.filter(email=email).exists():
             return JsonResponse({'success': False, 'error': 'Email is already registered.'})
 
         # Создание пользователя
-        user = User.objects.create_user(username=fullname, email=email, password=password)
+        user = UserModel.objects.create_user(username=fullname, email=email, password=password)
         user.save()
 
         return JsonResponse({'success': True, 'message': 'Registration successful! Please log in.'})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
-
-
 # Страница товара и добавление отзыва
 def product_details(request, slug):
     # Получаем текущий продукт по slug

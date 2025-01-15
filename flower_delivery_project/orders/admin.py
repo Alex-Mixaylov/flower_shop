@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    User,
+    CustomUser,
     Collection,
     Bouquet,
     Order,
@@ -24,7 +24,7 @@ from .models import (
 from django.utils.html import format_html
 
 # Регистрация моделей в админке
-admin.site.register(User)
+admin.site.register(CustomUser)
 admin.site.register(Bouquet)
 admin.site.register(OrderItem)
 admin.site.register(ContactMessage)

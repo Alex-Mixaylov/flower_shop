@@ -3,10 +3,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from django.utils.text import slugify
-from django.utils.timezone import now
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
-from django.db.models.functions import Substr
+
 
 
 # Пользователи (User)
