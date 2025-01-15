@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.models import User
 
 from django.utils.text import slugify
 from django.utils.timezone import now
@@ -331,7 +330,6 @@ class Testimonial(models.Model):
 
 
 # Отзывы о продуктах
-
 class Review(models.Model):
     # Связь с моделью продукта
     product = models.ForeignKey(
@@ -365,9 +363,12 @@ class Review(models.Model):
         if not self.product_id:
             raise ValidationError('Продукт должен быть указан.')
 
-        # Проверка на уникальность отзыва от данного автора для данного продукта
-        if Review.objects.filter(product=self.product, author=self.author).exists():
-            raise ValidationError('Вы уже оставили отзыв для этого товара.')
+        # Если это новая запись (нет PK), а отзыв уже существует
+        # (тем самым блокируем только попытку «создать дубль»,
+        #  но позволяем редактировать уже существующий отзыв)
+        if not self.pk and Review.objects.filter(product=self.product, author=self.author).exists():
+            raise ValidationError('Вы уже оставили отзыв для этого товара. Пожалуйста, отредактируйте его, '
+                                  'вместо создания нового.')
 
     # Представление объекта в виде строки
     def __str__(self):

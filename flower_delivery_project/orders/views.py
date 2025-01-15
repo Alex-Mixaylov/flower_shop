@@ -8,15 +8,13 @@ from django.db.models import F
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
 
 from django.db.models import Count
 from django.db.models import Avg
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.csrf import csrf_protect
+#from django.views.decorators.csrf import csrf_protect
 
 import logging
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -110,6 +108,12 @@ def product_details(request, slug):
     # Получаем текущий продукт по slug
     product = get_object_or_404(Product, slug=slug)
 
+    # Отладочная печать информации о текущем пользователе
+    print("DEBUG request.user =", request.user)
+    print("DEBUG request.user.is_authenticated =", request.user.is_authenticated)
+    print("DEBUG request.user.id =", request.user.id if request.user.is_authenticated else None)
+    print("DEBUG request.user._meta.model =", request.user._meta.model if request.user.is_authenticated else None)
+
     # Получаем все одобренные отзывы для текущего продукта
     reviews = Review.objects.filter(product=product, is_approved=True)
 
@@ -134,29 +138,36 @@ def product_details(request, slug):
             'is_active': True,
         })
 
-    # Создаем форму для отзыва
-    form = ReviewForm(request.POST or None)
+    # === Новая часть: ищем существующий отзыв для редактирования ===
+    existing_review = None
+    if request.user.is_authenticated:
+        existing_review = Review.objects.filter(product=product, author=request.user).first()
+
+    if existing_review:
+        # Режим "редактирования" уже существующего отзыва
+        form = ReviewForm(request.POST or None, instance=existing_review)
+    else:
+        # Режим "создания" нового отзыва
+        form = ReviewForm(request.POST or None)
+
+    # ВАЖНО: Назначаем продукт до вызова form.is_valid()
+    form.instance.product = product
 
     # Обрабатываем POST-запрос при отправке формы
     if request.method == 'POST':
         if request.user.is_authenticated:
             if form.is_valid():
-                # Создаем объект отзыва, но не сохраняем сразу
+                # Здесь product уже есть в экземпляре формы
                 review = form.save(commit=False)
-                # Привязываем продукт и автора к отзыву
-                review.product = product
                 review.author = request.user
-                # Сохраняем отзыв в базе данных
                 review.save()
-                # Выводим сообщение об успешном добавлении отзыва
-                messages.success(request, 'Your review has been added successfully!')
-                # Перенаправляем обратно на страницу продукта
+                messages.success(request, 'Your review has been submitted successfully!')
                 return redirect('product_details', slug=slug)
             else:
-                # Если форма невалидна, выводим ошибки
-                messages.error(request, f'Error: {form.errors.as_json()}')
+                # Если форма невалидна, срабатывают ValidationError и т. п.
+                # Выведем их через messages, чтобы пользователь их увидел
+                messages.error(request, 'There were errors in your form. Please check below.')
         else:
-            # Если пользователь не авторизован, выводим сообщение
             messages.error(request, 'You must be logged in to leave a review.')
 
     # Передаем данные в шаблон для отображения
