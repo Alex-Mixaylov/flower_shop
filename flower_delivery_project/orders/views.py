@@ -139,6 +139,8 @@ def product_details(request, slug):
             'stems': product.slug.split('-')[-1],
             'is_active': True,
         })
+    # Здесь объявляем переменную с количеством стеблей
+    product_stems = product.slug.split('-')[-1]
 
     # === Новая часть: ищем существующий отзыв для редактирования ===
     existing_review = None
@@ -179,6 +181,7 @@ def product_details(request, slug):
         'reviews': reviews,
         'related_products_with_stems': related_products_with_stems,
         'form': form,
+        'product_stems': product_stems,
     })
 
 # Каталог на сайте

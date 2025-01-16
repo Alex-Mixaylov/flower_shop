@@ -96,22 +96,70 @@
 
             <!-- Описание товара -->
             <div class="bottom-details mt-5">
-                <h2>Product Description</h2>
+                <!-- h2 с классом "comon-heading m-0" -->
+                <h2 class="comon-heading m-0">Product Description</h2>
+                <hr>
+                <!-- Если хотите заголовок "Product Details:" -->
+                <h5 class="min-heading2 mt-3">Product Details:</h5>
+                <!-- Здесь, если нужно, добавьте ul.listo mt-3 -->
+                <!-- Можно вывести, например, тип цветов, цвет и т.д., если у вас есть такие поля: -->
+                <ul class="listo mt-3">
+                    <li>
+                        <span>Flower Type: </span>
+                        {% if product.flower_types.all %}
+                           {{ product.flower_types.first }}  <!-- или перечислить все -->
+                        {% else %}
+                           N/A
+                        {% endif %}
+                    </li>
+                    <li>
+                        <span>No. of Stems: </span>
+                            {{ product_stems }}
+                    </li>
+                    <!-- ... любые другие поля ... -->
+                </ul>
+
+                <!-- Описание самого товара -->
                 <p>{{ product.description }}</p>
             </div>
+            <!-- Описание товара -->
 
             <!-- Блок с отзывами -->
-            <div class="review-div-sec mt-4">
-                <h2>Reviews</h2>
-                {% for review in reviews %}
-                    <div class="comment-user-div">
-                        <h6>{{ review.author }} - {{ review.rating }} stars</h6>
-                        <p>{{ review.text }}</p>
-                    </div>
-                {% empty %}
-                    <p>No reviews yet.</p>
-                {% endfor %}
-            </div>
+           <div class="bottom-details mt-5">
+               <div class="review-div-sec mt-4">
+                    <h2 class="comon-heading m-0">Reviews</h2>
+                    <hr>
+                    {% for review in reviews %}
+                        <div class="comment-user-div">
+                            <div class="userp">
+                                <div class="us-pic">
+                                    <!-- заглушка вместо аватарки -->
+                                    <img src="{% static 'images/manages-st4.jpg' %}" alt="pico">
+                                </div>
+                            </div>
+
+                            <!-- Блок с данными и текстом -->
+                            <div class="user-dsl">
+                                <h6>
+                                    {{ review.author.username }}
+                                    <span class="d-block">
+                                        <!-- Отображаем звёздочки на основе review.rating -->
+                                        {% for i in "12345"|slice:":review.rating" %}
+                                            <i class="fas fa-star"></i>
+                                        {% endfor %}
+                                    </span>
+                                    <!-- Дата отзыва -->
+                                    <span>{{ review.created_at|date:"F d, Y" }}</span>
+                                </h6>
+                                <p>{{ review.text }}</p>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p>No reviews yet.</p>
+                    {% endfor %}
+                </div>
+           </div>
+            <!-- Блок с отзывами -->
 
             <!-- Форма добавления отзыва -->
             <div class="submit-review mt-5">
@@ -121,27 +169,43 @@
                 {% if user.is_authenticated %}
                     <form method="post">
                         {% csrf_token %}
+
                         {{ form.non_field_errors }}
-                        <div class="mb-3">
-                            {{ form.rating.label_tag }}
-                            {{ form.rating }}  <!-- если у вас RadioSelect -->
-                            {% for error in form.rating.errors %}
-                                <div class="text-danger">{{ error }}</div>
-                            {% endfor %}
+
+                        <!-- Блок звёзд, как в примере -->
+                        <div class="col-lg-12 pl-0">
+                            <div class="rating-box">
+                                <div class="rating-container">
+                                    <!-- Здесь можно вручную повторить 5 радиокнопок со звёздами
+                                         Или просто вывести {{ form.rating }} если у вас RadioSelect,
+                                         но стилизовать их через CSS.
+                                    -->
+                                    {{ form.rating }}
+                                </div>
+                                {% for error in form.rating.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            {{ form.text.label_tag }}
-                            {{ form.text }}
-                            {% for error in form.text.errors %}
-                                <div class="text-danger">{{ error }}</div>
-                            {% endfor %}
+
+                        <!-- Поля для имени и email могут быть скрыты (ведь пользователь уже залогинен),
+                             но если хотите, можете добавить "readonly" поля,
+                             или вообще не отображать name/email в форме -->
+                        <div class="row w-100">
+                            <!-- Пример: вы можете просто пропустить поля "Full Name" / "Email"
+                                 так как у вас уже есть user. Или вывести их readonly? -->
+                            <div class="col-lg-12 form-group">
+                                {{ form.text.label_tag }}
+                                {{ form.text }}
+                                {% for error in form.text.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <button type="submit" class="btn crat-btnh ms-2 ms-lg-0">
+                                Submit
+                                <span><i class="fas fa-paper-plane"></i></span>
+                            </button>
                         </div>
-                        <button type="submit" class="btn crat-btnh ms-2 ms-lg-0">
-                            Submit
-                            <span>
-                                <i class="fas fa-paper-plane"></i>
-                            </span>
-                        </button>
                     </form>
                 {% else %}
                     <p class="text-danger">
@@ -149,6 +213,7 @@
                     </p>
                 {% endif %}
             </div>
+            <!-- Форма добавления отзыва -->
         </div>
     </div>
 </main>
