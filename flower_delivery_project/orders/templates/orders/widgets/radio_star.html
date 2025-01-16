@@ -1,0 +1,20 @@
+{# orders/templates/orders/widgets/radio_star.html #}
+
+<div id="{{ widget.attrs.id }}" class="rating-container">
+  {% for group, options, index in widget.optgroups %}
+    {% for option in options %}
+      {# Используем value для уникальности id #}
+      <input
+        type="radio"
+        name="{{ widget.name }}"
+        value="{{ option.value }}"
+        id="id_{{ widget.name }}_{{ option.value }}"
+        {% if option.selected %}checked="checked"{% endif %}
+        required
+      />
+      <label for="id_{{ widget.name }}_{{ option.value }}">
+        {{ option.label }}
+      </label>
+    {% endfor %}
+  {% endfor %}
+</div>

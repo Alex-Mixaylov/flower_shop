@@ -3,6 +3,54 @@
 
 {% block title %}{{ product.name }} - Product Details{% endblock %}
 
+{% block head %}
+    {{ block.super }} {# Сохранить стили родительского шаблона #}
+
+    <style>
+      /* Контейнер со звёздами */
+      .rating-container {
+        display: flex;
+        flex-direction: row-reverse; /* Разворачиваем порядок звёзд */
+        justify-content: flex-end;   /* Прижимаем к правому краю */
+        gap: 0.3rem;
+      }
+
+      /* Скрываем нативные радио-кнопки */
+      .rating-container input[type="radio"] {
+        display: none;
+      }
+
+      /* Подсвечиваем все звёзды слева от выбранной */
+      .rating-container input[type="radio"]:checked ~ label {
+        color: #ffbf00; /* Жёлтый цвет */
+      }
+
+      /* Базовый стиль лейблов (звёзд) */
+      .rating-container label {
+        font-size: 2rem;
+        color: #ccc;        /* Изначально серые звёзды */
+        cursor: pointer;
+        position: relative;
+        text-indent: -9999px; /* Прячем текст "5 stars" */
+        width: 1.2em;
+        overflow: hidden;
+        margin-right: 0.1rem;
+      }
+
+      /* Выводим символ ★ через псевдоэлемент */
+      .rating-container label::before {
+        content: '★';
+        position: absolute;
+        left: 0;
+        top: 0;
+        text-indent: 0;
+      }
+    </style>
+
+
+{% endblock %}
+
+
 {% block content %}
 <section class="sub-banner float-start w-100">
     <div class="container">
@@ -173,19 +221,11 @@
                         {{ form.non_field_errors }}
 
                         <!-- Блок звёзд, как в примере -->
-                        <div class="col-lg-12 pl-0">
-                            <div class="rating-box">
-                                <div class="rating-container">
-                                    <!-- Здесь можно вручную повторить 5 радиокнопок со звёздами
-                                         Или просто вывести {{ form.rating }} если у вас RadioSelect,
-                                         но стилизовать их через CSS.
-                                    -->
-                                    {{ form.rating }}
-                                </div>
-                                {% for error in form.rating.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
-                            </div>
+                        <div class="col-lg-12 pl-0 rating-box">
+                            {{ form.rating }}
+                            {% for error in form.rating.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
                         </div>
 
                         <!-- Поля для имени и email могут быть скрыты (ведь пользователь уже залогинен),
