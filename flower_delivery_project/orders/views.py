@@ -314,7 +314,7 @@ def checkout(request):
     user = request.user
     cart = Cart.objects.filter(user=user).first()
 
-    if not cart or not cart.cart_items.exists():
+    if not cart or not cart.cart.items.exists():
         # Если корзина пуста, перенаправляем на страницу корзины
         messages.error(request, "Your cart is empty.")
         return redirect('cart')
