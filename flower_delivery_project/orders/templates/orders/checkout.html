@@ -24,10 +24,10 @@
             <form action="{% url 'checkout' %}" method="post" role="form">
                 {% csrf_token %}
                 <div class="row g-lg-5">
-                    <!-- Billing Address -->
+                    <!-- User Data -->
                     <div class="col-lg-8">
                         <div class="comon-steps-div">
-                            <h2 class="comon-heading m-0">Billing Address</h2>
+                            <h2 class="comon-heading m-0">User Data</h2>
                             <div class="row mt-4">
                                 <!-- Поля CheckoutForm -->
                                 {{ checkout_form.non_field_errors }}
@@ -40,7 +40,7 @@
                                     {{ checkout_form.customer_email }}
                                 </div>
                                 <div class="col-lg-12 mb-3">
-                                    {{ checkout_form.customer_phone.label_tag }}l>
+                                    {{ checkout_form.customer_phone.label_tag }}
                                     {{ checkout_form.customer_phone }}
                                 </div>
                             </div>
@@ -76,10 +76,6 @@
                                     {{ delivery_form.address.label_tag }}
                                     {{ delivery_form.address }}
                                 </div>
-                                <div class="col-lg-6 mb-3">
-                                    {{ checkout_form.customer_phone.label_tag }}>
-                                    {{ checkout_form.customer_phone }}
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -112,10 +108,10 @@
                             </div>
                             <div class="oder-right-details-new">
                                 <div class="price-sec-order">
-                                    <p class="price-am">Subtotal <span>${{ subtotal }}</span></p>
-                                    <p class="delivery-am">Delivery Charges <span>${{ delivery_fee }}</span></p>
+                                    <p class="delivery-am">Delivery Charges <span>$ 0</span></p>
+                                    <p class="delivery-am" style="margin-top: -12px;"><span>Free delivery to the transport company</span></p>
                                     <div class="total-price p-0">
-                                        <p class="discount-am mb-lg-0">Total Amount <span>${{ total }}</span></p>
+                                        <p class="discount-am mb-lg-0">Total Amount <span>${{ total_price|floatformat:2 }}</span></p>
                                     </div>
                                 </div>
                             </div>

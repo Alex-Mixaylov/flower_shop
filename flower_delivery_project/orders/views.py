@@ -314,7 +314,7 @@ def checkout(request):
     user = request.user
     cart = Cart.objects.filter(user=user).first()
 
-    if not cart or not cart.cart.items.exists():
+    if not cart or not cart.items.exists():
         # Если корзина пуста, перенаправляем на страницу корзины
         messages.error(request, "Your cart is empty.")
         return redirect('cart')
@@ -329,12 +329,12 @@ def checkout(request):
             order = checkout_form.save(commit=False)
             order.user = user
             order.total_price = sum(
-                item.product.price * item.quantity for item in cart.cart_items.all()
+                item.product.price * item.quantity for item in cart.items.all()
             )
             order.save()
 
             # Переносим элементы корзины в заказ
-            for item in cart.cart_items.all():
+            for item in cart.items.all():
                 OrderItem.objects.create(
                     order=order,
                     product=item.product,
@@ -348,11 +348,11 @@ def checkout(request):
             delivery.save()
 
             # Очищаем корзину
-            cart.cart_items.all().delete()
+            cart.items.all().delete()
 
             # Уведомляем пользователя об успешном оформлении заказа
             messages.success(request, "Your order has been placed successfully!")
-            return redirect('thanks', order_id=order.id)
+            return redirect('orders/thanks.html')
         else:
             messages.error(request, "There were errors in your forms. Please check the fields below.")
     else:
@@ -363,8 +363,8 @@ def checkout(request):
     return render(request, 'orders/checkout.html', {
         'checkout_form': checkout_form,
         'delivery_form': delivery_form,
-        'cart_items': cart.cart_items.all(),
-        'total_price': sum(item.product.price * item.quantity for item in cart.cart_items.all())
+        'cart_items': cart.items.all(),
+        'total_price': sum(item.product.price * item.quantity for item in cart.items.all()),
     })
 
 # Корзина
