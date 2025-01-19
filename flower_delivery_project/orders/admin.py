@@ -4,6 +4,7 @@ from .models import (
     Collection,
     Order,
     OrderItem,
+    Delivery,
     ContactMessage,
     BestSeller,
     TeamMember,
@@ -62,6 +63,12 @@ class OrderAdmin(admin.ModelAdmin):
         return obj.updated_at
     updated_at_display.short_description = 'Updated At'  # Название колонки в админке
 
+
+@admin.register(Delivery)
+class DeliveryAdmin(admin.ModelAdmin):
+    list_display = ('order', 'full_name', 'country', 'state', 'city', 'zipcode', 'address', 'phone')
+    search_fields = ('full_name', 'country', 'state', 'city', 'zipcode', 'phone')
+    list_filter = ('country', 'state', 'city')
 
 @admin.register(BestSeller)
 class BestSellerAdmin(admin.ModelAdmin):
