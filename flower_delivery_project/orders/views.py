@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import CustomUser, Product, FlowerType, FlowerColor, SizeOption, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem, Order, OrderItem
-from .forms import ReviewForm
+from .models import CustomUser, Product, FlowerType, FlowerColor, SizeOption, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem, Order, OrderItem, Delivery
+from .forms import ReviewForm, DeliveryForm, CheckoutForm
 
 from django.db.models import F
 
@@ -19,6 +19,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 import logging
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+from django.contrib.auth.decorators import login_required
 
 # Главная страница
 def index(request):
@@ -304,51 +306,66 @@ def collection_detail(request, slug):
     return render(request, 'orders/collection_detail.html', context)
 
 # Размещение заказа
+@login_required
 def checkout(request):
-    # Проверка авторизации
-    if not request.user.is_authenticated:
-        messages.error(request, "You need to log in to proceed with checkout.")
-        return redirect('login')  # Перенаправление на страницу входа
+    """
+    Страница оформления заказа
+    """
+    user = request.user
+    cart = Cart.objects.filter(user=user).first()
 
-    # Получаем корзину текущего пользователя
-    cart = request.user.cart_set.first()  # Предполагается, что у пользователя только одна активная корзина
-
-    if not cart or not cart.items.exists():
+    if not cart or not cart.cart_items.exists():
+        # Если корзина пуста, перенаправляем на страницу корзины
         messages.error(request, "Your cart is empty.")
-        return redirect('cart')  # Перенаправление на страницу корзины
+        return redirect('cart')
 
     if request.method == 'POST':
-        # Создаём объект Order
-        order = Order.objects.create(
-            user=request.user,
-            customer_name=request.user.username,
-            customer_email=request.user.email,
-            customer_phone=request.user.phone or "N/A",  # Если у пользователя нет телефона, используем "N/A"
-            status='received',  # Начальный статус заказа
-            total_price=cart.get_total_price(),  # Считаем итоговую сумму заказа из корзины
-            cart=cart
-        )
+        # Обработка форм заказа и доставки
+        checkout_form = CheckoutForm(request.POST)
+        delivery_form = DeliveryForm(request.POST)
 
-        # Переносим товары из корзины в OrderItem
-        for cart_item in cart.items.all():
-            OrderItem.objects.create(
-                order=order,
-                product=cart_item.product,
-                quantity=cart_item.quantity,
-                item_price=cart_item.product.price,
-                image_url=cart_item.product.image_main.url  # Основное изображение товара
+        if checkout_form.is_valid() and delivery_form.is_valid():
+            # Создаем объект заказа
+            order = checkout_form.save(commit=False)
+            order.user = user
+            order.total_price = sum(
+                item.product.price * item.quantity for item in cart.cart_items.all()
             )
+            order.save()
 
-        # Очищаем корзину
-        cart.items.all().delete()
+            # Переносим элементы корзины в заказ
+            for item in cart.cart_items.all():
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    item_price=item.product.price
+                )
 
-        messages.success(request, "Your order has been placed successfully!")
-        return redirect('thanks')  # Перенаправление на страницу благодарности
+            # Сохраняем информацию о доставке
+            delivery = delivery_form.save(commit=False)
+            delivery.order = order
+            delivery.save()
+
+            # Очищаем корзину
+            cart.cart_items.all().delete()
+
+            # Уведомляем пользователя об успешном оформлении заказа
+            messages.success(request, "Your order has been placed successfully!")
+            return redirect('order_summary', order_id=order.id)
+        else:
+            messages.error(request, "There were errors in your forms. Please check the fields below.")
+    else:
+        # Отображаем пустые формы для заказа и доставки
+        checkout_form = CheckoutForm()
+        delivery_form = DeliveryForm()
 
     return render(request, 'orders/checkout.html', {
-        'cart': cart,
+        'checkout_form': checkout_form,
+        'delivery_form': delivery_form,
+        'cart_items': cart.cart_items.all(),
+        'total_price': sum(item.product.price * item.quantity for item in cart.cart_items.all())
     })
-
 
 # Корзина
 def cart_view(request):
