@@ -9,6 +9,8 @@ from django.db.models import F
 
 from django.conf import settings
 from django.contrib import messages
+from django.urls import reverse
+
 
 from django.db.models import Count
 from django.db.models import Avg
@@ -246,9 +248,6 @@ def shop(request):
     }
     print(products)  # Вывод списка продуктов
     return render(request, 'orders/shop.html', context)
-def thanks(request):
-    # Рендеринг HTML-шаблона thanks.html
-    return render(request, 'orders/thanks.html')
 
 def contact(request):
     # Рендеринг HTML-шаблона contact.html
@@ -349,10 +348,11 @@ def checkout(request):
 
             # Очищаем корзину
             cart.items.all().delete()
+            
 
             # Уведомляем пользователя об успешном оформлении заказа
             messages.success(request, "Your order has been placed successfully!")
-            return redirect('orders/thanks.html')
+            return redirect(f'{reverse("thanks")}?customer_name={order.customer_name}&order_id={order.id}')
         else:
             messages.error(request, "There were errors in your forms. Please check the fields below.")
     else:
@@ -366,6 +366,20 @@ def checkout(request):
         'cart_items': cart.items.all(),
         'total_price': sum(item.product.price * item.quantity for item in cart.items.all()),
     })
+
+# Успешное размещение заказа
+
+def thanks(request):
+    """
+    Страница благодарности после размещения заказа.
+    """
+    customer_name = request.GET.get('customer_name', 'Valued Customer')
+    order_id = request.GET.get('order_id', 'Unknown Order')
+    return render(request, 'orders/thanks.html', {
+        'customer_name': customer_name,
+        'order_id': order_id,
+    })
+
 
 # Корзина
 def cart_view(request):

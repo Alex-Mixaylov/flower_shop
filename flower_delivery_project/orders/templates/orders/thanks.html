@@ -7,11 +7,11 @@
 <section class="sub-banner float-start w-100">
     <div class="container">
         <div class="insider-banner">
-            <h2>Спасибо</h2>
+            <h2>Thank You</h2>
             <nav class="mt-2">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Главная</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Спасибо</li>
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Thank You</li>
                 </ol>
             </nav>
         </div>
@@ -22,14 +22,20 @@
     <div class="contact-us-page-div py-5">
         <div class="container text-center">
             <figure class="medsu-icon mt-0">
-                <img alt="Спасибо" src="{% static 'images/5486246.png' %}"/>
+                <img alt="Thank You" src="{% static 'images/5486246.png' %}" />
             </figure>
-            <h1 class="main-headra mt-4">Спасибо за ваш заказ!</h1>
+            <h1 class="main-headra mt-4">Thank You {{ customer_name }} for your order {{ order_id }}</h1>
             <p class="col-lg-7 mt-3 mx-auto">
-                Благодарим за ваш заказ. Мы обеспечим своевременную доставку и свяжемся с вами при необходимости.
-                Если у вас возникнут вопросы, пожалуйста, свяжитесь с нами.
+                Thank you for your order. We will ensure timely delivery and will contact you if needed.
+                <br>
+                If you have any questions, feel free to contact us.
             </p>
-            <a href="{% url 'shop' %}" class="btn btn-primary mt-3">Продолжить покупки</a>
+            <h3 class="mt-4">Get In Touch</h3>
+            <p class="col-lg-7 mt-3 mx-auto">
+                Please feel welcome to contact our friendly staff with any general or specific enquiries. Our team will
+                respond to or return any urgent calls.
+            </p>
+            <a href="{% url 'shop' %}" class="btn btn-primary mt-3">Continue Shopping</a>
         </div>
     </div>
 </main>
