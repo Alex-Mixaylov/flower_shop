@@ -6,6 +6,9 @@ from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 
+from django.utils.translation import gettext_lazy as _
+
+
 
 
 # Пользователи (User)
@@ -226,27 +229,83 @@ class CartItem(models.Model):
 
 # Заказы (Order)
 class Order(models.Model):
-    # Модель для хранения информации о заказах
-    STATUS_CHOICES = [
-        ('PENDING', 'Pending'),  # В ожидании
-        ('IN_PROGRESS', 'In Progress'),  # В работе
-        ('PAID', 'Paid'),  # Оплачен
-        ('READY', 'Ready'),  # Готов
+    """
+    Модель для хранения информации о заказах
+    """
+    ORDER_STATUS = [
+        ('received', 'Заказ получен'),
+        ('in_progress', 'Заказ в работе'),
+        ('paid', 'Заказ оплачен'),
+        ('delivery', 'Заказ в доставке'),
+        ('completed', 'Заказ выполнен')
     ]
 
-    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+        verbose_name=_('Пользователь')
+    )
     # Связь с пользователем, который сделал заказ. Если пользователь удалён, заказы сохраняются.
-    customer_name = models.CharField(max_length=255)  # Имя клиента (для неавторизованных пользователей)
-    customer_email = models.EmailField()  # Email клиента (для неавторизованных пользователей)
-    customer_phone = models.CharField(max_length=15)  # Номер телефона клиента
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')  # Статус заказа
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)  # Общая стоимость заказа
-    created_at = models.DateTimeField(auto_now_add=True)  # Дата и время создания заказа
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
-    cart = models.ForeignKey(Cart, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders') #Корзина
+
+    customer_name = models.CharField(
+        max_length=255,
+        verbose_name=_('Имя клиента')
+    )
+    # Имя клиента (для неавторизованных пользователей)
+
+    customer_email = models.EmailField(
+        verbose_name=_('Email клиента')
+    )
+    # Email клиента (для неавторизованных пользователей)
+
+    customer_phone = models.CharField(
+        max_length=15,
+        verbose_name=_('Телефон клиента')
+    )
+    # Номер телефона клиента
+
+    status = models.CharField(
+        max_length=20,
+        choices=ORDER_STATUS,
+        default='received',
+        verbose_name=_('Статус заказа')
+    )
+    # Статус заказа
+
+    total_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name=_('Общая стоимость заказа')
+    )
+    # Общая стоимость заказа
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Дата создания заказа')
+    )
+    # Дата и время создания заказа
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('Дата обновления заказа')
+    )
+    # Дата и время последнего обновления заказа
+
+    cart = models.ForeignKey(
+        'Cart',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+        verbose_name=_('Корзина')
+    )
+    # Связь с корзиной (если есть)
 
     def __str__(self):
-        return f"Order #{self.id} - {self.status}"
+        return f"Order #{self.id} - {self.get_status_display()}"
 
 
 # Элементы заказа (OrderItem)
