@@ -348,7 +348,7 @@ def checkout(request):
 
             # Очищаем корзину
             cart.items.all().delete()
-            
+
 
             # Уведомляем пользователя об успешном оформлении заказа
             messages.success(request, "Your order has been placed successfully!")
