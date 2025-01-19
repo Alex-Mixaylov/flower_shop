@@ -352,7 +352,7 @@ def checkout(request):
 
             # Уведомляем пользователя об успешном оформлении заказа
             messages.success(request, "Your order has been placed successfully!")
-            return redirect('order_summary', order_id=order.id)
+            return redirect('thanks', order_id=order.id)
         else:
             messages.error(request, "There were errors in your forms. Please check the fields below.")
     else:

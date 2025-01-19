@@ -66,8 +66,8 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(Delivery)
 class DeliveryAdmin(admin.ModelAdmin):
-    list_display = ('order', 'full_name', 'country', 'state', 'city', 'zipcode', 'address', 'phone')
-    search_fields = ('full_name', 'country', 'state', 'city', 'zipcode', 'phone')
+    list_display = ('order', 'full_name', 'country', 'state', 'city', 'zipcode', 'address')
+    search_fields = ('full_name', 'country', 'state', 'city', 'zipcode')
     list_filter = ('country', 'state', 'city')
 
 @admin.register(BestSeller)

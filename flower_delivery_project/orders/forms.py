@@ -36,7 +36,7 @@ class CheckoutForm(forms.ModelForm):
 class DeliveryForm(forms.ModelForm):
     class Meta:
         model = Delivery
-        fields = ['full_name', 'country', 'state', 'city', 'zipcode', 'address', 'phone']
+        fields = ['full_name', 'country', 'state', 'city', 'zipcode', 'address']
         widgets = {
             'full_name': forms.TextInput(attrs={'id': 'full_name', 'class': 'form-control'}),
             'country': forms.TextInput(attrs={'id': 'country', 'class': 'form-control'}),
@@ -44,5 +44,4 @@ class DeliveryForm(forms.ModelForm):
             'city': forms.TextInput(attrs={'id': 'city', 'class': 'form-control'}),
             'zipcode': forms.TextInput(attrs={'id': 'zipcode', 'class': 'form-control'}),
             'address': forms.Textarea(attrs={'id': 'address', 'class': 'form-control'}),
-            'phone': forms.TextInput(attrs={'id': 'phone', 'class': 'form-control'}),
         }
