@@ -20,5 +20,5 @@ class ReviewForm(forms.ModelForm):
                     (1, '1 star'),
                 ]
             ),
-            'text': forms.Textarea(attrs={'placeholder': 'Write your review here...'}),
+            'text': forms.Textarea(attrs={'class': 'form-control ted', 'placeholder': 'Write your review here...'}),
         }

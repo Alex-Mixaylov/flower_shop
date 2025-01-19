@@ -38,3 +38,11 @@ def custom_pagination(paginator, current_page):
     end_page = min(current_page + 2, total_pages)
 
     return range(start_page, end_page + 1)
+
+@register.filter
+def star_filter(value):
+    """Создаёт диапазон от 0 до value для звёздочек."""
+    try:
+        return range(int(value))
+    except (ValueError, TypeError):
+        return range(0)

@@ -1,5 +1,6 @@
 {% extends 'orders/layout.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}{{ product.name }} - Product Details{% endblock %}
 
@@ -10,8 +11,8 @@
       /* Контейнер со звёздами */
       .rating-container {
         display: flex;
-        flex-direction: row-reverse; /* Разворачиваем порядок звёзд */
-        justify-content: flex-end;   /* Прижимаем к правому краю */
+        flex-direction: row; /* Разворачиваем порядок звёзд*/
+        justify-content: flex-end;   /* Прижимаем к левому краю */
         gap: 0.3rem;
       }
 
@@ -45,8 +46,41 @@
         top: 0;
         text-indent: 0;
       }
-    </style>
 
+      /* Стили для Size of Crust */
+        .size-menu-crust {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            list-style: none;
+            padding: 0;
+        }
+        .size-menu-crust li {
+            display: inline-block;
+        }
+        .size-menu-crust .size-btn {
+            display: block;
+            padding: 10px 20px;
+            border: 2px solid #dbdbdb;
+            border-radius: 5px;
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: capitalize;
+            text-align: center;
+            color: var(--primary-color);
+            transition: all 0.3s ease-in-out;
+        }
+        .size-menu-crust .size-btn.active {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        .size-menu-crust .size-btn:hover {
+            background-color: #f7f7f7;
+        }
+       /* Стили для Size of Crust */
+    </style>
 
 {% endblock %}
 
@@ -108,11 +142,11 @@
 
                         <!-- Блок выбора вариаций товара -->
                         <h5 class="mt-3">Size of Crust</h5>
-                        <ul class="list-unstyled d-flex flex-wrap mt-2 size-menu-q">
+                        <ul class="size-menu-crust">
                             {% for related_product in related_products_with_stems %}
                             <li>
                                 <a href="{% url 'product_details' related_product.slug %}"
-                                   class="btn btn-outline-primary {% if related_product.is_active %}active{% endif %}">
+                                   class="size-btn {% if related_product.is_active %}active{% endif %}">
                                     {{ related_product.name }} ({{ related_product.stems }} stems)
                                 </a>
                             </li>
@@ -192,7 +226,8 @@
                                     {{ review.author.username }}
                                     <span class="d-block">
                                         <!-- Отображаем звёздочки на основе review.rating -->
-                                        {% for i in "12345"|slice:":review.rating" %}
+                                        <p>Rating: {{ review.rating }}</p>
+                                        {% for i in review.rating|star_filter %}
                                             <i class="fas fa-star"></i>
                                         {% endfor %}
                                     </span>
@@ -211,47 +246,49 @@
 
             <!-- Форма добавления отзыва -->
             <div class="submit-review mt-5">
-                <h2 class="comon-heading m-0">Leave a Comment</h2>
-                <p class="my-2">Your email address will not be published. Required fields are marked *</p>
+                <div class="bottom-details mt-5">
+                    <h2 class="comon-heading m-0">Leave a Comment</h2>
+                    <p class="my-2">Your email address will not be published. Required fields are marked *</p>
 
-                {% if user.is_authenticated %}
-                    <form method="post">
-                        {% csrf_token %}
+                    {% if user.is_authenticated %}
+                        <form method="post">
+                            {% csrf_token %}
 
-                        {{ form.non_field_errors }}
+                            {{ form.non_field_errors }}
 
-                        <!-- Блок звёзд, как в примере -->
-                        <div class="col-lg-12 pl-0 rating-box">
-                            {{ form.rating }}
-                            {% for error in form.rating.errors %}
-                                <div class="text-danger">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Поля для имени и email могут быть скрыты (ведь пользователь уже залогинен),
-                             но если хотите, можете добавить "readonly" поля,
-                             или вообще не отображать name/email в форме -->
-                        <div class="row w-100">
-                            <!-- Пример: вы можете просто пропустить поля "Full Name" / "Email"
-                                 так как у вас уже есть user. Или вывести их readonly? -->
-                            <div class="col-lg-12 form-group">
-                                {{ form.text.label_tag }}
-                                {{ form.text }}
-                                {% for error in form.text.errors %}
+                            <!-- Блок звёзд, как в примере -->
+                            <div class="col-lg-12 pl-0 rating-box">
+                                {{ form.rating }}
+                                {% for error in form.rating.errors %}
                                     <div class="text-danger">{{ error }}</div>
                                 {% endfor %}
                             </div>
-                            <button type="submit" class="btn crat-btnh ms-2 ms-lg-0">
-                                Submit
-                                <span><i class="fas fa-paper-plane"></i></span>
-                            </button>
-                        </div>
-                    </form>
-                {% else %}
-                    <p class="text-danger">
-                        You must <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">log in</a> to leave a review.
-                    </p>
-                {% endif %}
+
+                            <!-- Поля для имени и email могут быть скрыты (ведь пользователь уже залогинен),
+                                 но если хотите, можете добавить "readonly" поля,
+                                 или вообще не отображать name/email в форме -->
+                            <div class="row w-100">
+                                <!-- Пример: вы можете просто пропустить поля "Full Name" / "Email"
+                                     так как у вас уже есть user. Или вывести их readonly? -->
+                                <div class="col-lg-12 form-group">
+                                    {{ form.text.label_tag }}
+                                    {{ form.text }}
+                                    {% for error in form.text.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <button type="submit" class="btn crat-btnh ms-2 ms-lg-0">
+                                    Submit
+                                    <span><i class="fas fa-paper-plane"></i></span>
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <p class="text-danger">
+                            You must <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">log in</a> to leave a review.
+                        </p>
+                    {% endif %}
+                </div>
             </div>
             <!-- Форма добавления отзыва -->
         </div>
