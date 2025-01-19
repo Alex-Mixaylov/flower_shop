@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import CustomUser, Product, FlowerType, FlowerColor, SizeOption, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem
+from .models import CustomUser, Product, FlowerType, FlowerColor, SizeOption, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem, Order, OrderItem
 from .forms import ReviewForm
 
 from django.db.models import F
@@ -20,7 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 import logging
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-
+# Главная страница
 def index(request):
     # Получение данных для категорий
     categories = Category.objects.annotate(product_count=Count('products'))
@@ -303,19 +303,54 @@ def collection_detail(request, slug):
     }
     return render(request, 'orders/collection_detail.html', context)
 
+# Размещение заказа
 def checkout(request):
-    # Рендеринг HTML-шаблона checkout.html
-    if request.method == 'POST':
-        # Обработка данных формы
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        address = request.POST.get('address')
-        # Логика сохранения заказа или отправки уведомления
-        print(f"Order placed by {name} ({email}), phone: {phone}, address: {address}")
-        return redirect('thanks')  # Перенаправление на страницу благодарности
-    return render(request, 'orders/checkout.html')
+    # Проверка авторизации
+    if not request.user.is_authenticated:
+        messages.error(request, "You need to log in to proceed with checkout.")
+        return redirect('login')  # Перенаправление на страницу входа
 
+    # Получаем корзину текущего пользователя
+    cart = request.user.cart_set.first()  # Предполагается, что у пользователя только одна активная корзина
+
+    if not cart or not cart.items.exists():
+        messages.error(request, "Your cart is empty.")
+        return redirect('cart')  # Перенаправление на страницу корзины
+
+    if request.method == 'POST':
+        # Создаём объект Order
+        order = Order.objects.create(
+            user=request.user,
+            customer_name=request.user.username,
+            customer_email=request.user.email,
+            customer_phone=request.user.phone or "N/A",  # Если у пользователя нет телефона, используем "N/A"
+            status='received',  # Начальный статус заказа
+            total_price=cart.get_total_price(),  # Считаем итоговую сумму заказа из корзины
+            cart=cart
+        )
+
+        # Переносим товары из корзины в OrderItem
+        for cart_item in cart.items.all():
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                item_price=cart_item.product.price,
+                image_url=cart_item.product.image_main.url  # Основное изображение товара
+            )
+
+        # Очищаем корзину
+        cart.items.all().delete()
+
+        messages.success(request, "Your order has been placed successfully!")
+        return redirect('thanks')  # Перенаправление на страницу благодарности
+
+    return render(request, 'orders/checkout.html', {
+        'cart': cart,
+    })
+
+
+# Корзина
 def cart_view(request):
     cart_items = []
     total_price = 0

@@ -327,6 +327,72 @@ class OrderItem(models.Model):
             self.item_price = self.product.price
         super().save(*args, **kwargs)
 
+# Доставка
+
+class Delivery(models.Model):
+    """
+    Модель для хранения данных о доставке заказа.
+    Поля содержат полную информацию для доставки, связанной с конкретным заказом.
+    """
+    order = models.OneToOneField(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='delivery',
+        verbose_name="Доставка"
+    )
+    # Связь с заказом. У одного заказа может быть только одна запись о доставке.
+
+    full_name = models.CharField(
+        max_length=255,
+        verbose_name="Полное имя"
+    )
+    # Полное имя получателя
+
+    country = models.CharField(
+        max_length=100,
+        verbose_name="Страна",
+        blank=True,
+        null=True
+    )
+    # Страна доставки (опционально)
+
+    state = models.CharField(
+        max_length=100,
+        verbose_name="Область/Штат",
+        blank=True,
+        null=True
+    )
+    # Область или штат доставки (опционально)
+
+    city = models.CharField(
+        max_length=100,
+        verbose_name="Город",
+        blank=True,
+        null=True
+    )
+    # Город доставки (опционально)
+
+    zipcode = models.CharField(
+        max_length=20,
+        verbose_name="Почтовый индекс",
+        blank=True,
+        null=True
+    )
+    # Почтовый индекс (опционально)
+
+    address = models.TextField(
+        verbose_name="Адрес",
+        blank=True,
+        null=True
+    )
+    # Полный адрес доставки (опционально)
+
+    def __str__(self):
+        return f"Доставка для заказа #{self.order.id}"
+
+    class Meta:
+        verbose_name = "Доставка"
+        verbose_name_plural = "Доставки"
 
 
 # Сообщения из формы контактов (ContactMessage)
