@@ -119,6 +119,9 @@ def product_details(request, slug):
     # Получаем все одобренные отзывы для текущего продукта
     reviews = Review.objects.filter(product=product, is_approved=True)
 
+    # Получаем рейтинговые пролукты для товарного виждета
+    top_rated_products = Product.objects.filter(rating__gte=4).order_by('-rating')[:4]
+
     # Получаем связанные продукты с разным количеством стеблей
     related_products = product.get_related_products()
     related_products_with_stems = [
@@ -182,6 +185,7 @@ def product_details(request, slug):
         'related_products_with_stems': related_products_with_stems,
         'form': form,
         'product_stems': product_stems,
+        'top_rated_products': top_rated_products,
     })
 
 # Каталог на сайте
@@ -356,9 +360,13 @@ def cart_view(request):
     # Отладочный вывод
     print(f"Total Price: {total_price}")
 
+    # Получение топовых продуктов
+    top_rated_products = Product.objects.filter(rating__gte=4).order_by('-rating')[:4]
+
     context = {
         'cart_items': cart_items,
         'total_price': total_price,
+        'top_rated_products': top_rated_products,
     }
     return render(request, 'orders/cart.html', context)
 

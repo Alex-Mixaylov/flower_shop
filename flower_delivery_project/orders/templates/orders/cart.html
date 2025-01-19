@@ -150,6 +150,46 @@
         </div>
     </div>
 </main>
+
+<!-- Top Rated Products Section -->
+<section class="why-sec-choose ex-products d-inline-block w-100">
+    <div class="container">
+        <h2 class="text-start min-heading mt-2">Top Rated Flowers</h2>
+        <!-- Top Rated Tab -->
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-rated" role="tabpanel" aria-labelledby="pills-rated-tab">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 gy-5 g-lg-4 mt-0">
+                    {% for product in top_rated_products %}
+                    <div class="col">
+                        <div class="comon-pord d-inline-block w-100 items-pro">
+                            <div class="img-bu">
+                                <img alt="{{ product.name }}" src="{{ product.image_main.url }}">
+                            </div>
+                            <h6>{{ product.category.name }}</h6>
+                            <h5 class="mt-2">{{ product.name }}</h5>
+                            <p class="mt-2">{{ product.description|truncatewords:15 }}</p>
+                            <h6 class="mt-1" style="font-size:12px;">{{ product.size_option.stems_count }} stems</h6>
+                            <h3 class="pric mt-4">${{ product.price }}
+                                {% if product.old_price %}
+                                <span class="d-block">${{ product.old_price }}</span>
+                                {% endif %}
+                            </h3>
+                            <div class="btn btn-cart mt-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart add-to-cart" data-product-id="{{ product.id }}">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Обновление количества товара в Корзине -->
 <form method="post" id="csrf-form">
     {% csrf_token %}
@@ -182,4 +222,58 @@
     });
 }
 </script>
+<script>
+    // Функция показа статического уведомления
+    function showCartNotification() {
+        const notification = document.createElement('div');
+        notification.classList.add('cart-notification');
+        notification.innerHTML = '<p>Flowers added to Cart</p>';
+        document.body.appendChild(notification);
+
+        // Показать уведомление
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        // Скрыть уведомление через 1.5 секунды
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 400);
+        }, 1500);
+    }
+
+    // Делегирование событий для добавления товара в корзину
+    document.addEventListener('DOMContentLoaded', function () {
+        feather.replace();
+
+        document.body.addEventListener('click', function (e) {
+            if (e.target.closest('.add-to-cart')) {
+                const button = e.target.closest('.add-to-cart');
+                const productId = button.getAttribute('data-product-id');
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch(`/cart/add/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        showCartNotification();
+                    } else {
+                        console.error('Failed to add product to cart.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    });
+</script>
+{
 {% endblock %}
