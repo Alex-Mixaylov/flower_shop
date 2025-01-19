@@ -40,21 +40,6 @@ class Collection(models.Model):
         super().save(*args, **kwargs)
 
 
-# Букеты (Bouquet)
-class Bouquet(models.Model):
-    # Основная модель для хранения информации о товарах
-    name = models.CharField(max_length=255)  # Название букета
-    description = models.TextField(blank=True, null=True)  # Описание букета
-    image = models.ImageField(upload_to='bouquets/', blank=True, null=True)  # Путь к изображению букета
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # Цена букета
-    stock = models.IntegerField(default=0)  # Количество товара на складе
-    collection = models.ForeignKey(Collection, on_delete=models.CASCADE, related_name='bouquets')
-    # Связь с коллекцией. Если коллекция удаляется, букеты тоже удаляются.
-    # related_name='bouquets' позволяет получать все букеты коллекции через collection.bouquets.all()
-
-    def __str__(self):
-        return self.name
-
 # Категория товаров
 class Category(models.Model):
     name = models.CharField(max_length=255, verbose_name="Название категории")
@@ -266,16 +251,23 @@ class Order(models.Model):
 
 # Элементы заказа (OrderItem)
 class OrderItem(models.Model):
-    # Модель для хранения данных о конкретных товарах в заказе
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    # Связь с заказом. Если заказ удаляется, элементы тоже удаляются.
-    bouquet = models.ForeignKey(Bouquet, on_delete=models.CASCADE, related_name='order_items')
-    # Связь с букетом. Если букет удаляется, элементы заказа тоже удаляются.
-    quantity = models.PositiveIntegerField(default=1)  # Количество данного букета в заказе
-    item_price = models.DecimalField(max_digits=10, decimal_places=2)  # Цена букета на момент заказа
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')  # Связь с заказом
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')  # Товар
+    quantity = models.PositiveIntegerField(default=1)  # Количество товара
+    item_price = models.DecimalField(max_digits=10, decimal_places=2)  # Цена на момент заказа
+    image_url = models.URLField(max_length=500, blank=True, null=True)  # URL изображения товара
 
     def __str__(self):
-        return f"{self.quantity} x {self.bouquet.name}"
+        return f"{self.quantity} x {self.product.name}"
+
+    def save(self, *args, **kwargs):
+        # Автоматическое сохранение данных при первом добавлении элемента в заказ
+        if self.product and not self.image_url:
+            self.image_url = self.product.image_main.url if self.product.image_main else ''
+        if self.product and not self.item_price:
+            self.item_price = self.product.price
+        super().save(*args, **kwargs)
+
 
 
 # Сообщения из формы контактов (ContactMessage)
