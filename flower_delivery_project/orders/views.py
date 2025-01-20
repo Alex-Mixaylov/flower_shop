@@ -425,12 +425,20 @@ def checkout(request):
         logger.debug(f"Authenticated User ID: {user.id}")
         logger.debug(f"Authenticated Username: {user.username}")
         # Получение корзины для авторизованного пользователя
-        cart = Cart.objects.filter(user=user).first()
-        if cart:
-            logger.debug(f"Cart found for user {user.username}: Cart ID {cart.id}")
-            logger.debug(f"Number of items in user cart: {cart.items.count()}")
+        cart, created = Cart.objects.get_or_create(user=user)
+        if created:
+            logger.debug(f"Created new cart for user {user.username}: Cart ID {cart.id}")
         else:
-            logger.warning(f"No cart found for authenticated user {user.username}.")
+            logger.debug(f"Retrieved existing cart for user {user.username}: Cart ID {cart.id}")
+
+        if cart.items.exists():
+            logger.debug(f"Cart {cart.id} has {cart.items.count()} items.")
+        else:
+            logger.warning(f"Cart {cart.id} for user {user.username} is empty.")
+
+        for item in cart.items.all():
+            logger.debug(f"Cart item: {item}")
+
     else:
         logger.debug("User is not authenticated.")
         # Получение корзины из session['cart']
@@ -477,7 +485,7 @@ def checkout(request):
             if user.is_authenticated:
                 order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
             else:
-                order.total_price = sum(item['price'] * item['quantity'] for item in cart_data.values())
+                order.total_price = sum(item['total_price'] for item in cart_items)
 
             order.save()
             logger.info(
@@ -544,9 +552,20 @@ def checkout(request):
         logger.debug(f"Total price calculated: ${total_price}")
         cart_items = cart.items.all()
     else:
-        cart_items = cart_data
-        total_price = sum(item['price'] * item['quantity'] for item in cart_data.values())
+        # Преобразуем cart_data из словаря в список для корректной итерируемости в шаблоне
+        cart_items = [
+            {
+                'product': {
+                    'name': data['name'],
+                },
+                'quantity': data['quantity'],
+                'total_price': data['price'] * data['quantity'],
+            }
+            for pid, data in cart_data.items()
+        ]
+        total_price = sum(item['total_price'] for item in cart_items)
         logger.debug(f"Total price calculated: ${total_price}")
+        logger.debug(f"Cart items for template: {cart_items}")  # Дополнительная отладка
 
     return render(request, 'orders/checkout.html', {
         'checkout_form': checkout_form,
@@ -554,7 +573,6 @@ def checkout(request):
         'cart_items': cart_items,
         'total_price': total_price,
     })
-
 
 # Успешное размещение заказа
 def thanks(request):

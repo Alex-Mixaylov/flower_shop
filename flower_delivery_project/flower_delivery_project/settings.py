@@ -146,7 +146,7 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': 'flower_shop.log',
             'formatter': 'verbose',
-            'mode': 'a',  # Измените на 'w', если хотите перезаписывать файл при каждом запуске
+            'mode': 'w',  # Измените на 'w', если хотите перезаписывать файл при каждом запуске, иначе 'a'
         },
         'rotating_file': {
             'level': 'DEBUG',
