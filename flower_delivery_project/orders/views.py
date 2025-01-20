@@ -401,7 +401,6 @@ def collection_detail(request, slug):
 
 
 # Размещение заказа
-
 def checkout(request):
     """
     Страница оформления заказа
@@ -434,26 +433,35 @@ def checkout(request):
             logger.warning(f"No cart found for authenticated user {user.username}.")
     else:
         logger.debug("User is not authenticated.")
-        # Получение корзины для гостя по session_id
-        cart = Cart.objects.filter(session_id=session_id).first()
-        if cart:
-            logger.debug(f"Cart found for session {session_id}: Cart ID {cart.id}")
-            logger.debug(f"Number of items in session cart: {cart.items.count()}")
+        # Получение корзины из session['cart']
+        cart_data = request.session.get('cart', {})
+        if cart_data:
+            logger.debug(f"Guest has {len(cart_data)} items in cart.")
         else:
             logger.warning(f"No cart found for session {session_id}.")
-            logger.debug(f"Current session cart data: {request.session.get('cart', {})}")
+            logger.debug(f"Current session cart data: {cart_data}")
 
     # Если корзина не найдена, не создавать новую
-    if not cart:
+    if user.is_authenticated and not cart:
+        logger.error("No cart found for current session or user.")
+        messages.error(request, "Your cart is empty.")
+        return redirect('cart')
+    elif not user.is_authenticated and not cart_data:
         logger.error("No cart found for current session or user.")
         messages.error(request, "Your cart is empty.")
         return redirect('cart')
 
     # Проверка на наличие товаров в корзине
-    if not cart.items.exists():
-        logger.error(f"Cart items count: {cart.items.count()}")
-        messages.error(request, "Your cart is empty.")
-        return redirect('cart')
+    if user.is_authenticated:
+        if not cart.items.exists():
+            logger.error(f"Cart items count: {cart.items.count()}")
+            messages.error(request, "Your cart is empty.")
+            return redirect('cart')
+    else:
+        if not cart_data:
+            logger.error("Cart data is empty for guest.")
+            messages.error(request, "Your cart is empty.")
+            return redirect('cart')
 
     if request.method == 'POST':
         logger.debug("Processing POST request for checkout.")
@@ -465,7 +473,12 @@ def checkout(request):
             # Создание заказа
             order = checkout_form.save(commit=False)
             order.user = user if user.is_authenticated else None
-            order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
+
+            if user.is_authenticated:
+                order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
+            else:
+                order.total_price = sum(item['price'] * item['quantity'] for item in cart_data.values())
+
             order.save()
             logger.info(
                 f"Order #{order.id} created for user {user.username if user.is_authenticated else 'Guest'} with total price ${order.total_price}."
@@ -478,20 +491,41 @@ def checkout(request):
             logger.debug(f"Delivery information saved for Order #{order.id}.")
 
             # Переносим элементы корзины в заказ
-            for item in cart.items.all():
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    quantity=item.quantity,
-                    item_price=item.product.price
-                )
-                logger.debug(
-                    f"OrderItem created: {item.quantity} x {item.product.name} at ${item.product.price} each."
-                )
+            if user.is_authenticated:
+                for item in cart.items.all():
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item.product,
+                        quantity=item.quantity,
+                        item_price=item.product.price
+                    )
+                    logger.debug(
+                        f"OrderItem created: {item.quantity} x {item.product.name} at ${item.product.price} each."
+                    )
 
-            # Очистка корзины
-            cart.items.all().delete()
-            logger.debug(f"Cart #{cart.id} cleared after order placement.")
+                # Очистка корзины
+                cart.items.all().delete()
+                logger.debug(f"Cart #{cart.id} cleared after order placement.")
+            else:
+                for product_id, item in cart_data.items():
+                    try:
+                        product = Product.objects.get(id=product_id)
+                        OrderItem.objects.create(
+                            order=order,
+                            product=product,
+                            quantity=item['quantity'],
+                            item_price=item['price']
+                        )
+                        logger.debug(
+                            f"OrderItem created: {item['quantity']} x {product.name} at ${item['price']} each."
+                        )
+                    except Product.DoesNotExist:
+                        logger.error(f"Product with ID {product_id} does not exist. Skipping.")
+
+                # Очистка корзины
+                del request.session['cart']
+                request.session.modified = True
+                logger.debug("Guest cart cleared after order placement.")
 
             messages.success(request, "Your order has been placed successfully.")
             redirect_url = f'{reverse("thanks")}?customer_name={order.customer_name}&order_id={order.id}'
@@ -505,13 +539,19 @@ def checkout(request):
         checkout_form = CheckoutForm()
         delivery_form = DeliveryForm()
 
-    total_price = sum(item.product.price * item.quantity for item in cart.items.all())
-    logger.debug(f"Total price calculated: ${total_price}")
+    if user.is_authenticated:
+        total_price = sum(item.product.price * item.quantity for item in cart.items.all())
+        logger.debug(f"Total price calculated: ${total_price}")
+        cart_items = cart.items.all()
+    else:
+        cart_items = cart_data
+        total_price = sum(item['price'] * item['quantity'] for item in cart_data.values())
+        logger.debug(f"Total price calculated: ${total_price}")
 
     return render(request, 'orders/checkout.html', {
         'checkout_form': checkout_form,
         'delivery_form': delivery_form,
-        'cart_items': cart.items.all(),
+        'cart_items': cart_items,
         'total_price': total_price,
     })
 
