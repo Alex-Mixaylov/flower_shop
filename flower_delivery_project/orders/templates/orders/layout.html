@@ -70,6 +70,7 @@
                 <div class="modal-body">
                     <form id="loginForm" method="post" action="{% url 'login' %}">
                         {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username or Email</label>
                             <input type="text" class="form-control" id="username" name="username" required>

@@ -116,7 +116,15 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="form-wizard-next-btn btn text-center mt-3">Place Order</button>
+                        {% if user.is_authenticated %}
+                            <!-- Кнопка для зарегистрированных пользователей -->
+                            <button type="submit" class="form-wizard-next-btn btn text-center mt-3">Place Order</button>
+                        {% else %}
+                            <!-- Кнопка вызывает модальное окно для незарегистрированных пользователей -->
+                            <button type="button" class="form-wizard-next-btn btn text-center mt-3" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                Place Order
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
             </form>

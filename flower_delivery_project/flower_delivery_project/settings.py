@@ -117,9 +117,11 @@ CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 1209600  # Время жизни сессии (2 недели)
 SESSION_SAVE_EVERY_REQUEST = True
-#Временно пока нет ЛК
+
 # Перенаправление после успешного входа
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+LOGIN_URL = '/login/'  # URL страницы авторизации
 
 
