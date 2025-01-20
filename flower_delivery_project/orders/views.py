@@ -310,8 +310,20 @@ def checkout(request):
     Страница оформления заказа
     """
     user = request.user
-    cart = Cart.objects.filter(user=user if user.is_authenticated else None).first()
 
+    # Получить корзину для авторизованного пользователя или гостя
+    if user.is_authenticated:
+        # Корзина связана с авторизованным пользователем
+        cart = Cart.objects.filter(user=user).first()
+    else:
+        # Корзина связана с сессией для неавторизованных пользователей
+        session_id = request.session.session_key
+        if not session_id:
+            request.session.create()  # Создать новую сессию, если её нет
+            session_id = request.session.session_key
+        cart = Cart.objects.filter(session_id=session_id).first()
+
+    # Проверка на наличие корзины или товаров в корзине
     if not cart or not cart.items.exists():
         messages.error(request, "Your cart is empty.")
         return redirect('cart')
@@ -322,7 +334,7 @@ def checkout(request):
 
         if checkout_form.is_valid() and delivery_form.is_valid():
             if user.is_authenticated:
-                # Создание заказа для авторизованного пользователя
+                # Создание заказа
                 order = checkout_form.save(commit=False)
                 order.user = user
                 order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
@@ -345,13 +357,16 @@ def checkout(request):
                 # Очистка корзины
                 cart.items.all().delete()
 
+                # Перенаправление на страницу благодарности
                 messages.success(request, "Your order has been placed successfully.")
                 return redirect(f'{reverse("thanks")}?customer_name={order.customer_name}&order_id={order.id}')
             else:
+                # Гость пытается разместить заказ без авторизации
                 messages.error(request, "You need to log in or register to place an order.")
                 return redirect('login')
 
     else:
+        # Инициализация форм для отображения на странице
         checkout_form = CheckoutForm()
         delivery_form = DeliveryForm()
 
@@ -362,6 +377,9 @@ def checkout(request):
         'cart_items': cart.items.all(),
         'total_price': total_price,
     })
+
+
+
 
 # Успешное размещение заказа
 def thanks(request):
