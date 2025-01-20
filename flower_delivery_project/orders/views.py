@@ -305,53 +305,79 @@ def collection_detail(request, slug):
     return render(request, 'orders/collection_detail.html', context)
 
 # Размещение заказа
+logger = logging.getLogger('orders')
 def checkout(request):
     """
     Страница оформления заказа
     """
     user = request.user
+    logger.debug("Initiating checkout process.")
+    logger.debug(f"User: {user.username if user.is_authenticated else 'Guest'}")
 
     # Получить session_id для гостя
     session_id = request.session.session_key
     if not session_id:
         request.session.create()
         session_id = request.session.session_key
+        logger.debug("Created new session.")
+    logger.debug(f"Session ID: {session_id}")
 
-    print(f"Session ID: {session_id}")
+    # Проверить аутентификацию пользователя
+    logger.debug(f"User Authenticated: {user.is_authenticated}")
 
-    # Проверить существование корзины для пользователя или текущей сессии
     if user.is_authenticated:
+        logger.debug(f"Authenticated User ID: {user.id}")
+        logger.debug(f"Authenticated Username: {user.username}")
+        # Получение корзины для авторизованного пользователя
         cart = Cart.objects.filter(user=user).first()
+        if cart:
+            logger.debug(f"Cart found for user {user.username}: Cart ID {cart.id}")
+            logger.debug(f"Number of items in user cart: {cart.items.count()}")
+        else:
+            logger.warning(f"No cart found for authenticated user {user.username}.")
     else:
+        logger.debug("User is not authenticated.")
+        # Получение корзины для гостя по session_id
         cart = Cart.objects.filter(session_id=session_id).first()
+        if cart:
+            logger.debug(f"Cart found for session {session_id}: Cart ID {cart.id}")
+            logger.debug(f"Number of items in session cart: {cart.items.count()}")
+        else:
+            logger.warning(f"No cart found for session {session_id}.")
+            logger.debug(f"Current session cart data: {request.session.get('cart', {})}")
 
     # Если корзина не найдена, не создавать новую
     if not cart:
-        print("No cart found for current session or user.")
+        logger.error("No cart found for current session or user.")
         messages.error(request, "Your cart is empty.")
         return redirect('cart')
 
     # Проверка на наличие товаров в корзине
     if not cart.items.exists():
-        print(f"Cart items count: {cart.items.count()}")
+        logger.error(f"Cart items count: {cart.items.count()}")
         messages.error(request, "Your cart is empty.")
         return redirect('cart')
 
     if request.method == 'POST':
+        logger.debug("Processing POST request for checkout.")
         checkout_form = CheckoutForm(request.POST)
         delivery_form = DeliveryForm(request.POST)
 
         if checkout_form.is_valid() and delivery_form.is_valid():
+            logger.debug("Checkout and Delivery forms are valid.")
             # Создание заказа
             order = checkout_form.save(commit=False)
             order.user = user if user.is_authenticated else None
             order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
             order.save()
+            logger.info(
+                f"Order #{order.id} created for user {user.username if user.is_authenticated else 'Guest'} with total price ${order.total_price}.")
 
             # Создание данных доставки
             delivery = delivery_form.save(commit=False)
             delivery.order = order
             delivery.save()
+            logger.debug(f"Delivery information saved for Order #{order.id}.")
 
             # Переносим элементы корзины в заказ
             for item in cart.items.all():
@@ -361,18 +387,27 @@ def checkout(request):
                     quantity=item.quantity,
                     item_price=item.product.price
                 )
+                logger.debug(f"OrderItem created: {item.quantity} x {item.product.name} at ${item.product.price} each.")
 
             # Очистка корзины
             cart.items.all().delete()
+            logger.debug(f"Cart #{cart.id} cleared after order placement.")
 
             messages.success(request, "Your order has been placed successfully.")
-            return redirect(f'{reverse("thanks")}?customer_name={order.customer_name}&order_id={order.id}')
-
+            redirect_url = f'{reverse("thanks")}?customer_name={order.customer_name}&order_id={order.id}'
+            logger.debug(f"Redirecting to thanks page: {redirect_url}")
+            return redirect(redirect_url)
+        else:
+            logger.warning("Checkout or Delivery form is invalid.")
+            messages.error(request, "There were errors in your form. Please check below.")
     else:
+        logger.debug("Rendering checkout page with GET request.")
         checkout_form = CheckoutForm()
         delivery_form = DeliveryForm()
 
     total_price = sum(item.product.price * item.quantity for item in cart.items.all())
+    logger.debug(f"Total price calculated: ${total_price}")
+
     return render(request, 'orders/checkout.html', {
         'checkout_form': checkout_form,
         'delivery_form': delivery_form,
