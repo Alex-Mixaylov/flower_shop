@@ -1,9 +1,11 @@
 """
 Django settings for flower_delivery_project project.
 """
-
+import logging
 from pathlib import Path
 import os
+
+
 
 # --- Основные пути ---
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -124,4 +126,40 @@ LOGOUT_REDIRECT_URL = '/'
 
 LOGIN_URL = '/login/'  # URL страницы авторизации
 
-
+# Конфигурация логирования
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,  # Сохранять существующие логгеры
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'flower_shop.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+        },
+        'orders': {  # Логгер для вашего приложения 'orders'
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',  # Уровень логирования
+            'propagate': True,
+        },
+    },
+}

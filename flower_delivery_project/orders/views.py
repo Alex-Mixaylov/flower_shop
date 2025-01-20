@@ -18,11 +18,13 @@ from django.db.models import Avg
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 #from django.views.decorators.csrf import csrf_protect
-
-import logging
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+import logging
+logger = logging.getLogger('orders')
+
 from django.contrib.auth.decorators import login_required
+
 
 # Главная страница
 def index(request):
@@ -50,8 +52,8 @@ def index(request):
     products_with_discounts = Product.objects.filter(old_price__isnull=False, old_price__gt=F('price')).annotate(discount_amount=F('old_price') - F('price')).order_by('-discount_amount')[:5]
 
     # Отладочный вывод Расчетные данные для вывода 5 товаров с максимальными скидками
-    print("SQL Query:", products_with_discounts.query)  # Проверяет SQL-запрос
-    print("Products with Discounts:", products_with_discounts)  # Выводит данные
+    logger.debug("SQL Query:", products_with_discounts.query)  # Проверяет SQL-запрос
+    logger.debug("Products with Discounts:", products_with_discounts)  # Выводит данные
 
     # Получение последних 6 товаров для "Gifts worth waiting for"
     combo_offers = ComboOffer.objects.order_by('-id')[:6]  # Выбор последних 6 товаров
@@ -115,10 +117,10 @@ def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug)
 
     # Отладочная печать информации о текущем пользователе
-    print("DEBUG request.user =", request.user)
-    print("DEBUG request.user.is_authenticated =", request.user.is_authenticated)
-    print("DEBUG request.user.id =", request.user.id if request.user.is_authenticated else None)
-    print("DEBUG request.user._meta.model =", request.user._meta.model if request.user.is_authenticated else None)
+    logger.debug("DEBUG request.user =", request.user)
+    logger.debug("DEBUG request.user.is_authenticated =", request.user.is_authenticated)
+    logger.debug("DEBUG request.user.id =", request.user.id if request.user.is_authenticated else None)
+    logger.debug("DEBUG request.user._meta.model =", request.user._meta.model if request.user.is_authenticated else None)
 
     # Получаем все одобренные отзывы для текущего продукта
     reviews = Review.objects.filter(product=product, is_approved=True)
@@ -246,7 +248,7 @@ def shop(request):
         'min_price': min_price,
         'max_price': max_price,
     }
-    print(products)  # Вывод списка продуктов
+    logger.debug(products)  # Вывод списка продуктов
     return render(request, 'orders/shop.html', context)
 
 def contact(request):
@@ -305,7 +307,7 @@ def collection_detail(request, slug):
     return render(request, 'orders/collection_detail.html', context)
 
 # Размещение заказа
-logger = logging.getLogger('orders')
+
 def checkout(request):
     """
     Страница оформления заказа
@@ -430,12 +432,29 @@ def thanks(request):
 
 # Корзина
 def cart_view(request):
+    logger.debug("cart_view has been called.")
+
     cart_items = []
     total_price = 0
 
-    if request.user.is_authenticated:
+    user = request.user
+    logger.debug("Initiating cart_view.")
+    logger.debug(f"User: {user.username if user.is_authenticated else 'Guest'}")
+
+    if user.is_authenticated:
+        logger.debug(f"User is authenticated: {user.username}")
         # Получение корзины пользователя
-        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart, created = Cart.objects.get_or_create(user=user)
+        if created:
+            logger.debug(f"Created new cart for user {user.username}: Cart ID {cart.id}")
+        else:
+            logger.debug(f"Retrieved existing cart for user {user.username}: Cart ID {cart.id}")
+
+        if cart.items.exists():
+            logger.debug(f"Cart {cart.id} has {cart.items.count()} items.")
+        else:
+            logger.warning(f"Cart {cart.id} for user {user.username} is empty.")
+
         for item in cart.items.select_related('product'):
             size_option = item.product.size_option
             cart_items.append({
@@ -448,39 +467,52 @@ def cart_view(request):
                 'size': size_option.size if size_option else "N/A",
                 'stems_count': size_option.stems_count if size_option else 0,
             })
-            print(f"Cart Item ID: {item.id}, Product: {item.product}, Price: {item.product.price}, Size: {size_option.size if size_option else 'N/A'}")
+            logger.debug(
+                f"Cart Item - ID: {item.id}, Product: {item.product.name}, Price: {item.product.price}, Size: {size_option.size if size_option else 'N/A'}")
             total_price += item.total_price()
     else:
+        logger.debug("User is not authenticated.")
         # Для гостей
         cart_session = request.session.get('cart', {})
+        logger.debug(f"Session cart data: {cart_session}")
+        if cart_session:
+            logger.debug(f"Guest has {len(cart_session)} items in cart.")
+        else:
+            logger.warning("Guest cart is empty.")
         for product_id, product_data in cart_session.items():
-            product = Product.objects.get(id=product_id)
-            size_option = product.size_option
-            subtotal = float(product_data['price']) * product_data['quantity']
-            total_price += subtotal
-            cart_items.append({
-                'product_id': product_id,
-                'name': product_data.get('name', 'Unknown Product'),
-                'quantity': product_data.get('quantity', 1),
-                'price': float(product_data['price']),
-                'old_price': float(product_data.get('old_price', 0)),
-                'image_main': product_data.get('image_main'),
-                'size': size_option.size if size_option else "N/A",
-                'stems_count': size_option.stems_count if size_option else 0,
-            })
-            print(f"Guest Cart Item ID: {product_id}, Product: {product.name}, Size: {size_option.size if size_option else 'N/A'}")
+            try:
+                product = Product.objects.get(id=product_id)
+                size_option = product.size_option
+                subtotal = float(product_data['price']) * float(product_data['quantity'])
+                total_price += subtotal
+                cart_items.append({
+                    'product_id': product_id,
+                    'name': product_data.get('name', 'Unknown Product'),
+                    'quantity': product_data.get('quantity', 1),
+                    'price': float(product_data['price']),
+                    'old_price': float(product_data.get('old_price', 0)),
+                    'image_main': product_data.get('image_main'),
+                    'size': size_option.size if size_option else "N/A",
+                    'stems_count': size_option.stems_count if size_option else 0,
+                })
+                logger.debug(
+                    f"Guest Cart Item - ID: {product_id}, Product: {product.name}, Size: {size_option.size if size_option else 'N/A'}")
+            except Product.DoesNotExist:
+                logger.error(f"Product with ID {product_id} does not exist. Skipping.")
 
     # Отладочный вывод
-    print(f"Total Price: {total_price}")
+    logger.debug(f"Total Price: ${total_price:.2f}")
 
     # Получение топовых продуктов
     top_rated_products = Product.objects.filter(rating__gte=4).order_by('-rating')[:4]
+    logger.debug(f"Retrieved {top_rated_products.count()} top rated products.")
 
     context = {
         'cart_items': cart_items,
         'total_price': total_price,
         'top_rated_products': top_rated_products,
     }
+    logger.debug("Rendering cart.html with context.")
     return render(request, 'orders/cart.html', context)
 
 def add_to_cart(request, product_id):
@@ -509,9 +541,9 @@ def add_to_cart(request, product_id):
             # Если товар уже есть в корзине, увеличиваем количество
             cart_item.quantity += quantity
             cart_item.save()
-            print(f"Обновлено количество товара в корзине для пользователя {request.user}: {cart_item.quantity} шт.")
+            logger.debug(f"Обновлено количество товара в корзине для пользователя {request.user}: {cart_item.quantity} шт.")
         else:
-            print(f"Добавлен новый товар в корзину для пользователя {request.user}: {quantity} шт.")
+            logger.debug(f"Добавлен новый товар в корзину для пользователя {request.user}: {quantity} шт.")
 
     else:
         # Корзина для гостей
@@ -520,7 +552,7 @@ def add_to_cart(request, product_id):
         if str(product_id) in cart:
             # Если товар уже есть в корзине, увеличиваем количество
             cart[str(product_id)]['quantity'] += quantity
-            print(f"Обновлено количество товара в корзине для гостя: {cart[str(product_id)]['quantity']} шт.")
+            logger.debug(f"Обновлено количество товара в корзине для гостя: {cart[str(product_id)]['quantity']} шт.")
         else:
             # Если товара нет в корзине, добавляем его с указанным количеством
             cart[str(product_id)] = {
@@ -530,7 +562,7 @@ def add_to_cart(request, product_id):
                 'old_price': round(float(product.old_price), 2) if product.old_price else None,
                 'image_main': product.image_main.url if product.image_main else None,
             }
-            print(f"Добавлен новый товар в корзину для гостя: {quantity} шт.")
+            logger.debug(f"Добавлен новый товар в корзину для гостя: {quantity} шт.")
 
         # Сохраняем корзину в сессию
         request.session['cart'] = cart
