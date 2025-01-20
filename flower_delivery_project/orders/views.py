@@ -485,7 +485,7 @@ def checkout(request):
             if user.is_authenticated:
                 order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
             else:
-                order.total_price = sum(item['total_price'] for item in cart_items)
+                order.total_price = sum(item['total_price'] for item in cart.items)
 
             order.save()
             logger.info(
