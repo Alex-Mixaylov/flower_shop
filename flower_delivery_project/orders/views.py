@@ -305,70 +305,65 @@ def collection_detail(request, slug):
     return render(request, 'orders/collection_detail.html', context)
 
 # Размещение заказа
-@login_required(login_url='login') #Заказ могут размещать только авторизованные, остальные  => login
 def checkout(request):
     """
     Страница оформления заказа
     """
     user = request.user
-    cart = Cart.objects.filter(user=user).first()
+    cart = Cart.objects.filter(user=user if user.is_authenticated else None).first()
 
     if not cart or not cart.items.exists():
-        # Если корзина пуста, перенаправляем на страницу корзины
         messages.error(request, "Your cart is empty.")
         return redirect('cart')
 
     if request.method == 'POST':
-        # Обработка форм заказа и доставки
         checkout_form = CheckoutForm(request.POST)
         delivery_form = DeliveryForm(request.POST)
 
         if checkout_form.is_valid() and delivery_form.is_valid():
-            # Создаем объект заказа
-            order = checkout_form.save(commit=False)
-            order.user = user
-            order.total_price = sum(
-                item.product.price * item.quantity for item in cart.items.all()
-            )
-            order.save()
+            if user.is_authenticated:
+                # Создание заказа для авторизованного пользователя
+                order = checkout_form.save(commit=False)
+                order.user = user
+                order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
+                order.save()
 
-            # Переносим элементы корзины в заказ
-            for item in cart.items.all():
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    quantity=item.quantity,
-                    item_price=item.product.price
-                )
+                # Создание данных доставки
+                delivery = delivery_form.save(commit=False)
+                delivery.order = order
+                delivery.save()
 
-            # Сохраняем информацию о доставке
-            delivery = delivery_form.save(commit=False)
-            delivery.order = order
-            delivery.save()
+                # Переносим элементы корзины в заказ
+                for item in cart.items.all():
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item.product,
+                        quantity=item.quantity,
+                        item_price=item.product.price
+                    )
 
-            # Очищаем корзину
-            cart.items.all().delete()
+                # Очистка корзины
+                cart.items.all().delete()
 
+                messages.success(request, "Your order has been placed successfully.")
+                return redirect(f'{reverse("thanks")}?customer_name={order.customer_name}&order_id={order.id}')
+            else:
+                messages.error(request, "You need to log in or register to place an order.")
+                return redirect('login')
 
-            # Уведомляем пользователя об успешном оформлении заказа
-            messages.success(request, "Your order has been placed successfully!")
-            return redirect(f'{reverse("thanks")}?customer_name={order.customer_name}&order_id={order.id}')
-        else:
-            messages.error(request, "There were errors in your forms. Please check the fields below.")
     else:
-        # Отображаем пустые формы для заказа и доставки
         checkout_form = CheckoutForm()
         delivery_form = DeliveryForm()
 
+    total_price = sum(item.product.price * item.quantity for item in cart.items.all())
     return render(request, 'orders/checkout.html', {
         'checkout_form': checkout_form,
         'delivery_form': delivery_form,
         'cart_items': cart.items.all(),
-        'total_price': sum(item.product.price * item.quantity for item in cart.items.all()),
+        'total_price': total_price,
     })
 
 # Успешное размещение заказа
-
 def thanks(request):
     """
     Страница благодарности после размещения заказа.
