@@ -2,7 +2,11 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from .models import CustomUser, Product, FlowerType, FlowerColor, SizeOption, Category, BestSeller, TeamMember, Testimonial, Review, Collection, Slide, ComboOffer, Cart, CartItem, Order, OrderItem, Delivery
+from .models import (
+    CustomUser, Product, FlowerType, FlowerColor, SizeOption, Category,
+    BestSeller, TeamMember, Testimonial, Review, Collection, Slide,
+    ComboOffer, Cart, CartItem, Order, OrderItem, Delivery
+)
 from .forms import ReviewForm, DeliveryForm, CheckoutForm
 
 from django.db.models import F
@@ -11,13 +15,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse
 
-
-from django.db.models import Count
-from django.db.models import Avg
+from django.db.models import Count, Avg
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-#from django.views.decorators.csrf import csrf_protect
+# from django.views.decorators.csrf import csrf_protect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 import logging
@@ -28,38 +30,55 @@ from django.contrib.auth.decorators import login_required
 
 # Главная страница
 def index(request):
+    logger.debug("Initiating index view.")
+
     # Получение данных для категорий
     categories = Category.objects.annotate(product_count=Count('products'))
+    logger.debug(f"Retrieved {categories.count()} categories with product counts.")
 
     # Получение отзывов
     testimonials = Testimonial.objects.all()
+    logger.debug(f"Retrieved {testimonials.count()} testimonials.")
 
     # Получение слайдов
     slides = Slide.objects.all()
+    logger.debug(f"Retrieved {slides.count()} slides.")
 
     # Получение данных о Хитах продаж
     best_sellers = BestSeller.objects.filter(is_featured=True).order_by('-created_at')[:10]  # Максимум 10 товаров
+    logger.debug(f"Retrieved {best_sellers.count()} featured best sellers.")
 
     # Добавляем коллекции
     collections = Collection.objects.order_by('-created_at')[:4]  # Последние 4 созданные коллекции
+    logger.debug(f"Retrieved {collections.count()} latest collections.")
 
     # Данные для табов "LATEST", "MOST POPULAR", "TOP RATED"
     latest_products = Product.objects.order_by('-created_at')[:4]  # Последние 4 товара
+    logger.debug(f"Retrieved {latest_products.count()} latest products.")
+
     most_popular_products = Product.objects.filter(is_featured=True).order_by('-created_at')[:4]  # Хиты продаж
+    logger.debug(f"Retrieved {most_popular_products.count()} most popular products.")
+
     top_rated_products = Product.objects.annotate(average_rating=Avg('rating')).order_by('-average_rating')[:4]  # Товары с высоким рейтингом
+    logger.debug(f"Retrieved {top_rated_products.count()} top-rated products.")
 
     # Расчетные данные для вывода 5 товаров с максимальными скидками
-    products_with_discounts = Product.objects.filter(old_price__isnull=False, old_price__gt=F('price')).annotate(discount_amount=F('old_price') - F('price')).order_by('-discount_amount')[:5]
-
-    # Отладочный вывод Расчетные данные для вывода 5 товаров с максимальными скидками
-    logger.debug("SQL Query:", products_with_discounts.query)  # Проверяет SQL-запрос
-    logger.debug("Products with Discounts:", products_with_discounts)  # Выводит данные
+    products_with_discounts = Product.objects.filter(
+        old_price__isnull=False,
+        old_price__gt=F('price')
+    ).annotate(
+        discount_amount=F('old_price') - F('price')
+    ).order_by('-discount_amount')[:5]
+    logger.debug("SQL Query: %s", products_with_discounts.query)  # Проверяет SQL-запрос
+    logger.debug("Products with Discounts: %s", products_with_discounts)  # Выводит данные
 
     # Получение последних 6 товаров для "Gifts worth waiting for"
     combo_offers = ComboOffer.objects.order_by('-id')[:6]  # Выбор последних 6 товаров
+    logger.debug(f"Retrieved {combo_offers.count()} combo offers.")
 
     # Получение данных для футера
     footer_context = get_footer_context()
+    logger.debug("Retrieved footer context.")
 
     # Формирование контекста для передачи в шаблон
     context = {
@@ -71,62 +90,85 @@ def index(request):
         'latest_products': latest_products,  # Последние товары
         'most_popular_products': most_popular_products,  # Самые популярные товары
         'top_rated_products': top_rated_products,  # Высокорейтинговые товары
-        'products_with_discounts': products_with_discounts, # Товары с максимальной скидкой
-        'combo_offers': combo_offers, # Дополнительные товары
+        'products_with_discounts': products_with_discounts,  # Товары с максимальной скидкой
+        'combo_offers': combo_offers,  # Дополнительные товары
         **footer_context,  # Добавление динамических данных в футер
     }
+    logger.debug("Rendering index.html with context.")
     return render(request, 'orders/index.html', context)
+
 
 # Регистрация нового пользователя
 @csrf_exempt
 def register(request):
+    logger.debug("Initiating register view.")
     if request.method == 'POST':
         fullname = request.POST.get('fullname', '').strip()
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '').strip()
         confirmpassword = request.POST.get('confirmpassword', '').strip()
 
+        logger.debug(f"Registration attempt with fullname: {fullname}, email: {email}")
+
         # Проверка заполненности полей
         if not fullname or not email or not password or not confirmpassword:
+            logger.warning("Registration failed: All fields are required.")
             return JsonResponse({'success': False, 'error': 'All fields are required.'})
 
         # Проверка совпадения паролей
         if password != confirmpassword:
+            logger.warning("Registration failed: Passwords do not match.")
             return JsonResponse({'success': False, 'error': 'Passwords do not match.'})
 
         UserModel = get_user_model()  # Получаем текущую модель (CustomUser, если она в settings)
 
         # Проверка существующего пользователя
         if UserModel.objects.filter(username=fullname).exists():
+            logger.warning(f"Registration failed: Username '{fullname}' already exists.")
             return JsonResponse({'success': False, 'error': 'Username already exists.'})
 
         if UserModel.objects.filter(email=email).exists():
+            logger.warning(f"Registration failed: Email '{email}' is already registered.")
             return JsonResponse({'success': False, 'error': 'Email is already registered.'})
 
         # Создание пользователя
         user = UserModel.objects.create_user(username=fullname, email=email, password=password)
         user.save()
+        logger.info(f"User '{fullname}' registered successfully.")
 
         return JsonResponse({'success': True, 'message': 'Registration successful! Please log in.'})
 
+    logger.warning("Registration failed: Invalid request method.")
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
 
 # Страница товара и добавление отзыва
 def product_details(request, slug):
+    logger.debug(f"Initiating product_details view for slug: {slug}")
+
     # Получаем текущий продукт по slug
     product = get_object_or_404(Product, slug=slug)
+    logger.debug(f"Retrieved product: {product.name}")
 
     # Отладочная печать информации о текущем пользователе
-    logger.debug("DEBUG request.user =", request.user)
-    logger.debug("DEBUG request.user.is_authenticated =", request.user.is_authenticated)
-    logger.debug("DEBUG request.user.id =", request.user.id if request.user.is_authenticated else None)
-    logger.debug("DEBUG request.user._meta.model =", request.user._meta.model if request.user.is_authenticated else None)
+    logger.debug("DEBUG request.user = %s", request.user)
+    logger.debug("DEBUG request.user.is_authenticated = %s", request.user.is_authenticated)
+    logger.debug(
+        "DEBUG request.user.id = %s",
+        request.user.id if request.user.is_authenticated else None
+    )
+    logger.debug(
+        "DEBUG request.user._meta.model = %s",
+        request.user._meta.model if request.user.is_authenticated else None
+    )
 
     # Получаем все одобренные отзывы для текущего продукта
     reviews = Review.objects.filter(product=product, is_approved=True)
+    logger.debug(f"Retrieved {reviews.count()} approved reviews for product '{product.name}'.")
 
-    # Получаем рейтинговые пролукты для товарного виждета
+    # Получаем рейтинговые продукты для товарного виджета
     top_rated_products = Product.objects.filter(rating__gte=4).order_by('-rating')[:4]
+    logger.debug(f"Retrieved {top_rated_products.count()} top-rated products for widget.")
 
     # Получаем связанные продукты с разным количеством стеблей
     related_products = product.get_related_products()
@@ -139,6 +181,7 @@ def product_details(request, slug):
         }
         for related_product in related_products
     ]
+    logger.debug(f"Retrieved {len(related_products_with_stems)} related products with stems.")
 
     # Добавляем текущий продукт в список вариаций, если его там еще нет
     if product.slug not in [p['slug'] for p in related_products_with_stems]:
@@ -148,41 +191,52 @@ def product_details(request, slug):
             'stems': product.slug.split('-')[-1],
             'is_active': True,
         })
+        logger.debug(f"Added current product '{product.name}' to related products with stems.")
+
     # Здесь объявляем переменную с количеством стеблей
     product_stems = product.slug.split('-')[-1]
+    logger.debug(f"Product stems count: {product_stems}")
 
     # === Новая часть: ищем существующий отзыв для редактирования ===
     existing_review = None
     if request.user.is_authenticated:
         existing_review = Review.objects.filter(product=product, author=request.user).first()
+        if existing_review:
+            logger.debug(f"Existing review found for user '{request.user.username}' on product '{product.name}'.")
+        else:
+            logger.debug(f"No existing review found for user '{request.user.username}' on product '{product.name}'.")
 
     if existing_review:
         # Режим "редактирования" уже существующего отзыва
         form = ReviewForm(request.POST or None, instance=existing_review)
+        logger.debug("Initialized ReviewForm for editing existing review.")
     else:
         # Режим "создания" нового отзыва
         form = ReviewForm(request.POST or None)
+        logger.debug("Initialized ReviewForm for creating new review.")
 
-        # Назначаем product
+    # Назначаем product
     form.instance.product = product
+    logger.debug(f"Assigned product '{product.name}' to review form.")
+
     # Назначаем author, если пользователь авторизован
     if request.user.is_authenticated:
         form.instance.author = request.user
-        if request.method == 'POST':
-            if request.user.is_authenticated:
-                if form.is_valid():
-                    review = form.save(commit=False)
-                    # Тут *можно* повторно указать, но уже не обязательно:
-                    # review.author = request.user
-                    # review.product = product
+        logger.debug(f"Assigned author '{request.user.username}' to review form.")
 
-                    review.save()
-                    messages.success(request, 'Your review has been submitted successfully!')
-                    return redirect('product_details', slug=slug)
-                else:
-                    messages.error(request, 'There were errors in your form. Please check below.')
+        if request.method == 'POST':
+            if form.is_valid():
+                review = form.save(commit=False)
+                review.save()
+                logger.info(f"Review by user '{request.user.username}' for product '{product.name}' saved successfully.")
+                messages.success(request, 'Your review has been submitted successfully!')
+                return redirect('product_details', slug=slug)
             else:
-                messages.error(request, 'You must be logged in to leave a review.')
+                logger.warning(f"Review form is invalid for user '{request.user.username}'.")
+                messages.error(request, 'There were errors in your form. Please check below.')
+    else:
+        logger.warning("Attempt to submit review by unauthenticated user.")
+        messages.error(request, 'You must be logged in to leave a review.')
 
     # Передаем данные в шаблон для отображения
     return render(request, 'orders/product-details.html', {
@@ -194,8 +248,11 @@ def product_details(request, slug):
         'top_rated_products': top_rated_products,
     })
 
+
 # Каталог на сайте
 def shop(request):
+    logger.debug("Initiating shop view.")
+
     # Получение всех фильтров
     category_ids = request.GET.getlist('categories')  # Список ID категорий
     min_price = request.GET.get('min_price')  # Минимальная цена
@@ -203,27 +260,38 @@ def shop(request):
     flower_type_ids = request.GET.getlist('flower_types')  # Список ID типов цветов
     flower_color_ids = request.GET.getlist('flower_colors')  # Список ID цветов цветов
 
+    logger.debug(
+        f"Shop filters - Categories: {category_ids}, Flower Types: {flower_type_ids}, "
+        f"Flower Colors: {flower_color_ids}, Price Range: {min_price} - {max_price}"
+    )
+
     # Базовый QuerySet для всех продуктов
     products_list = Product.objects.all().order_by('id')  # Добавляем сортировку по ID для пагинации
+    logger.debug(f"Initial products_list count: {products_list.count()}")
 
     # Фильтрация по категориям
     if category_ids:
         products_list = products_list.filter(category__id__in=category_ids)
+        logger.debug(f"Filtered products by categories: {category_ids}, new count: {products_list.count()}")
 
     # Фильтрация по ценовому диапазону
     if min_price and max_price:
         products_list = products_list.filter(price__gte=min_price, price__lte=max_price)
+        logger.debug(f"Filtered products by price range: {min_price} - {max_price}, new count: {products_list.count()}")
 
     # Фильтрация по типу цветов
     if flower_type_ids:
         products_list = products_list.filter(flower_types__id__in=flower_type_ids)
+        logger.debug(f"Filtered products by flower types: {flower_type_ids}, new count: {products_list.count()}")
 
     # Фильтрация по цвету цветов
     if flower_color_ids:
         products_list = products_list.filter(flower_colors__id__in=flower_color_ids)
+        logger.debug(f"Filtered products by flower colors: {flower_color_ids}, new count: {products_list.count()}")
 
     # Удаление дублирующихся продуктов (если фильтры приводят к повторным объектам)
     products_list = products_list.distinct()
+    logger.debug(f"After distinct filter, products_list count: {products_list.count()}")
 
     # Пагинация
     paginator = Paginator(products_list, 9)  # По 9 товаров на страницу
@@ -231,10 +299,13 @@ def shop(request):
 
     try:
         products = paginator.page(page_number)
+        logger.debug(f"Paginated to page {page_number}, products count: {products.object_list.count()}")
     except PageNotAnInteger:
         products = paginator.page(1)  # Если номер страницы не число, показать первую страницу
+        logger.debug("Page number not an integer. Showing first page.")
     except EmptyPage:
         products = paginator.page(paginator.num_pages)  # Если страница пуста, показать последнюю страницу
+        logger.debug("Empty page. Showing last page.")
 
     # Контекст для передачи данных в шаблон
     context = {
@@ -248,10 +319,13 @@ def shop(request):
         'min_price': min_price,
         'max_price': max_price,
     }
-    logger.debug(products)  # Вывод списка продуктов
+    logger.debug("Rendering shop.html with context.")
     return render(request, 'orders/shop.html', context)
 
+
 def contact(request):
+    logger.debug("Initiating contact view.")
+
     # Рендеринг HTML-шаблона contact.html
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -259,6 +333,8 @@ def contact(request):
         email = request.POST.get('email')
         subject = request.POST.get('subject')
         message = request.POST.get('message')
+
+        logger.debug(f"Contact form submitted by {name} with email {email}.")
 
         # Формирование HTML-сообщения
         email_message = f"""
@@ -276,35 +352,53 @@ def contact(request):
         """
 
         # Отправка email
-        send_mail(
-            subject=f"Contact Us - {subject}",
-            message=message,
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=['info@example.com'],  # Замените на нужный email
-            html_message=email_message,
-        )
+        try:
+            send_mail(
+                subject=f"Contact Us - {subject}",
+                message=message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=['info@example.com'],  # Замените на нужный email
+                html_message=email_message,
+            )
+            logger.info(f"Contact email sent successfully from {email}.")
+        except Exception as e:
+            logger.error(f"Failed to send contact email from {email}: {e}")
+            messages.error(request, "There was an error sending your message. Please try again later.")
+            return redirect('contact')
 
         return redirect('thanks')  # Перенаправление на страницу благодарности
 
+    logger.debug("Rendering contact.html with GET request.")
     return render(request, 'orders/contact.html')
 
+
 def collections(request):
+    logger.debug("Initiating collections view.")
+
     collections = Collection.objects.prefetch_related('products').all()
+    logger.debug(f"Retrieved {collections.count()} collections with related products.")
+
     return render(request, 'orders/collections.html', {'collections': collections})
 
 
 def collection_detail(request, slug):
+    logger.debug(f"Initiating collection_detail view for slug: {slug}")
+
     # Получение коллекции по slug
     collection = get_object_or_404(Collection, slug=slug)
+    logger.debug(f"Retrieved collection: {collection.name}")
 
     # Получение всех продуктов в этой коллекции
     products = collection.products.all()
+    logger.debug(f"Retrieved {products.count()} products in collection '{collection.name}'.")
 
     context = {
         'collection': collection,
         'products': products,
     }
+    logger.debug("Rendering collection_detail.html with context.")
     return render(request, 'orders/collection_detail.html', context)
+
 
 # Размещение заказа
 
@@ -312,8 +406,9 @@ def checkout(request):
     """
     Страница оформления заказа
     """
+    logger.debug("Initiating checkout view.")
+
     user = request.user
-    logger.debug("Initiating checkout process.")
     logger.debug(f"User: {user.username if user.is_authenticated else 'Guest'}")
 
     # Получить session_id для гостя
@@ -373,7 +468,8 @@ def checkout(request):
             order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
             order.save()
             logger.info(
-                f"Order #{order.id} created for user {user.username if user.is_authenticated else 'Guest'} with total price ${order.total_price}.")
+                f"Order #{order.id} created for user {user.username if user.is_authenticated else 'Guest'} with total price ${order.total_price}."
+            )
 
             # Создание данных доставки
             delivery = delivery_form.save(commit=False)
@@ -389,7 +485,9 @@ def checkout(request):
                     quantity=item.quantity,
                     item_price=item.product.price
                 )
-                logger.debug(f"OrderItem created: {item.quantity} x {item.product.name} at ${item.product.price} each.")
+                logger.debug(
+                    f"OrderItem created: {item.quantity} x {item.product.name} at ${item.product.price} each."
+                )
 
             # Очистка корзины
             cart.items.all().delete()
@@ -417,6 +515,7 @@ def checkout(request):
         'total_price': total_price,
     })
 
+
 # Успешное размещение заказа
 def thanks(request):
     """
@@ -424,6 +523,7 @@ def thanks(request):
     """
     customer_name = request.GET.get('customer_name', 'Valued Customer')
     order_id = request.GET.get('order_id', 'Unknown Order')
+    logger.debug(f"Rendering thanks page for customer '{customer_name}' and order ID '{order_id}'.")
     return render(request, 'orders/thanks.html', {
         'customer_name': customer_name,
         'order_id': order_id,
@@ -468,7 +568,8 @@ def cart_view(request):
                 'stems_count': size_option.stems_count if size_option else 0,
             })
             logger.debug(
-                f"Cart Item - ID: {item.id}, Product: {item.product.name}, Price: {item.product.price}, Size: {size_option.size if size_option else 'N/A'}")
+                f"Cart Item - ID: {item.id}, Product: {item.product.name}, Price: {item.product.price}, Size: {size_option.size if size_option else 'N/A'}"
+            )
             total_price += item.total_price()
     else:
         logger.debug("User is not authenticated.")
@@ -496,7 +597,8 @@ def cart_view(request):
                     'stems_count': size_option.stems_count if size_option else 0,
                 })
                 logger.debug(
-                    f"Guest Cart Item - ID: {product_id}, Product: {product.name}, Size: {size_option.size if size_option else 'N/A'}")
+                    f"Guest Cart Item - ID: {product_id}, Product: {product.name}, Size: {size_option.size if size_option else 'N/A'}"
+                )
             except Product.DoesNotExist:
                 logger.error(f"Product with ID {product_id} does not exist. Skipping.")
 
@@ -505,7 +607,7 @@ def cart_view(request):
 
     # Получение топовых продуктов
     top_rated_products = Product.objects.filter(rating__gte=4).order_by('-rating')[:4]
-    logger.debug(f"Retrieved {top_rated_products.count()} top rated products.")
+    logger.debug(f"Retrieved {top_rated_products.count()} top-rated products.")
 
     context = {
         'cart_items': cart_items,
@@ -515,20 +617,29 @@ def cart_view(request):
     logger.debug("Rendering cart.html with context.")
     return render(request, 'orders/cart.html', context)
 
+
 def add_to_cart(request, product_id):
     """
     Функция добавления товара в корзину.
     Работает как для зарегистрированных пользователей, так и для гостей.
     Учитывает количество товара, переданное в POST-запросе.
     """
+    logger.debug(f"Initiating add_to_cart view for product_id: {product_id}")
+
     product = get_object_or_404(Product, id=product_id)
+    logger.debug(f"Retrieved product: {product.name}")
 
     # Получаем количество товара из POST-запроса (по умолчанию 1, если не передано)
     quantity = int(request.POST.get('quantity', 1))
+    logger.debug(f"Adding quantity {quantity} for product '{product.name}'.")
 
     if request.user.is_authenticated:
         # Корзина для зарегистрированных пользователей
         cart, created = Cart.objects.get_or_create(user=request.user)
+        if created:
+            logger.debug(f"Created new cart for user {request.user.username}: Cart ID {cart.id}")
+        else:
+            logger.debug(f"Retrieved existing cart for user {request.user.username}: Cart ID {cart.id}")
 
         # Проверяем, есть ли уже этот товар в корзине
         cart_item, created = CartItem.objects.get_or_create(
@@ -539,20 +650,27 @@ def add_to_cart(request, product_id):
 
         if not created:
             # Если товар уже есть в корзине, увеличиваем количество
+            old_quantity = cart_item.quantity
             cart_item.quantity += quantity
             cart_item.save()
-            logger.debug(f"Обновлено количество товара в корзине для пользователя {request.user}: {cart_item.quantity} шт.")
+            logger.debug(
+                f"Updated quantity for product '{product.name}' in user '{request.user.username}' cart from {old_quantity} to {cart_item.quantity}."
+            )
         else:
-            logger.debug(f"Добавлен новый товар в корзину для пользователя {request.user}: {quantity} шт.")
+            logger.debug(
+                f"Added new product '{product.name}' with quantity {quantity} to user '{request.user.username}' cart."
+            )
 
     else:
         # Корзина для гостей
         cart = request.session.get('cart', {})
-
         if str(product_id) in cart:
             # Если товар уже есть в корзине, увеличиваем количество
+            old_quantity = cart[str(product_id)]['quantity']
             cart[str(product_id)]['quantity'] += quantity
-            logger.debug(f"Обновлено количество товара в корзине для гостя: {cart[str(product_id)]['quantity']} шт.")
+            logger.debug(
+                f"Updated quantity for product '{product.name}' in guest cart from {old_quantity} to {cart[str(product_id)]['quantity']}."
+            )
         else:
             # Если товара нет в корзине, добавляем его с указанным количеством
             cart[str(product_id)] = {
@@ -562,78 +680,115 @@ def add_to_cart(request, product_id):
                 'old_price': round(float(product.old_price), 2) if product.old_price else None,
                 'image_main': product.image_main.url if product.image_main else None,
             }
-            logger.debug(f"Добавлен новый товар в корзину для гостя: {quantity} шт.")
+            logger.debug(f"Added new product '{product.name}' with quantity {quantity} to guest cart.")
 
         # Сохраняем корзину в сессию
         request.session['cart'] = cart
+        logger.debug("Guest cart updated in session.")
 
     # Отправляем JSON-ответ с подтверждением добавления товара и его количеством
+    logger.debug("Returning JSON response for add_to_cart.")
     return JsonResponse({
         'message': 'Товар успешно добавлен в корзину!',
         'quantity': quantity
     })
 
+
 def remove_from_cart(request, item_id):
+    logger.debug(f"Initiating remove_from_cart view for item_id: {item_id}")
+
     if request.user.is_authenticated:
         # Проверяем, есть ли такой товар в корзине пользователя
         try:
             cart_item = CartItem.objects.filter(product_id=item_id, cart__user=request.user).first()
             if cart_item:
                 cart_item.delete()
+                logger.debug(f"Removed product '{cart_item.product.name}' from user '{request.user.username}' cart.")
+            else:
+                logger.warning(f"Product with ID {item_id} not found in user '{request.user.username}' cart.")
         except CartItem.DoesNotExist:
-            pass
+            logger.warning(f"CartItem with product_id {item_id} does not exist for user '{request.user.username}'.")
     else:
         # Удаление товара из корзины сессии
         cart = request.session.get('cart', {})
         if str(item_id) in cart:
             del cart[str(item_id)]
             request.session['cart'] = cart
+            logger.debug(f"Removed product with ID {item_id} from guest cart.")
+        else:
+            logger.warning(f"Product with ID {item_id} not found in guest cart.")
 
+    logger.debug("Redirecting to cart view after removing item.")
     return redirect('cart')
 
-# Обновление кол-ва товара в Корзине
-#@csrf_protect
 
-logger = logging.getLogger(__name__)
-
+# Обновление количества товара в Корзине
 @csrf_exempt
 def update_cart_quantity(request):
+    logger.debug("Initiating update_cart_quantity view.")
+
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         change = request.POST.get('change')
 
+        logger.debug(f"Updating quantity for product_id: {product_id} with change: {change}")
+
         if not product_id or not change:
+            logger.warning("Update cart quantity failed: Invalid request parameters.")
             return JsonResponse({'success': False, 'error': 'Invalid request'})
 
         try:
+            change = int(change)
             if request.user.is_authenticated:
                 # Для зарегистрированных пользователей
                 cart, created = Cart.objects.get_or_create(user=request.user)
                 cart_item = cart.items.get(product_id=product_id)
-                cart_item.quantity = max(1, cart_item.quantity + int(change))
+                old_quantity = cart_item.quantity
+                cart_item.quantity = max(1, cart_item.quantity + change)
                 cart_item.save()
+                logger.debug(
+                    f"Updated cart item quantity for product_id {product_id} from {old_quantity} to {cart_item.quantity} for user '{request.user.username}'."
+                )
                 total_price = float(cart.total_price())  # Преобразуем в float-формат
+                logger.debug(f"New total price for user '{request.user.username}': ${total_price}")
             else:
                 # Для гостей
                 cart_session = request.session.get('cart', {})
                 if product_id in cart_session:
-                    cart_session[product_id]['quantity'] = max(1, cart_session[product_id]['quantity'] + int(change))
+                    old_quantity = cart_session[product_id]['quantity']
+                    cart_session[product_id]['quantity'] = max(1, cart_session[product_id]['quantity'] + change)
                     request.session['cart'] = cart_session
                     request.session.modified = True
+                    logger.debug(
+                        f"Updated cart item quantity for product_id {product_id} from {old_quantity} to {cart_session[product_id]['quantity']} for guest."
+                    )
                     total_price = sum(float(item['price']) * item['quantity'] for item in cart_session.values())
+                    logger.debug(f"New total price for guest: ${total_price}")
+                else:
+                    logger.warning(f"Product with ID {product_id} not found in guest cart.")
+                    return JsonResponse({'success': False, 'error': 'Product not found in cart'})
 
             return JsonResponse({'success': True, 'total_price': total_price})
         except Exception as e:
+            logger.error(f"Error updating cart quantity: {e}")
             return JsonResponse({'success': False, 'error': str(e)})
 
+    logger.warning("Update cart quantity failed: Invalid request method.")
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 
 # О Компании
 def about(request):
+    logger.debug("Initiating about view.")
+
     best_sellers = BestSeller.objects.filter(is_featured=True)
+    logger.debug(f"Retrieved {best_sellers.count()} featured best sellers for about page.")
+
     team_members = TeamMember.objects.all()
+    logger.debug(f"Retrieved {team_members.count()} team members for about page.")
+
     testimonials = Testimonial.objects.all()
+    logger.debug(f"Retrieved {testimonials.count()} testimonials for about page.")
 
     context = {
         'best_sellers': best_sellers,
@@ -641,35 +796,57 @@ def about(request):
         'testimonials': testimonials,
     }
 
+    logger.debug("Rendering about.html with context.")
     return render(request, 'orders/about.html', context)
 
+
 def get_footer_context():
+    logger.debug("Retrieving footer context.")
+
     # Получение всех коллекций
     collections = Collection.objects.all()
+    logger.debug(f"Retrieved {collections.count()} collections for footer.")
 
     # Получение всех категорий
     categories = Category.objects.all()
+    logger.debug(f"Retrieved {categories.count()} categories for footer.")
 
     return {
         'collections': collections,
         'categories': categories,
     }
 
+
 # для Footer
 def shop_by_collection(request, slug):
+    logger.debug(f"Initiating shop_by_collection view for slug: {slug}")
+
     collection = get_object_or_404(Collection, slug=slug)
+    logger.debug(f"Retrieved collection: {collection.name}")
+
     products = Product.objects.filter(collection=collection)
+    logger.debug(f"Retrieved {products.count()} products in collection '{collection.name}'.")
+
     context = {
         'collection': collection,
         'products': products,
     }
+    logger.debug("Rendering collections.html with context.")
     return render(request, 'orders/collections.html', context)
 
+
 def shop_by_category(request, slug):
+    logger.debug(f"Initiating shop_by_category view for slug: {slug}")
+
     category = get_object_or_404(Category, slug=slug)
+    logger.debug(f"Retrieved category: {category.name}")
+
     products = Product.objects.filter(category=category)
+    logger.debug(f"Retrieved {products.count()} products in category '{category.name}'.")
+
     context = {
         'category': category,
         'products': products,
     }
+    logger.debug("Rendering shop.html with context.")
     return render(request, 'orders/shop.html', context)
