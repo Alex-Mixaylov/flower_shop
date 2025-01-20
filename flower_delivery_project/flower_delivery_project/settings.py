@@ -129,7 +129,7 @@ LOGIN_URL = '/login/'  # URL страницы авторизации
 # Конфигурация логирования
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,  # Сохранять существующие логгеры
+    'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
             'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
@@ -141,24 +141,37 @@ LOGGING = {
         },
     },
     'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'flower_shop.log',
+            'formatter': 'verbose',
+            'mode': 'a',  # Измените на 'w', если хотите перезаписывать файл при каждом запуске
+        },
+        'rotating_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'flower_shop.log',
+            'formatter': 'verbose',
+            'maxBytes': 1024*1024*5,  # 5 MB
+            'backupCount': 5,
+            'mode': 'a',
+        },
         'console': {
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
-        },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'flower_shop.log'),
-            'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['file', 'console'],
             'level': 'INFO',
+            'propagate': True,
         },
-        'orders': {  # Логгер для вашего приложения 'orders'
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',  # Уровень логирования
+        'orders': {  # Ваше приложение
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
             'propagate': True,
         },
     },
