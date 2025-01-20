@@ -305,7 +305,7 @@ def collection_detail(request, slug):
     return render(request, 'orders/collection_detail.html', context)
 
 # Размещение заказа
-@login_required
+@login_required(login_url='login') #Заказ могут размещать только авторизованные, остальные  => login
 def checkout(request):
     """
     Страница оформления заказа
