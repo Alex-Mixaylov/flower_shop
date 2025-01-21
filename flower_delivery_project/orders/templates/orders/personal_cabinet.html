@@ -1,0 +1,46 @@
+{% extends 'orders/layout.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Shopping Cart - Personal Cabinet{% endblock %}
+
+{% block content %}
+<h2>Личный кабинет</h2>
+
+<h3>Ваши заказы:</h3>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Дата создания</th>
+            <th>Статус</th>
+            <th>Сумма</th>
+            <th>Состав заказа</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in user_orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>{{ order.total_price }} руб.</td>
+            <td>
+                <ul>
+                    {% for item in order.items.all %}
+                    <li>{{ item.product.name }} — {{ item.quantity }} шт.</li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Итоги:</h3>
+<ul>
+    <li>Общая сумма оплаченных заказов: {{ total_paid }} руб.</li>
+    <li>Общая сумма выполненных заказов: {{ total_completed }} руб.</li>
+    <li>Общая сумма заказов: {{ total_all }} руб.</li>
+</ul>
+{% endblock %}

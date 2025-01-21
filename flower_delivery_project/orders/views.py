@@ -15,7 +15,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse
 
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, Sum
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -825,6 +825,22 @@ def update_cart_quantity(request):
     logger.warning("Update cart quantity failed: Invalid request method.")
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
+# личныый кабинет
+@login_required
+def personal_cabinet(request):
+    user_orders = request.user.orders.all()
+
+    total_paid = user_orders.filter(status='paid').aggregate(total=Sum('total_price'))['total'] or 0
+    total_completed = user_orders.filter(status='completed').aggregate(total=Sum('total_price'))['total'] or 0
+    total_all = user_orders.aggregate(total=Sum('total_price'))['total'] or 0
+
+    context = {
+        'user_orders': user_orders,
+        'total_paid': total_paid,
+        'total_completed': total_completed,
+        'total_all': total_all,
+    }
+    return render(request, 'orders/personal_cabinet.html', context)
 
 # О Компании
 def about(request):

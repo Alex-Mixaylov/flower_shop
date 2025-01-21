@@ -17,6 +17,7 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('collections/', views.collections, name='collections'),
     path('collections/<slug:slug>/', views.collection_detail, name='collection_detail'),
+    path('personal-cabinet/', views.personal_cabinet, name='personal_cabinet'),
     # Маршруты для коллекций и категорий в footer
     path('collection/<slug:slug>/', views.shop_by_collection, name='shop_by_collection'),
     path('category/<slug:slug>/', views.shop_by_category, name='shop_by_category'),
