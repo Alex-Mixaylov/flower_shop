@@ -5,7 +5,13 @@ from django.dispatch import receiver
 from .models import Cart, CartItem, Product
 from django.db import transaction
 import logging
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from orders.models import Order
+from bot.bot import send_order_notification
 
+# Настройка логирования
+import logging
 logger = logging.getLogger('orders')
 
 
@@ -55,3 +61,22 @@ def merge_cart_on_login(sender, user, request, **kwargs):
     except Exception as e:
         # Логирование ошибки
         logger.error(f"Error merging cart: {e}")
+
+#Telegram bot
+
+@receiver(post_save, sender=Order)
+def notify_telegram_on_order_save(sender, instance, created, **kwargs):
+    """
+    Отправляет уведомление в Telegram при создании нового заказа или изменении его статуса.
+    """
+    try:
+        # Если заказ новый
+        if created:
+            logger.info(f"Новый заказ создан: {instance.id}")
+            send_order_notification(instance, event="created")
+        else:
+            # Если изменился статус заказа
+            logger.info(f"Изменен статус заказа {instance.id} на {instance.status}")
+            send_order_notification(instance, event="status_changed")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке уведомления для заказа {instance.id}: {e}")

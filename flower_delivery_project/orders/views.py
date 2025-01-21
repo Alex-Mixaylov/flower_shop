@@ -834,8 +834,8 @@ def personal_cabinet(request):
     # Получение заказов текущего пользователя, сортировка по дате (от новых к старым)
     user_orders = request.user.orders.prefetch_related('items__product', 'delivery').order_by('-created_at')
 
-    # Расчет итогов
-    total_paid = user_orders.filter(status='paid').aggregate(total=Sum('total_price'))['total'] or 0
+    # Подсчет сумм для различных статусов с учетом иерархии статусов
+    total_paid = user_orders.filter(status__in=['paid', 'completed']).aggregate(total=Sum('total_price'))['total'] or 0
     total_completed = user_orders.filter(status='completed').aggregate(total=Sum('total_price'))['total'] or 0
     total_all = user_orders.aggregate(total=Sum('total_price'))['total'] or 0
 
