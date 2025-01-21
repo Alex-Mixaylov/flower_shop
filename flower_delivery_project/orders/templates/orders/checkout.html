@@ -21,7 +21,7 @@
 <main class="main-body float-start w-100">
     <div class="checkout-page-main-div d-inline-block w-100">
         <div class="container">
-            <form action="{% url 'checkout' %}" method="post" role="form">
+            <form id="checkout_main_form" action="{% url 'checkout' %}" method="post" role="form">
                 {% csrf_token %}
                 <div class="row g-lg-5">
                     <!-- User Data -->
@@ -100,7 +100,11 @@
                                             <tr>
                                                 <td>{{ item.product.name }}</td>
                                                 <td>x {{ item.quantity }}</td>
-                                                <td>${{ item.total_price }}</td>
+                                                <td>${{ item.total_price|floatformat:2 }}</td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="3">Your cart is empty.</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
@@ -131,4 +135,82 @@
         </div>
     </div>
 </main>
+
+<!-- JavaScript для сохранения и загрузки данных форм -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Функция для сохранения данных формы в sessionStorage
+    function saveFormData() {
+        var checkoutData = {};
+        var deliveryData = {};
+
+        // Получение элементов формы CheckoutForm
+        var checkoutForm = document.getElementById("checkout_main_form");
+        if (checkoutForm) {
+            // Извлекаем только поля CheckoutForm
+            var checkoutFields = checkoutForm.querySelectorAll("input[name^='customer_']");
+            checkoutFields.forEach(function(input) {
+                checkoutData[input.name] = input.value;
+            });
+
+            // Извлекаем только поля DeliveryForm
+            var deliveryFields = checkoutForm.querySelectorAll("input[name^='full_name'], input[name^='country'], input[name^='state'], input[name^='city'], input[name^='zipcode'], input[name^='address']");
+            deliveryFields.forEach(function(input) {
+                deliveryData[input.name] = input.value;
+            });
+        }
+
+        // Сохранение данных в sessionStorage
+        sessionStorage.setItem("checkoutData", JSON.stringify(checkoutData));
+        sessionStorage.setItem("deliveryData", JSON.stringify(deliveryData));
+    }
+
+    // Функция для загрузки данных формы из sessionStorage
+    function loadFormData() {
+        var checkoutData = JSON.parse(sessionStorage.getItem("checkoutData")) || {};
+        var deliveryData = JSON.parse(sessionStorage.getItem("deliveryData")) || {};
+
+        // Заполнение формы CheckoutForm
+        var checkoutForm = document.getElementById("checkout_main_form");
+        if (checkoutForm) {
+            // Заполнение полей CheckoutForm
+            var checkoutFields = checkoutForm.querySelectorAll("input[name^='customer_']");
+            checkoutFields.forEach(function(input) {
+                if (checkoutData[input.name]) {
+                    input.value = checkoutData[input.name];
+                }
+            });
+
+            // Заполнение полей DeliveryForm
+            var deliveryFields = checkoutForm.querySelectorAll("input[name^='full_name'], input[name^='country'], input[name^='state'], input[name^='city'], input[name^='zipcode'], input[name^='address']");
+            deliveryFields.forEach(function(input) {
+                if (deliveryData[input.name]) {
+                    input.value = deliveryData[input.name];
+                }
+            });
+        }
+    }
+
+    // Загрузка данных формы при загрузке страницы
+    loadFormData();
+
+    // Сохранение данных формы при изменении полей
+    var checkoutForm = document.getElementById("checkout_main_form");
+    if (checkoutForm) {
+        checkoutForm.addEventListener("input", saveFormData);
+    }
+
+    // Очистка sessionStorage при успешной отправке формы
+    var placeOrderButton = checkoutForm.querySelector("button[type='submit']");
+    if (placeOrderButton) {
+        placeOrderButton.addEventListener("click", function() {
+            // Используем timeout, чтобы убедиться, что форма отправляется перед очисткой
+            setTimeout(function() {
+                sessionStorage.removeItem("checkoutData");
+                sessionStorage.removeItem("deliveryData");
+            }, 1000);
+        });
+    }
+});
+</script>
 {% endblock %}

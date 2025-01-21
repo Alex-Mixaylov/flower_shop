@@ -400,6 +400,10 @@ def collection_detail(request, slug):
     return render(request, 'orders/collection_detail.html', context)
 
 
+# Определяем простой класс для имитации объекта Product для гостей
+class ProductMock:
+    def __init__(self, name):
+        self.name = name
 # Размещение заказа
 def checkout(request):
     """
@@ -439,6 +443,9 @@ def checkout(request):
         for item in cart.items.all():
             logger.debug(f"Cart item: {item}")
 
+        # Определение cart_items и total_price для авторизованных пользователей
+        cart_items = cart.items.all()
+        total_price = sum(item.product.price * item.quantity for item in cart.items.all())
     else:
         logger.debug("User is not authenticated.")
         # Получение корзины из session['cart']
@@ -449,15 +456,18 @@ def checkout(request):
             logger.warning(f"No cart found for session {session_id}.")
             logger.debug(f"Current session cart data: {cart_data}")
 
-    # Если корзина не найдена, не создавать новую
-    if user.is_authenticated and not cart:
-        logger.error("No cart found for current session or user.")
-        messages.error(request, "Your cart is empty.")
-        return redirect('cart')
-    elif not user.is_authenticated and not cart_data:
-        logger.error("No cart found for current session or user.")
-        messages.error(request, "Your cart is empty.")
-        return redirect('cart')
+        # Определение cart_items и total_price для гостей
+        cart_items = [
+            {
+                'product': ProductMock(name=data['name']),
+                'quantity': data['quantity'],
+                'total_price': data['price'] * data['quantity'],
+            }
+            for pid, data in cart_data.items()
+        ]
+        total_price = sum(item['total_price'] for item in cart_items)
+        logger.debug(f"Total price calculated: ${total_price}")
+        logger.debug(f"Cart items for template: {cart_items}")  # Дополнительная отладка
 
     # Проверка на наличие товаров в корзине
     if user.is_authenticated:
@@ -485,7 +495,7 @@ def checkout(request):
             if user.is_authenticated:
                 order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
             else:
-                order.total_price = sum(item['total_price'] for item in cart.items)
+                order.total_price = sum(item['total_price'] for item in cart_items)
 
             order.save()
             logger.info(
@@ -547,32 +557,13 @@ def checkout(request):
         checkout_form = CheckoutForm()
         delivery_form = DeliveryForm()
 
-    if user.is_authenticated:
-        total_price = sum(item.product.price * item.quantity for item in cart.items.all())
-        logger.debug(f"Total price calculated: ${total_price}")
-        cart_items = cart.items.all()
-    else:
-        # Преобразуем cart_data из словаря в список для корректной итерируемости в шаблоне
-        cart_items = [
-            {
-                'product': {
-                    'name': data['name'],
-                },
-                'quantity': data['quantity'],
-                'total_price': data['price'] * data['quantity'],
-            }
-            for pid, data in cart_data.items()
-        ]
-        total_price = sum(item['total_price'] for item in cart_items)
-        logger.debug(f"Total price calculated: ${total_price}")
-        logger.debug(f"Cart items for template: {cart_items}")  # Дополнительная отладка
-
     return render(request, 'orders/checkout.html', {
         'checkout_form': checkout_form,
         'delivery_form': delivery_form,
         'cart_items': cart_items,
         'total_price': total_price,
     })
+
 
 # Успешное размещение заказа
 def thanks(request):
