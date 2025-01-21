@@ -144,17 +144,26 @@ document.addEventListener("DOMContentLoaded", function() {
         var checkoutData = {};
         var deliveryData = {};
 
-        // Получение элементов формы CheckoutForm
+        // Получение элементов формы CheckoutForm и DeliveryForm
         var checkoutForm = document.getElementById("checkout_main_form");
         if (checkoutForm) {
-            // Извлекаем только поля CheckoutForm
+            // Извлекаем только поля CheckoutForm (customer_name, customer_email, customer_phone)
             var checkoutFields = checkoutForm.querySelectorAll("input[name^='customer_']");
             checkoutFields.forEach(function(input) {
                 checkoutData[input.name] = input.value;
             });
 
-            // Извлекаем только поля DeliveryForm
-            var deliveryFields = checkoutForm.querySelectorAll("input[name^='full_name'], input[name^='country'], input[name^='state'], input[name^='city'], input[name^='zipcode'], input[name^='address']");
+            // Извлекаем только поля DeliveryForm (full_name, country, state, city, zipcode, address)
+            var deliveryFields = checkoutForm.querySelectorAll(
+                "input[name='full_name'], " +
+                "input[name='country'], " +
+                "input[name='state'], " +
+                "input[name='city'], " +
+                "input[name='zipcode'], " +
+                "input[name='address'], " +
+                "textarea[name='address'], " +
+                "select[name='address']"
+            );
             deliveryFields.forEach(function(input) {
                 deliveryData[input.name] = input.value;
             });
@@ -163,6 +172,10 @@ document.addEventListener("DOMContentLoaded", function() {
         // Сохранение данных в sessionStorage
         sessionStorage.setItem("checkoutData", JSON.stringify(checkoutData));
         sessionStorage.setItem("deliveryData", JSON.stringify(deliveryData));
+
+        // Отладка: вывод сохраненных данных в консоль
+        console.log("Сохраненные данные CheckoutForm:", checkoutData);
+        console.log("Сохраненные данные DeliveryForm:", deliveryData);
     }
 
     // Функция для загрузки данных формы из sessionStorage
@@ -170,7 +183,11 @@ document.addEventListener("DOMContentLoaded", function() {
         var checkoutData = JSON.parse(sessionStorage.getItem("checkoutData")) || {};
         var deliveryData = JSON.parse(sessionStorage.getItem("deliveryData")) || {};
 
-        // Заполнение формы CheckoutForm
+        // Отладка: вывод загруженных данных в консоль
+        console.log("Загруженные данные CheckoutForm:", checkoutData);
+        console.log("Загруженные данные DeliveryForm:", deliveryData);
+
+        // Заполнение формы CheckoutForm и DeliveryForm
         var checkoutForm = document.getElementById("checkout_main_form");
         if (checkoutForm) {
             // Заполнение полей CheckoutForm
@@ -182,13 +199,121 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             // Заполнение полей DeliveryForm
-            var deliveryFields = checkoutForm.querySelectorAll("input[name^='full_name'], input[name^='country'], input[name^='state'], input[name^='city'], input[name^='zipcode'], input[name^='address']");
+            var deliveryFields = checkoutForm.querySelectorAll(
+                "input[name='full_name'], " +
+                "input[name='country'], " +
+                "input[name='state'], " +
+                "input[name='city'], " +
+                "input[name='zipcode'], " +
+                "input[name='address'], " +
+                "textarea[name='address'], " +
+                "select[name='address']"
+            );
             deliveryFields.forEach(function(input) {
                 if (deliveryData[input.name]) {
                     input.value = deliveryData[input.name];
                 }
             });
         }
+    }
+
+    // Обработчик отправки формы регистрации
+    function handleRegisterFormSubmit(event) {
+        event.preventDefault(); // Предотвращаем стандартную отправку формы
+
+        var registerForm = document.getElementById("register_form");
+        if (!registerForm) return;
+
+        var formData = new FormData(registerForm);
+        var nextUrl = formData.get('next') || "{% url 'checkout' %}";
+
+        fetch(registerForm.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': registerForm.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Очистка sessionStorage после успешной регистрации
+                sessionStorage.removeItem("checkoutData");
+                sessionStorage.removeItem("deliveryData");
+
+                // Закрытие модального окна регистрации
+                var registerModalElement = document.getElementById('registerModal');
+                var registerModal = bootstrap.Modal.getInstance(registerModalElement);
+                if (registerModal) {
+                    registerModal.hide();
+                }
+
+                // Открытие модального окна входа для пользователя
+                var loginModalElement = document.getElementById('loginModal');
+                var loginModal = new bootstrap.Modal(loginModalElement);
+                loginModal.show();
+
+                // Отображение сообщения об успешной регистрации
+                alert(data.message); // Рекомендуется заменить на более дружественный способ отображения сообщений
+            } else {
+                // Отображение ошибок регистрации
+                var errorDiv = registerForm.querySelector("#register_error");
+                if (errorDiv) {
+                    errorDiv.textContent = data.error;
+                    errorDiv.classList.remove("d-none");
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An unexpected error occurred. Please try again.');
+        });
+    }
+
+    // Обработчик отправки формы входа
+    function handleLoginFormSubmit(event) {
+        event.preventDefault(); // Предотвращаем стандартную отправку формы
+
+        var loginForm = document.getElementById("login_form");
+        if (!loginForm) return;
+
+        var formData = new FormData(loginForm);
+        var nextUrl = formData.get('next') || "{% url 'checkout' %}";
+
+        fetch(loginForm.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': loginForm.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Очистка sessionStorage после успешного входа
+                sessionStorage.removeItem("checkoutData");
+                sessionStorage.removeItem("deliveryData");
+
+                // Закрытие модального окна входа
+                var loginModalElement = document.getElementById('loginModal');
+                var loginModal = bootstrap.Modal.getInstance(loginModalElement);
+                if (loginModal) {
+                    loginModal.hide();
+                }
+
+                // Перенаправление пользователя на страницу next
+                window.location.href = data.next;
+            } else {
+                // Отображение ошибок входа
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An unexpected error occurred. Please try again.');
+        });
     }
 
     // Загрузка данных формы при загрузке страницы
@@ -200,17 +325,18 @@ document.addEventListener("DOMContentLoaded", function() {
         checkoutForm.addEventListener("input", saveFormData);
     }
 
-    // Очистка sessionStorage при успешной отправке формы
-    var placeOrderButton = checkoutForm.querySelector("button[type='submit']");
-    if (placeOrderButton) {
-        placeOrderButton.addEventListener("click", function() {
-            // Используем timeout, чтобы убедиться, что форма отправляется перед очисткой
-            setTimeout(function() {
-                sessionStorage.removeItem("checkoutData");
-                sessionStorage.removeItem("deliveryData");
-            }, 1000);
-        });
+    // Обработка отправки формы регистрации через модальное окно
+    var registerForm = document.getElementById("register_form");
+    if (registerForm) {
+        registerForm.addEventListener("submit", handleRegisterFormSubmit);
+    }
+
+    // Обработка отправки формы входа через модальное окно
+    var loginForm = document.getElementById("login_form");
+    if (loginForm) {
+        loginForm.addEventListener("submit", handleLoginFormSubmit);
     }
 });
 </script>
+
 {% endblock %}
