@@ -5,42 +5,89 @@
 {% block title %}Shopping Cart - Personal Cabinet{% endblock %}
 
 {% block content %}
-<h2>Личный кабинет</h2>
+<div class="container">
+    <!-- Секция с именем покупателя -->
+    <div class="faq-secion pt-5">
+        <div class="container">
+            <h6 class="mb-0 text-center sub-heading">{{ customer_name }}</h6>
+            <h2 class="text-center min-heading mt-2">Your Orders</h2>
 
-<h3>Ваши заказы:</h3>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Дата создания</th>
-            <th>Статус</th>
-            <th>Сумма</th>
-            <th>Состав заказа</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for order in user_orders %}
-        <tr>
-            <td>{{ order.id }}</td>
-            <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
-            <td>{{ order.get_status_display }}</td>
-            <td>{{ order.total_price }} руб.</td>
-            <td>
-                <ul>
-                    {% for item in order.items.all %}
-                    <li>{{ item.product.name }} — {{ item.quantity }} шт.</li>
+            <!-- Секция аккордеона для заказов -->
+            <div class="col-lg-10 mx-auto mt-4">
+                <div class="accordion" id="ordersAccordion">
+                    {% for order in user_orders %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ order.id }}">
+                            <button class="accordion-button {% if forloop.last %} {% else %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ order.id }}" aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}" aria-controls="collapse{{ order.id }}">
+                                Заказ №{{ order.id }} — {{ order.created_at|date:"d.m.Y H:i" }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ order.id }}" class="accordion-collapse collapse {% if forloop.last %}show{% endif %}" aria-labelledby="heading{{ order.id }}" data-bs-parent="#ordersAccordion">
+                            <div class="accordion-body">
+                                <h5>Состав заказа:</h5>
+                                <table class="table table-striped checkout-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Продукт</th>
+                                            <th>Количество</th>
+                                            <th>Сумма</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in order.items.all %}
+                                        <tr>
+                                            <td>{{ item.product.name }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>{{ item.total_price }} руб.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <h5>Информация о доставке:</h5>
+                                <p><strong>Полное имя получателя:</strong> {{ order.delivery.full_name }}</p>
+                                <p><strong>Адрес доставки:</strong> {{ order.delivery.address }}</p>
+                                <p><strong>Телефон клиента:</strong> {{ order.customer_phone }}</p>
+                                <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
-                </ul>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h3>Итоги:</h3>
-<ul>
-    <li>Общая сумма оплаченных заказов: {{ total_paid }} руб.</li>
-    <li>Общая сумма выполненных заказов: {{ total_completed }} руб.</li>
-    <li>Общая сумма заказов: {{ total_all }} руб.</li>
-</ul>
+    <!-- Секция итогов -->
+    <div class="col-lg-4 mx-auto mt-5">
+        <div class="ceck-out-right-div new-checkout">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="page-titel comon-heading m-0">Order Summary</h2>
+            </div>
+            <div class="oder-summary-item mt-4">
+                <table class="table checkout-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Type</th>
+                            <th scope="col">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Оплаченные заказы</td>
+                            <td>{{ total_paid }} руб.</td>
+                        </tr>
+                        <tr>
+                            <td>Выполненные заказы</td>
+                            <td>{{ total_completed }} руб.</td>
+                        </tr>
+                        <tr>
+                            <td>Общая сумма</td>
+                            <td>{{ total_all }} руб.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

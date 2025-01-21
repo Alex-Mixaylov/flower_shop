@@ -828,13 +828,19 @@ def update_cart_quantity(request):
 # личныый кабинет
 @login_required
 def personal_cabinet(request):
-    user_orders = request.user.orders.all()
+    # Получение имени покупателя
+    customer_name = request.user.first_name or request.user.last_name or request.user.username
 
+    # Получение заказов текущего пользователя, сортировка по дате (от новых к старым)
+    user_orders = request.user.orders.prefetch_related('items__product', 'delivery').order_by('-created_at')
+
+    # Расчет итогов
     total_paid = user_orders.filter(status='paid').aggregate(total=Sum('total_price'))['total'] or 0
     total_completed = user_orders.filter(status='completed').aggregate(total=Sum('total_price'))['total'] or 0
     total_all = user_orders.aggregate(total=Sum('total_price'))['total'] or 0
 
     context = {
+        'customer_name': customer_name,
         'user_orders': user_orders,
         'total_paid': total_paid,
         'total_completed': total_completed,

@@ -327,6 +327,10 @@ class OrderItem(models.Model):
             self.item_price = self.product.price
         super().save(*args, **kwargs)
 
+    @property
+    def total_price(self):
+        return self.quantity * self.item_price  # Расчет общей стоимости
+
 # Доставка
 
 class Delivery(models.Model):
