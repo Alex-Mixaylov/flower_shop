@@ -4,11 +4,12 @@ from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from .models import Cart, CartItem, Product
 from django.db import transaction
-import logging
+
 from django.db.models.signals import post_save
-from django.dispatch import receiver
 from orders.models import Order
 from bot.bot import send_order_notification
+
+import asyncio
 
 # Настройка логирования
 import logging
@@ -70,13 +71,23 @@ def notify_telegram_on_order_save(sender, instance, created, **kwargs):
     Отправляет уведомление в Telegram при создании нового заказа или изменении его статуса.
     """
     try:
-        # Если заказ новый
-        if created:
-            logger.info(f"Новый заказ создан: {instance.id}")
-            send_order_notification(instance, event="created")
-        else:
-            # Если изменился статус заказа
-            logger.info(f"Изменен статус заказа {instance.id} на {instance.status}")
-            send_order_notification(instance, event="status_changed")
+        async def handle_notification():
+            """
+            Асинхронная обработка уведомлений.
+            """
+            if created:
+                logger.info(f"Новый заказ создан: {instance.id}")
+                await send_order_notification(instance, event="created")
+            else:
+                logger.info(f"Изменен статус заказа {instance.id} на {instance.status}")
+                await send_order_notification(instance, event="status_changed")
+
+        # Проверяем, есть ли активный событийный цикл
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(handle_notification())  # Используем create_task для ASGI
+        except RuntimeError:
+            asyncio.run(handle_notification())  # Используем run для WSGI
+
     except Exception as e:
         logger.error(f"Ошибка при отправке уведомления для заказа {instance.id}: {e}")
