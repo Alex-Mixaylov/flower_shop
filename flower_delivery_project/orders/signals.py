@@ -67,24 +67,20 @@ def merge_cart_on_login(sender, user, request, **kwargs):
 
 #Telegram bot
 
+# Настройка логирования
+logger = logging.getLogger('orders')
+
 @receiver(post_save, sender=Order)
 def notify_telegram_on_order_save(sender, instance, created, **kwargs):
     """
     Отправляет уведомление в Telegram при создании нового заказа или изменении его статуса.
     """
-    async def handle_notification():
-        try:
-            if created:
-                logger.info(f"Новый заказ создан: {instance.id}")
-                await send_order_notification(instance, event="created")
-            else:
-                logger.info(f"Изменен статус заказа {instance.id} на {instance.status}")
-                await send_order_notification(instance, event="status_changed")
-        except Exception as e:
-            logger.error(f"Ошибка при отправке уведомления для заказа {instance.id}: {e}")
-
     try:
-        # Выполнение асинхронной функции через sync_to_async
-        sync_to_async(handle_notification, thread_sensitive=True)()
+        if created:
+            logger.info(f"Новый заказ создан: {instance.id}")
+            send_order_notification(instance, event="created")
+        else:
+            logger.info(f"Изменен статус заказа {instance.id} на {instance.status}")
+            send_order_notification(instance, event="status_changed")
     except Exception as e:
-        logger.error(f"Ошибка при вызове handle_notification: {e}")
+        logger.error(f"Ошибка при вызове send_order_notification: {e}")
