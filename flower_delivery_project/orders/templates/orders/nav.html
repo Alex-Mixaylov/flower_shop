@@ -69,7 +69,7 @@
         </div>
 
         <!-- Icons -->
-        <div class="right-section">
+        <div class="right-sectuoin">
             <ul class="d-flex align-items-center">
                 <!-- Favorites -->
                 <li class="d-none d-md-block">
@@ -83,14 +83,14 @@
 
                 <!-- Cart -->
                 <li class="dropdown position-relative">
-                    <button type="button" class="btn flowt d-inline-block position-relative" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                    <a href="{% url 'cart' %}" class="btn flowt d-inline-block position-relative">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-bag">
                             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <path d="M16 10a4 4 0 0 1-8 0"></path>
                         </svg>
-                        <span class="coi">0</span>
-                    </button>
+                        <span class="coi">{{ cart_items|length }}</span>
+                    </a>
                 </li>
 
                 <!-- Login / Logout -->
