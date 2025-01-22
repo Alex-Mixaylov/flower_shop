@@ -66,7 +66,7 @@ class OrderAdmin(admin.ModelAdmin):
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('get_order_id', 'get_user', 'get_status', 'get_created_at', 'product', 'quantity', 'item_price')
     search_fields = ('order__id', 'order__user__username', 'order__status')
-    list_filter = ('order__status', 'order__created_at')
+    list_filter = ('order__id', 'order__status', 'order__created_at')
     list_select_related = ('order', 'product')  # Оптимизация запросов
 
     def get_order_id(self, obj):

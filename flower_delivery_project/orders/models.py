@@ -384,8 +384,8 @@ class Delivery(models.Model):
         return f"Доставка для заказа #{self.order.id}"
 
     class Meta:
-        verbose_name = "Доставка"
-        verbose_name_plural = "Доставки"
+        verbose_name = "Delivery"
+        verbose_name_plural = "Deliveries"
 
 
 # Сообщения из формы контактов (ContactMessage)
@@ -415,8 +415,8 @@ class BestSeller(models.Model):
         return self.product.name
 
     class Meta:
-        verbose_name = "Лучший товар"
-        verbose_name_plural = "Лучшие товары"
+        verbose_name = "Bestseller"
+        verbose_name_plural = "Bestsellers"
 
 
 # Команда (Team)
@@ -537,8 +537,8 @@ class Slide(models.Model):
 
     class Meta:
         ordering = ['order']
-        verbose_name = "Слайд"
-        verbose_name_plural = "Слайды"
+        verbose_name = "Slide"
+        verbose_name_plural = "Slides"
 
     def __str__(self):
         return self.title
