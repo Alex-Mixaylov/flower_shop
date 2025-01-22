@@ -25,7 +25,6 @@ from django.utils.html import format_html
 
 # Регистрация моделей в админке
 admin.site.register(CustomUser)
-admin.site.register(OrderItem)
 admin.site.register(ContactMessage)
 
 @admin.register(Cart)
@@ -63,6 +62,32 @@ class OrderAdmin(admin.ModelAdmin):
         return obj.updated_at
     updated_at_display.short_description = 'Updated At'  # Название колонки в админке
 
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ('get_order_id', 'get_user', 'get_status', 'get_created_at', 'product', 'quantity', 'item_price')
+    search_fields = ('order__id', 'order__user__username', 'order__status')
+    list_filter = ('order__status', 'order__created_at')
+    list_select_related = ('order', 'product')  # Оптимизация запросов
+
+    def get_order_id(self, obj):
+        return obj.order.id
+    get_order_id.short_description = 'Номер заказа'
+    get_order_id.admin_order_field = 'order__id'
+
+    def get_user(self, obj):
+        return obj.order.user.username
+    get_user.short_description = 'Пользователь'
+    get_user.admin_order_field = 'order__user__username'
+
+    def get_status(self, obj):
+        return obj.order.status
+    get_status.short_description = 'Статус заказа'
+    get_status.admin_order_field = 'order__status'
+
+    def get_created_at(self, obj):
+        return obj.order.created_at
+    get_created_at.short_description = 'Дата создания заказа'
+    get_created_at.admin_order_field = 'order__created_at'
 
 @admin.register(Delivery)
 class DeliveryAdmin(admin.ModelAdmin):

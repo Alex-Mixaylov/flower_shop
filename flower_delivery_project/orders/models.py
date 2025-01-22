@@ -71,17 +71,6 @@ class FlowerColor(models.Model):
     color_code = models.CharField(
         max_length=7,
         verbose_name="Код цвета (HEX)",
-        help_text=(
-            "Примеры HEX-кодов:<br>"
-            "<strong>Красный:</strong> #FF0000<br>"
-            "<strong>Белый:</strong> #FFFFFF<br>"
-            "<strong>Желтый:</strong> #FFFF00<br>"
-            "<strong>Черный:</strong> #000000<br>"
-            "<strong>Салатовый:</strong> #32CD32<br>"
-            "<strong>Оранжевый:</strong> #FFA500<br>"
-            "<strong>Фиолетовый:</strong> #800080<br>"
-            "<strong>Синий:</strong> #0000FF"
-        )
     )
 
     def __str__(self):
@@ -233,11 +222,11 @@ class Order(models.Model):
     Модель для хранения информации о заказах
     """
     ORDER_STATUS = [
-        ('received', 'Заказ получен'),
-        ('in_progress', 'Заказ в работе'),
-        ('paid', 'Заказ оплачен'),
-        ('delivery', 'Заказ в доставке'),
-        ('completed', 'Заказ выполнен')
+        ('received', 'Order received'),
+        ('in_progress', 'Order in Progress'),
+        ('paid', 'Order paid'),
+        ('delivery', 'Order Being Delivered'),
+        ('completed', 'Order Completed')
     ]
 
     user = models.ForeignKey(

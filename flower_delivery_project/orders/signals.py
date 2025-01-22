@@ -74,6 +74,7 @@ logger = logging.getLogger('orders')
 def notify_telegram_on_order_save(sender, instance, created, **kwargs):
     """
     Отправляет уведомление в Telegram при создании нового заказа или изменении его статуса.
+    Использует transaction.on_commit для гарантии, что все связанные объекты сохранены.
     """
     try:
         if created:
@@ -83,18 +84,35 @@ def notify_telegram_on_order_save(sender, instance, created, **kwargs):
             logger.info(f"Изменен статус заказа {instance.id} на {instance.status}")
             event = "status_changed"
 
-        # Извлечение необходимых данных из заказа
-        order_data = {
-            'id': instance.id,
-            'status': instance.get_status_display(),
-            'full_name': instance.delivery.full_name,
-            'customer_phone': instance.customer_phone,
-            'address': instance.delivery.address,
-            'items': list(instance.items.all()),  # Список элементов заказа
-            'total_price': instance.total_price,
-        }
+        # Используем transaction.on_commit для отправки уведомления после сохранения транзакции
+        def send_notification():
+            try:
+                # Перезагружаем экземпляр из базы данных, чтобы гарантировать наличие delivery
+                order = Order.objects.select_related('delivery').prefetch_related('items__product').get(id=instance.id)
 
-        # Передача данных в функцию отправки уведомления
-        send_order_notification(order_data, event=event)
+                if not hasattr(order, 'delivery') or order.delivery is None:
+                    logger.error(f"Order {order.id} has no delivery.")
+                    return  # Прерываем выполнение, если нет delivery
+
+                # Извлечение необходимых данных из заказа
+                order_data = {
+                    'id': order.id,
+                    'status': order.get_status_display(),
+                    'full_name': order.delivery.full_name,
+                    'customer_phone': order.customer_phone,
+                    'address': order.delivery.address,
+                    'items': list(order.items.all()),  # Список элементов заказа
+                    'total_price': order.total_price,
+                }
+
+                # Отправка уведомления
+                send_order_notification(order_data, event=event)
+            except Order.DoesNotExist:
+                logger.error(f"Order with id {instance.id} does not exist.")
+            except Exception as e:
+                logger.error(f"Ошибка при отправке уведомления для заказа {instance.id}: {e}")
+
+        transaction.on_commit(send_notification)
+        logger.debug(f"Уведомление для заказа {instance.id} запланировано на отправку после коммита.")
     except Exception as e:
         logger.error(f"Ошибка при вызове send_order_notification: {e}")

@@ -25,7 +25,7 @@ if not TELEGRAM_ADMIN_ID:
 logger = logging.getLogger('bot')
 logger.setLevel(logging.DEBUG)  # Уровень логирования
 
-# Создание консольного обработчика логов с корректной кодировкой
+# Создание пользовательского обработчика логов для предотвращения ошибок кодировки
 class SafeStreamHandler(logging.StreamHandler):
     def emit(self, record):
         try:
@@ -85,8 +85,6 @@ def initialize_bot():
 # Запуск инициализации бота при импорте модуля
 initialize_bot()
 
-from asgiref.sync import sync_to_async
-
 async def send_order_notification_async(order_data, event="created"):
     """
     Асинхронная функция для отправки уведомления о заказе в Telegram.
@@ -96,21 +94,21 @@ async def send_order_notification_async(order_data, event="created"):
     try:
         # Формирование заголовка уведомления
         if event == "created":
-            title = "🆕 Новый заказ!"
+            title = "🆕 New Order!"
         elif event == "status_changed":
-            title = "🔄 Обновление статуса заказа"
+            title = "🔄 New Order Status"
         else:
-            title = "ℹ️ Уведомление о заказе"
+            title = "ℹ️ New Information"
 
         # Формирование текста сообщения
         message_text = (
             f"{title}\n"
-            f"Заказ №{order_data['id']}\n"
-            f"Статус: {order_data['status']}\n"
-            f"Имя получателя: {order_data['full_name']}\n"
-            f"Телефон: {order_data['customer_phone']}\n"
-            f"Адрес доставки: {order_data['address']}\n\n"
-            f"📦 Товары:\n"
+            f"Order №{order_data['id']}\n"
+            f"Status: {order_data['status']}\n"
+            f"Name: {order_data['full_name']}\n"
+            f"Phone: {order_data['customer_phone']}\n"
+            f"Delivery adress: {order_data['address']}\n\n"
+            f"🌺 Flowers:\n"
         )
 
         # Добавление товаров в сообщение
@@ -119,11 +117,11 @@ async def send_order_notification_async(order_data, event="created"):
             quantity = item.quantity
             total_price = item.total_price
             message_text += (
-                f"  - {product_name} — {quantity} шт., {total_price} руб.\n"
+                f"  - {product_name} — {quantity} pcs., {total_price} $\n"
             )
 
         # Общая стоимость заказа
-        message_text += f"\n💰 Общая стоимость: {order_data['total_price']} руб."
+        message_text += f"\n💰 Total Cost: {order_data['total_price']} $"
 
         # Отправка основного сообщения
         await bot.send_message(chat_id=TELEGRAM_ADMIN_ID, text=message_text)
@@ -135,7 +133,7 @@ async def send_order_notification_async(order_data, event="created"):
                 await bot.send_photo(
                     chat_id=TELEGRAM_ADMIN_ID,
                     photo=item.product.image_main.url,
-                    caption=f"{item.product.name}: {item.total_price} руб."
+                    caption=f"{item.product.name}: {item.total_price} $"
                 )
                 sent_images.add(item.product.image_main.url)  # Добавляем URL в множество
 

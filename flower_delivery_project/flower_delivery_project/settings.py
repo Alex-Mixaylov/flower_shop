@@ -15,6 +15,10 @@ SECRET_KEY = 'django-insecure-^ho&k%-e(5l-ilxqknk%p@w0qza$#o-ps!&x0ad!a)1pjjh!xi
 DEBUG = True  # Включено для разработки. Отключите в production!
 ALLOWED_HOSTS = []  # Для разработки оставьте пустым.
 
+
+# Замените на ваш фактический домен, например, 'https://yourdomain.com'
+SITE_URL = 'http://127.0.0.1:8000'
+
 # --- Приложения ---
 INSTALLED_APPS = [
     # Django apps

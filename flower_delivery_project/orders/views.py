@@ -13,6 +13,7 @@ from django.db.models import F
 
 from django.conf import settings
 from django.contrib import messages
+from django.db import transaction
 from django.urls import reverse
 
 from django.db.models import Count, Avg, Sum
@@ -488,67 +489,72 @@ def checkout(request):
 
         if checkout_form.is_valid() and delivery_form.is_valid():
             logger.debug("Checkout and Delivery forms are valid.")
-            # Создание заказа
-            order = checkout_form.save(commit=False)
-            order.user = user if user.is_authenticated else None
+            try:
+                with transaction.atomic():
+                    # Создание заказа
+                    order = checkout_form.save(commit=False)
+                    order.user = user if user.is_authenticated else None
 
-            if user.is_authenticated:
-                order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
-            else:
-                order.total_price = sum(item['total_price'] for item in cart_items)
+                    if user.is_authenticated:
+                        order.total_price = sum(item.product.price * item.quantity for item in cart.items.all())
+                    else:
+                        order.total_price = sum(item['total_price'] for item in cart_items)
 
-            order.save()
-            logger.info(
-                f"Order #{order.id} created for user {user.username if user.is_authenticated else 'Guest'} with total price ${order.total_price}."
-            )
-
-            # Создание данных доставки
-            delivery = delivery_form.save(commit=False)
-            delivery.order = order
-            delivery.save()
-            logger.debug(f"Delivery information saved for Order #{order.id}.")
-
-            # Переносим элементы корзины в заказ
-            if user.is_authenticated:
-                for item in cart.items.all():
-                    OrderItem.objects.create(
-                        order=order,
-                        product=item.product,
-                        quantity=item.quantity,
-                        item_price=item.product.price
-                    )
-                    logger.debug(
-                        f"OrderItem created: {item.quantity} x {item.product.name} at ${item.product.price} each."
+                    order.save()
+                    logger.info(
+                        f"Order #{order.id} created for user {user.username if user.is_authenticated else 'Guest'} with total price ${order.total_price}."
                     )
 
-                # Очистка корзины
-                cart.items.all().delete()
-                logger.debug(f"Cart #{cart.id} cleared after order placement.")
-            else:
-                for product_id, item in cart_data.items():
-                    try:
-                        product = Product.objects.get(id=product_id)
-                        OrderItem.objects.create(
-                            order=order,
-                            product=product,
-                            quantity=item['quantity'],
-                            item_price=item['price']
-                        )
-                        logger.debug(
-                            f"OrderItem created: {item['quantity']} x {product.name} at ${item['price']} each."
-                        )
-                    except Product.DoesNotExist:
-                        logger.error(f"Product with ID {product_id} does not exist. Skipping.")
+                    # Создание данных доставки
+                    delivery = delivery_form.save(commit=False)
+                    delivery.order = order
+                    delivery.save()
+                    logger.debug(f"Delivery information saved for Order #{order.id}.")
 
-                # Очистка корзины
-                del request.session['cart']
-                request.session.modified = True
-                logger.debug("Guest cart cleared after order placement.")
+                    # Переносим элементы корзины в заказ
+                    if user.is_authenticated:
+                        for item in cart.items.all():
+                            OrderItem.objects.create(
+                                order=order,
+                                product=item.product,
+                                quantity=item.quantity,
+                                item_price=item.product.price
+                            )
+                            logger.debug(
+                                f"OrderItem created: {item.quantity} x {item.product.name} at ${item.product.price} each."
+                            )
 
-            messages.success(request, "Your order has been placed successfully.")
-            redirect_url = f'{reverse("thanks")}?customer_name={order.customer_name}&order_id={order.id}'
-            logger.debug(f"Redirecting to thanks page: {redirect_url}")
-            return redirect(redirect_url)
+                        # Очистка корзины
+                        cart.items.all().delete()
+                        logger.debug(f"Cart #{cart.id} cleared after order placement.")
+                    else:
+                        for product_id, item in cart_data.items():
+                            try:
+                                product = Product.objects.get(id=product_id)
+                                OrderItem.objects.create(
+                                    order=order,
+                                    product=product,
+                                    quantity=item['quantity'],
+                                    item_price=item['price']
+                                )
+                                logger.debug(
+                                    f"OrderItem created: {item['quantity']} x {product.name} at ${item['price']} each."
+                                )
+                            except Product.DoesNotExist:
+                                logger.error(f"Product with ID {product_id} does not exist. Skipping.")
+
+                        # Очистка корзины
+                        del request.session['cart']
+                        request.session.modified = True
+                        logger.debug("Guest cart cleared after order placement.")
+
+                messages.success(request, "Your order has been placed successfully.")
+                redirect_url = f'{reverse("thanks")}?customer_name={order.delivery.full_name}&order_id={order.id}'
+                logger.debug(f"Redirecting to thanks page: {redirect_url}")
+                return redirect(redirect_url)
+            except Exception as e:
+                logger.error(f"Unexpected error during checkout: {e}")
+                messages.error(request, "There was an error processing your order. Please try again.")
         else:
             logger.warning("Checkout or Delivery form is invalid.")
             messages.error(request, "There were errors in your form. Please check below.")
@@ -563,7 +569,6 @@ def checkout(request):
         'cart_items': cart_items,
         'total_price': total_price,
     })
-
 
 # Успешное размещение заказа
 def thanks(request):
