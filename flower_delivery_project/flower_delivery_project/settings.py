@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Custom apps
-    'orders',
+    'orders.apps.OrdersConfig',  # Используем конфигурационный класс
     'bot',
 ]
 

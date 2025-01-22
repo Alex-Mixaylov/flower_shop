@@ -78,9 +78,23 @@ def notify_telegram_on_order_save(sender, instance, created, **kwargs):
     try:
         if created:
             logger.info(f"Новый заказ создан: {instance.id}")
-            send_order_notification(instance, event="created")
+            event = "created"
         else:
             logger.info(f"Изменен статус заказа {instance.id} на {instance.status}")
-            send_order_notification(instance, event="status_changed")
+            event = "status_changed"
+
+        # Извлечение необходимых данных из заказа
+        order_data = {
+            'id': instance.id,
+            'status': instance.get_status_display(),
+            'full_name': instance.delivery.full_name,
+            'customer_phone': instance.customer_phone,
+            'address': instance.delivery.address,
+            'items': list(instance.items.all()),  # Список элементов заказа
+            'total_price': instance.total_price,
+        }
+
+        # Передача данных в функцию отправки уведомления
+        send_order_notification(order_data, event=event)
     except Exception as e:
         logger.error(f"Ошибка при вызове send_order_notification: {e}")
