@@ -4,6 +4,24 @@
 
 {% block title %}Shop - Flower Shop{% endblock %}
 
+{% block head %}
+    {{ block.super }} {# Сохранить стили родительского шаблона #}
+
+    <style>
+        /* Дефолтный цвет сердечка: серая обводка */
+        .toggle-favorite svg {
+          stroke: #888; /* любой серый цвет, чтобы точно было видно отличие */
+          transition: stroke 0.3s;
+        }
+
+        /* Когда товар в избранном — розовый цвет */
+        .toggle-favorite.active-favorite svg {
+          stroke: #f0135c !important;
+        }
+
+    </style>
+{% endblock %}
+
 {% block content %}
 <section class="sub-banner float-start w-100">
     <div class="container">
@@ -118,7 +136,7 @@
                     </div>
                     <!-- Конец Фильтра по цвету цветов -->
 
-                    <button type="submit" class="btn submit-btn mt-3">Apply Filters</button>
+                    <!--<button type="submit" class="btn submit-btn mt-3">Apply Filters</button>-->
                 </div>
 
                 <!-- Products Section -->
@@ -128,16 +146,21 @@
                             <h5 class="m-0 mb-lg-0 tiuys-text">All Products</h5>
                             <p class="sub-iti mt-3">Showing {{ products|length }} results</p>
                         </div>
-                        <div class="col d-flex justify-content-end">
-                            <div class="form-group">
-                                <div class="custom-select-wrapper">
-                                    <select name="Most Popular" class="custom-select sources">
-                                        <option selected>Latest</option>
-                                        <option value="3">Top Listed</option>
-                                        <option value="4">Best Seller</option>
-                                    </select>
-                                </div>
-                            </div>
+                        <!-- Блок для переключения "Favorites" -->
+                        <div class="col d-flex justify-content-end align-items-center">
+                            <!-- Кнопка-сердечко для "Показать только избранные" -->
+                            {% comment %}
+                              Если ?favorites=1 уже в URL, то меняем надпись, чтобы можно было вернуться к обычному виду.
+                            {% endcomment %}
+                            {% if request.GET.favorites == '1' %}
+                                <a href="?favorites=0" class="btn btn-outline-danger" style="white-space: nowrap;">
+                                    <i data-feather="heart"></i> Show All
+                                </a>
+                            {% else %}
+                                <a href="?favorites=1" class="btn btn-outline-danger" style="white-space: nowrap;">
+                                    <i data-feather="heart"></i> Show Favorites
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="row">
@@ -146,9 +169,18 @@
                             <div class="comon-pord shopi-divu mt-0 d-inline-block w-100 items-pro">
                                 <div class="img-bu position-relative">
                                     <img src="{{ product.image_main.url }}" class="card-img-top" alt="{{ product.name }}">
-                                    <button class="btn btn-wishlio">
-                                        <i data-feather="heart"></i>
-                                    </button>
+                                    <!-- Сердечко избранное на карточке товара-->
+                                    {% if request.session.favorites and product.id in request.session.favorites %}
+                                        <button class="btn btn-wishlio toggle-favorite active-favorite"
+                                                data-product-id="{{ product.id }}">
+                                            <i data-feather="heart"></i>
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-wishlio toggle-favorite"
+                                                data-product-id="{{ product.id }}">
+                                            <i data-feather="heart"></i>
+                                        </button>
+                                    {% endif %}
                                 </div>
                                 <h6><a href="{% url 'product_details' product.slug %}"> {{ product.category.name }} </a></h6>
                                 <h5 class="mt-2"><a href="{% url 'product_details' product.slug %}">{{ product.name }}</a></h5>
@@ -360,6 +392,101 @@
                 alert('Произошла ошибка: ' + error);
             });
     }
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleFavoritesBtn = document.querySelector('.toggle-favorites');
+    if (toggleFavoritesBtn) {
+        toggleFavoritesBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const currentUrl = new URL(window.location.href);
+            if (currentUrl.searchParams.get('favorites') === '1') {
+                // Уже на странице избранного -> вернуть обычные товары
+                currentUrl.searchParams.delete('favorites');
+            } else {
+                // Включить режим "только избранные"
+                currentUrl.searchParams.set('favorites','1');
+            }
+            window.location.href = currentUrl.toString();
+        });
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const heartButtons = document.querySelectorAll('.toggle-favorite');
+    const urlParams = new URLSearchParams(window.location.search);
+    const isFavoritesMode = (urlParams.get('favorites') === '1');
+
+    heartButtons.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const productId = btn.dataset.productId;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch(`/favorite/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'added') {
+                    // Ставим класс "active-favorite" (розовый цвет сердечка)
+                    btn.classList.add('active-favorite');
+                } else if (data.status === 'removed') {
+                    // Убираем класс "active-favorite" (сердечко становится серым)
+                    btn.classList.remove('active-favorite');
+
+                    // Если страница в режиме "только избранные", товар надо убрать из DOM
+                    if (isFavoritesMode) {
+                        const productCard = btn.closest('.collist');
+                        if (productCard) {
+                            productCard.remove();
+                        }
+                    }
+                }
+            })
+            .catch(err => console.error('Error in toggle_favorite:', err));
+        });
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-favorite').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.dataset.productId;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch(`/favorite/${productId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'added') {
+                    btn.classList.add('active-favorite');
+                } else if (data.status === 'removed') {
+                    btn.classList.remove('active-favorite');
+                    // Если сейчас находимся в ?favorites=1, можете убрать карточку из DOM
+                    // ...
+                }
+
+                // 1) Находим элемент счётчика favorites в "шапке"
+                const favoritesCounterEl = document.getElementById('favorites-counter');
+                if (favoritesCounterEl && data.favorites_count !== undefined) {
+                    // 2) Обновляем значение
+                    favoritesCounterEl.textContent = data.favorites_count;
+                }
+            })
+            .catch(err => console.error('Error in toggle_favorite:', err));
+        });
+    });
+});
 </script>
 
 {% endblock %}

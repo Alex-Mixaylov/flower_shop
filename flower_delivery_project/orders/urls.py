@@ -23,6 +23,9 @@ urlpatterns = [
     path('category/<slug:slug>/', views.shop_by_category, name='shop_by_category'),
     # Маршрут для AJAX изменения кол-ва товара в Корзине
     path('update-cart-quantity/', views.update_cart_quantity, name='update_cart_quantity'),
+    # Маршрут для переключения "Избранных" AJAX
+    path('favorite/<int:product_id>/', views.toggle_favorite, name='toggle_favorite'),
+
 ]
 
 # Подключение статических файлов в режиме разработки

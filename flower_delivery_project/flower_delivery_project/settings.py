@@ -61,6 +61,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'orders.context_processors.category_context', # Контекстный процессор для добавления категорий в верхнее меню
                 'orders.context_processors.cart_items_processor', # Контекстный процессор для добавления количества items в верхнее меню
+                'orders.context_processors.favorites_count_processor', # Контекстный процессор для добавления количества favorites в верхнее меню
             ],
         },
     },

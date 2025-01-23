@@ -290,6 +290,16 @@ def shop(request):
         products_list = products_list.filter(flower_colors__id__in=flower_color_ids)
         logger.debug(f"Filtered products by flower colors: {flower_color_ids}, new count: {products_list.count()}")
 
+    # --- ДОБАВЛЯЕМ: проверка GET-параметра favorites ---
+    if request.GET.get('favorites') == '1':
+        fav_ids = request.session.get('favorites', [])
+        logger.debug(f"Filtering only favorites: {fav_ids}")
+        if fav_ids:
+            products_list = products_list.filter(id__in=fav_ids)
+        else:
+            products_list = Product.objects.none()  # Пустой набор, если избранное пустое
+    # --- КОНЕЦ добавляемого блока ---
+
     # Удаление дублирующихся продуктов (если фильтры приводят к повторным объектам)
     products_list = products_list.distinct()
     logger.debug(f"After distinct filter, products_list count: {products_list.count()}")
@@ -830,7 +840,56 @@ def update_cart_quantity(request):
     logger.warning("Update cart quantity failed: Invalid request method.")
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
-# личныый кабинет
+def toggle_favorite(request, product_id):
+    """
+    Добавляет или удаляет товар из избранного, хранящегося в сессии.
+    Работает и для гостей, и для авторизованных пользователей.
+
+    """
+    logger.debug("Initiating toggle_favorite view with product_id=%s", product_id)
+
+    if request.method == 'POST':
+        try:
+            # Приводим product_id к int, чтобы в favorites хранились именно числа
+            product_id = int(product_id)
+        except ValueError:
+            logger.warning("Invalid product_id '%s' (not an integer).", product_id)
+            return JsonResponse({'error': 'Invalid product_id'}, status=400)
+
+        # Получаем текущий список избранного из сессии
+        favorites = request.session.get('favorites', [])
+
+        # Проверяем, есть ли product_id в списке
+        if product_id in favorites:
+            favorites.remove(product_id)
+            request.session['favorites'] = favorites
+            request.session.modified = True
+
+            logger.debug("Product %d removed from favorites.", product_id)
+            # Возвращаем также текущее кол-во избранных
+            return JsonResponse({
+                'status': 'removed',
+                'product_id': product_id,
+                'favorites_count': len(favorites),
+            })
+        else:
+            favorites.append(product_id)
+            request.session['favorites'] = favorites
+            request.session.modified = True
+
+            logger.debug("Product %d added to favorites.", product_id)
+            # Возвращаем также текущее кол-во избранных
+            return JsonResponse({
+                'status': 'added',
+                'product_id': product_id,
+                'favorites_count': len(favorites),
+            })
+
+    else:
+        logger.warning("toggle_favorite called with invalid method: %s", request.method)
+        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
+# Личныый кабинет
 @login_required
 def personal_cabinet(request):
     # Получение имени покупателя
