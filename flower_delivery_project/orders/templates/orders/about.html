@@ -1,17 +1,17 @@
 {% extends 'orders/layout.html' %}
 {% load static %}
 
-{% block title %}О нас - Магазин цветов{% endblock %}
+{% block title %}About - Flower Shop{% endblock %}
 
 {% block content %}
 <section class="sub-banner float-start w-100">
     <div class="container">
         <div class="insider-banner">
-            <h2>О нас</h2>
+            <h2>About Us</h2>
             <nav class="mt-2">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Главная</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">О нас</li>
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">About</li>
                 </ol>
             </nav>
         </div>
@@ -23,15 +23,15 @@
         <div class="container">
             <div class="row row-cols-1 row-cols-lg-2 align-items-center gy-5 g-lg-5">
                 <div class="col">
-                    <h6 class="sub-heading">Наша история</h6>
-                    <h2 class="min-heading mt-2">Мы - эксперты в доставке <br> цветов онлайн</h2>
-                    <p class="mt-4">Вопреки распространённому мнению, Lorem Ipsum не является случайным текстом. Его корни уходят в классическую латинскую литературу 45 года до н.э., делая его старше двух тысяч лет. Ричард МакКлинток, профессор латыни из колледжа Хэмпден-Сидни в Вирджинии, исследовал редкие латинские слова.</p>
+                    <h6 class="sub-heading">Our Story</h6>
+                    <h2 class="min-heading mt-2">We are Online Flower <br> Delivery Expert</h2>
+                    <p class="mt-4">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur</p>
                     <div class="d-flex align-items-center suport-abut mt-4">
                         <figure class="m-0">
                             <img alt="syu" src="{% static 'images/2991793.png' %}">
                         </figure>
                         <div class="righty ps-3">
-                            <h5>Нужна помощь? Звоните нам</h5>
+                            <h5>Need help? Call Us</h5>
                             <h3>(185)-1244-8855</h3>
                         </div>
                     </div>
@@ -57,8 +57,8 @@
                                 <img alt="ser" src="{% static 'images/15851760.png' %}">
                             </div>
                             <div class="cd-text-div">
-                                <h5>300+</h5>
-                                <p>Пакетов продано</p>
+                                <h5>500+</h5>
+                                <p>Gifts Sold</p>
                             </div>
                         </div>
                     </div>
@@ -68,8 +68,8 @@
                                 <img alt="ser" src="{% static 'images/1322236.png' %}">
                             </div>
                             <div class="cd-text-div">
-                                <h5>2000+</h5>
-                                <p>Довольных клиентов</p>
+                                <h5>2500+</h5>
+                                <p>Happy Customer</p>
                             </div>
                         </div>
                     </div>
@@ -80,7 +80,7 @@
                             </div>
                             <div class="cd-text-div">
                                 <h5>3000+</h5>
-                                <p>Цветочных букетов</p>
+                                <p>Flower bouquet</p>
                             </div>
                         </div>
                     </div>
@@ -88,11 +88,65 @@
             </div>
         </div>
     </section>
+    <section class="categorty-sec-choose services-min d-inline-block w-100">
+          <div class="container">
+            <h6 class="text-center sub-heading"> Products </h6>
+            <h2 class="text-center min-heading mt-2"> Best Seller of this month</h2>
+            <div class="text-center mt-3">
+               <img alt="ru" src="{% static 'images/divider_title.png' %}">
+            </div>
 
-    <section class="teams-sect d-inline-block w-100">
-        <div class="container">
-            <h6 class="text-center sub-heading">Команда</h6>
-            <h2 class="text-center min-heading mt-2">Познакомьтесь с нашей командой</h2>
+            <div class="row gy-5 g-lg-5 mt-0">
+                <div class="col-lg-5">
+                    <img alt="sy" src="{% static 'images/about.png' %}">
+                </div>
+                <div class="col-lg-5">
+
+                    <div class="row row-cols-1 mt-4">
+                        <div class="col">
+                            <div class="comon-serv01 d-flex align-items-start">
+                                <figure>
+                                     <img alt="ser" src="{% static 'images/2608971.png' %}">
+                                </figure>
+                                <div class="let-com">
+                                    <h5> Fresh Flowers </h5>
+                                    <p> Contrary to popular belief, Lorem Ipsum is not simply
+                                        random text. It has roots in a piece of classical. </p>
+                                </div>
+                            </div>
+
+                            <div class="comon-serv01 d-flex align-items-start">
+                                <figure>
+                                     <img alt="ser" src="{% static 'images/15851760.png' %}">
+                                </figure>
+                                <div class="let-com">
+                                    <h5> Gift Items </h5>
+                                    <p> Contrary to popular belief, Lorem Ipsum is not simply
+                                        random text. It has roots in a piece of classical. </p>
+                                </div>
+                            </div>
+
+                            <div class="comon-serv01 d-flex align-items-start">
+                                <figure>
+                                     <img alt="ser" src="{% static 'images/149569.png' %}">
+                                </figure>
+                                <div class="let-com">
+                                    <h5> Exotic Products </h5>
+                                    <p> Contrary to popular belief, Lorem Ipsum is not simply
+                                        random text. It has roots in a piece of classical. </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+          </div>
+        </section>
+        <section class="teams-sect d-inline-block w-100">
+            <div class="container">
+            <h6 class="text-center sub-heading">Members</h6>
+            <h2 class="text-center min-heading mt-2">Meet Them Team</h2>
             <div class="text-center mt-3">
                 <img alt="ru" src="{% static 'images/divider_title.png' %}">
             </div>
