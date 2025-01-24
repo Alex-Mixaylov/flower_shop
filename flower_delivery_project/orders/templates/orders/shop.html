@@ -297,7 +297,7 @@
                             </div>
                         </div>
                         {% empty %}
-                        <p>No products available.</p>
+                        <p>No products found for "{{ request.GET.q }}".</p>
                         {% endfor %}
                     </div>
                     <a class="btn btn-venu load-more3">Load More</a>

@@ -10,6 +10,7 @@ from .models import (
 from .forms import ReviewForm, DeliveryForm, CheckoutForm
 
 from django.db.models import F
+from django.db.models import Q
 
 from django.conf import settings
 from django.contrib import messages
@@ -260,10 +261,11 @@ def shop(request):
     max_price = request.GET.get('max_price')  # Максимальная цена
     flower_type_ids = request.GET.getlist('flower_types')  # Список ID типов цветов
     flower_color_ids = request.GET.getlist('flower_colors')  # Список ID цветов цветов
+    query = request.GET.get('q')  # Поисковый запрос
 
     logger.debug(
         f"Shop filters - Categories: {category_ids}, Flower Types: {flower_type_ids}, "
-        f"Flower Colors: {flower_color_ids}, Price Range: {min_price} - {max_price}"
+        f"Flower Colors: {flower_color_ids}, Price Range: {min_price} - {max_price}, Query: {query}"
     )
 
     # Базовый QuerySet для всех продуктов
@@ -289,6 +291,11 @@ def shop(request):
     if flower_color_ids:
         products_list = products_list.filter(flower_colors__id__in=flower_color_ids)
         logger.debug(f"Filtered products by flower colors: {flower_color_ids}, new count: {products_list.count()}")
+
+    # Фильтрация по поисковому запросу (поиск по названию товаров)
+    if query:
+        products_list = products_list.filter(Q(name__icontains=query))  # Фильтруем по названию (регистр не важен)
+        logger.debug(f"Filtered products by search query: '{query}', new count: {products_list.count()}")
 
     # --- ДОБАВЛЯЕМ: проверка GET-параметра favorites ---
     if request.GET.get('favorites') == '1':
@@ -329,6 +336,7 @@ def shop(request):
         'selected_flower_colors': flower_color_ids,
         'min_price': min_price,
         'max_price': max_price,
+        'query': query,  # Передаём поисковый запрос в шаблон
     }
     logger.debug("Rendering shop.html with context.")
     return render(request, 'orders/shop.html', context)

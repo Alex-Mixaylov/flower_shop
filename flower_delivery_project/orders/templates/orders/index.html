@@ -3,6 +3,17 @@
 
 {% block title %}Flower Shop - Home{% endblock %}
 
+{% block head %}
+    {{ block.super }} {# Сохранить стили родительского шаблона #}
+
+    <style>
+        .search-form-div01 .search-secrt .btn-search {
+            margin-top: 9px; /* Добавляем отступ только для кнопки в этом блоке */
+    }
+    </style>
+
+{% endblock %}
+
 {% block content %}
 <!-- Hero Slider Section -->
 <section class="banner-part float-start w-100">
@@ -51,32 +62,34 @@
     <div class="search-form-div01">
         <div class="container">
             <div class="search-secrt col-10 mx-auto ms-md-0 col-md-8 col-lg-6 d-flex align-items-center">
-                <input type="text" class="form-control" placeholder="Найти свой букет легко">
-                <button class="btn btn-search">
-                    <span>Поиск</span>
-                    <span>
-                        <img alt="Search Icon" src="{% static 'images/search-icom.png' %}">
-                    </span>
-                </button>
+                <form method="GET" action="{% url 'shop' %}" class="d-flex w-100">
+                    <input type="text" name="q" class="form-control" placeholder="So easy to find bouquet ...type 'rose' here" value="{{ query|default:'' }}">
+                    <button type="submit" class="btn btn-search">
+                        <span>Search</span>
+                        <span>
+                            <img alt="Search Icon" src="{% static 'images/search-icom.png' %}">
+                        </span>
+                    </button>
+                </form>
             </div>
             <div class="hert col-10 mx-auto ms-md-0 col-md-8 col-lg-6 position-relative">
                 <div class="row row-cols-3">
                     <div class="col">
                         <div class="comoniyut-div d-inline-block w-100">
                             <h5>300 +</h5>
-                            <p>Букетов Продано</p>
+                            <p>Package Sold</p>
                         </div>
                     </div>
                     <div class="col">
                         <div class="comoniyut-div d-inline-block w-100">
                             <h5>2000 +</h5>
-                            <p>Довольных Покупателей</p>
+                            <p>Happy Customer</p>
                         </div>
                     </div>
                     <div class="col">
                         <div class="comoniyut-div afte d-inline-block w-100">
                             <h5>4000 +</h5>
-                            <p>Цветов для Вас</p>
+                            <p>Bouquet for You</p>
                         </div>
                     </div>
                 </div>
