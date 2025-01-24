@@ -95,7 +95,7 @@
                                 <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#categoriesFilter"
                                         aria-expanded="true" aria-controls="categoriesFilter">
-                                    Categories
+                                    Occasions
                                 </button>
                             </h2>
                             <div id="categoriesFilter" class="accordion-collapse collapse show">
@@ -105,7 +105,7 @@
                                         <input class="form-check-input category-filter" type="checkbox"
                                                value="{{ category.id }}" id="category{{ category.id }}">
                                         <label class="form-check-label" for="category{{ category.id }}">
-                                          {{ category.name }} <span class="ciu">{{ category.product_count }}</span>
+                                          {{ category.name }}
                                         </label>
                                       </div>
                                     {% endfor %}
