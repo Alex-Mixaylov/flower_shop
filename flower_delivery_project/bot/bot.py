@@ -129,13 +129,30 @@ async def send_order_notification_async(order_data, event="created"):
         # Отправка основного изображения товаров
         sent_images = set()  # Отслеживание уже отправленных изображений, чтобы избежать дубликатов
         for item in order_data['items']:
-            if item.product.image_main and item.product.image_main.url not in sent_images:
-                await bot.send_photo(
-                    chat_id=TELEGRAM_ADMIN_ID,
-                    photo=item.product.image_main.url,
-                    caption=f"{item.product.name}: {item.total_price} $"
-                )
-                sent_images.add(item.product.image_main.url)  # Добавляем URL в множество
+            if item.product.image_main:
+                # Получаем полный локальный путь к файлу
+                photo_path = item.product.image_main.path
+
+                # Проверяем, не отправляли ли уже фото с таким путём
+                if photo_path not in sent_images:
+                    caption_text = f"{item.product.name}: {item.total_price} $"
+                    logger.debug(f"Отправка фото для товара '{item.product.name}' из локального пути: {photo_path}")
+
+                    try:
+                        # Открываем файл в двоичном режиме и отправляем
+                        with open(photo_path, 'rb') as photo_file:
+                            await bot.send_photo(
+                                chat_id=TELEGRAM_ADMIN_ID,
+                                photo=photo_file,
+                                caption=caption_text
+                            )
+                        # Добавляем путь в множество, чтобы не отправлять повторно
+                        sent_images.add(photo_path)
+
+                    except FileNotFoundError:
+                        logger.error(f"Файл не найден: {photo_path}")
+                    except Exception as e:
+                        logger.error(f"Ошибка при отправке фото '{photo_path}': {e}")
 
         logger.info(f"Уведомление для заказа {order_data['id']} отправлено успешно.")
 
