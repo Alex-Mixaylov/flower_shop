@@ -8,17 +8,61 @@
     {{ block.super }} {# Сохранить стили родительского шаблона #}
 
     <style>
-        /* Дефолтный цвет сердечка: серая обводка */
+        /* === Стили для избранного (сердечко) === */
         .toggle-favorite svg {
-          stroke: #888; /* любой серый цвет, чтобы точно было видно отличие */
+          stroke: #888; /* базовая серая обводка */
           transition: stroke 0.3s;
         }
-
-        /* Когда товар в избранном — розовый цвет */
         .toggle-favorite.active-favorite svg {
-          stroke: #f0135c !important;
+          stroke: #f0135c !important; /* розовый цвет при активном избранном */
         }
 
+        /* === Убираем рамки/тень у accordion (Bootstrap) === */
+        .accordion-item {
+          border: none !important;
+          box-shadow: none !important;
+        }
+        .accordion-button {
+          border: none !important;
+          box-shadow: none !important;
+          background-color: transparent !important; /* убираем фон, если нужно */
+        }
+
+        /*
+         * === Разделяем стили для обычных чекбоксов
+         *     (Categories, Flower Type) и для цветных (Flower Color).
+         */
+
+        /* 1) По умолчанию .form-check-label ничего не меняем.
+              Так стандартные чекбоксы (Categories, Type) останутся квадратными. */
+
+        /* 2) ТОЛЬКО для чекбоксов с классом .flower-color-filter
+              скрываем сам чекбокс и превращаем label в кружок. */
+        .form-check-input.flower-color-filter {
+          display: none;  /* прячем квадратный чекбокс */
+        }
+
+        .form-check-input.flower-color-filter + .form-check-label {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          display: inline-block;
+          border: 1px solid #ddd;
+          margin-right: 10px;
+          cursor: pointer;
+          /* Цвет круга подставляется инлайн через style="background-color: {{ flower_color.color_code }}" */
+        }
+
+        /* При наведении на цветной кружок чуть увеличиваем */
+        .form-check-input.flower-color-filter + .form-check-label:hover {
+          transform: scale(1.1);
+          transition: all 0.2s ease;
+        }
+
+        /* Опционально: при включённом чекбоксе (цвет выбран) делаем обводку */
+        .form-check-input.flower-color-filter:checked + .form-check-label {
+          box-shadow: 0 0 0 2px #f0135c;
+        }
     </style>
 {% endblock %}
 
@@ -45,28 +89,35 @@
                     <h2 class="filter-by d-none d-lg-block">Filter by</h2>
                     <span class="hed-line"></span>
                     <div class="accordion mt-0 list-serach-acd" id="accordionFilters">
+                        <!-- Категории -->
                         <div class="accordion-item">
                             <h2 class="accordion-header">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#categoriesFilter" aria-expanded="true" aria-controls="categoriesFilter">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#categoriesFilter"
+                                        aria-expanded="true" aria-controls="categoriesFilter">
                                     Categories
                                 </button>
                             </h2>
                             <div id="categoriesFilter" class="accordion-collapse collapse show">
                                 <div class="accordion-body">
                                     {% for category in categories %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="{{ category.id }}" id="category{{ category.id }}">
+                                      <div class="form-check">
+                                        <input class="form-check-input category-filter" type="checkbox"
+                                               value="{{ category.id }}" id="category{{ category.id }}">
                                         <label class="form-check-label" for="category{{ category.id }}">
-                                            {{ category.name }} <span class="ciu">({{ category.product_count }})</span>
+                                          {{ category.name }} <span class="ciu">{{ category.product_count }}</span>
                                         </label>
-                                    </div>
+                                      </div>
                                     {% endfor %}
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Price -->
                         <div class="accordion-item mt-4">
                             <h2 class="accordion-header">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#priceFilter" aria-expanded="false" aria-controls="priceFilter">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#priceFilter" aria-expanded="false" aria-controls="priceFilter">
                                     Price
                                 </button>
                             </h2>
@@ -81,28 +132,40 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Фильтр по типу цветов -->
+                    <br><br>
+
+                    <!-- Фильтр по типу цветов (Flower Type) -->
                     <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flowerTypeFilter" aria-expanded="true" aria-controls="flowerTypeFilter">
-                                Flower Type
-                            </button>
-                        </h2>
+                        <div class="list-serach-acd">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#flowerTypeFilter"
+                                        aria-expanded="true" aria-controls="flowerTypeFilter">
+                                    Flower Type
+                                </button>
+                            </h2>
+                        </div>
                         <div id="flowerTypeFilter" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <div class="radiou" style="display: block;">
                                     {% for flower_type in flower_types %}
-                                    <div class="form-check">
-                                        <input class="form-check-input flower-type-filter" type="checkbox" value="{{ flower_type.id }}" id="flowerType{{ flower_type.id }}">
-                                        <label class="form-check-label" for="flowerType{{ flower_type.id }}">
-                                            {{ flower_type.name }} <span class="ciu">({{ flower_type.products.count }})</span>
-                                        </label>
+                                    <div class="list-serach-acd">
+                                        <div class="form-check">
+                                            <input class="form-check-input flower-type-filter"  type="checkbox"
+                                                   value="{{ flower_type.id }}"
+                                                   id="flowerType{{ flower_type.id }}">
+                                            <label class="form-check-label" for="flowerType{{ flower_type.id }}">
+                                                {{ flower_type.name }}
+                                                <span class="ciu">({{ flower_type.products.count }})</span>
+                                            </label>
+                                        </div>
                                     </div>
                                     {% endfor %}
                                 </div>
                                 <a href="#" class="load-more" style="display: none;">
                                     <span class="icou">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
                                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
                                         </svg>
                                     </span>
@@ -113,20 +176,30 @@
                     </div>
                     <!-- Конец Фильтр по типу цветов -->
 
-                    <!-- Фильтр по цвету цветов -->
+                    <!-- Фильтр по цвету цветов (Flower Color) -->
                     <div class="accordion-item mt-4">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flowerColorFilter" aria-expanded="false" aria-controls="flowerColorFilter">
-                                Flower Color
-                            </button>
-                        </h2>
+                        <div class="list-serach-acd">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#flowerColorFilter"
+                                        aria-expanded="false" aria-controls="flowerColorFilter">
+                                    Flower Color
+                                </button>
+                            </h2>
+                        </div>
                         <div id="flowerColorFilter" class="accordion-collapse collapse show">
                             <div class="accordion-body">
                                 <div class="form-group radion-div d-flex align-items-center flex-wrap">
                                     {% for flower_color in flower_colors %}
                                     <div class="form-check">
-                                        <input class="form-check-input flower-color-filter" type="checkbox" value="{{ flower_color.id }}" id="flowerColor{{ flower_color.id }}">
-                                        <label class="form-check-label" for="flowerColor{{ flower_color.id }}" style="background-color: {{ flower_color.color_code }}; width: 20px; height: 20px; display: inline-block; border-radius: 50%; border: 1px solid #ddd;">
+                                        <!-- Отличие: класс .flower-color-filter -->
+                                        <input class="form-check-input flower-color-filter" type="checkbox"
+                                               value="{{ flower_color.id }}"
+                                               id="flowerColor{{ flower_color.id }}">
+                                        <label class="form-check-label"
+                                               for="flowerColor{{ flower_color.id }}"
+                                               style="background-color: {{ flower_color.color_code }};">
                                         </label>
                                     </div>
                                     {% endfor %}
@@ -135,8 +208,6 @@
                         </div>
                     </div>
                     <!-- Конец Фильтра по цвету цветов -->
-
-                    <!--<button type="submit" class="btn submit-btn mt-3">Apply Filters</button>-->
                 </div>
 
                 <!-- Products Section -->
@@ -182,8 +253,16 @@
                                         </button>
                                     {% endif %}
                                 </div>
-                                <h6><a href="{% url 'product_details' product.slug %}"> {{ product.category.name }} </a></h6>
-                                <h5 class="mt-2"><a href="{% url 'product_details' product.slug %}">{{ product.name }}</a></h5>
+                                <h6>
+                                    <a href="{% url 'product_details' product.slug %}">
+                                        {{ product.category.name }}
+                                    </a>
+                                </h6>
+                                <h5 class="mt-2">
+                                    <a href="{% url 'product_details' product.slug %}">
+                                        {{ product.name }}
+                                    </a>
+                                </h5>
                                 <p class="my-2">
                                     <span class="ratine">
                                         {% for i in product.rating|range_filter %}
@@ -198,9 +277,18 @@
                                 <h6 class="mt-1" style="font-size:12px;">
                                     {{ product.size_option.stems_count }} stems
                                 </h6>
-                                <h3 class="pric mt-3">${{ product.price }} {% if product.old_price %}<span>${{ product.old_price }}</span>{% endif %}</h3>
-                                <button type="button" class="btn btn-cart mt-3 add-to-cart" data-product-id="{{ product.id }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart">
+                                <h3 class="pric mt-3">
+                                    ${{ product.price }}
+                                    {% if product.old_price %}
+                                        <span>${{ product.old_price }}</span>
+                                    {% endif %}
+                                </h3>
+                                <button type="button" class="btn btn-cart mt-3 add-to-cart"
+                                        data-product-id="{{ product.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                         class="feather feather-shopping-cart">
                                         <circle cx="9" cy="21" r="1"></circle>
                                         <circle cx="20" cy="21" r="1"></circle>
                                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
@@ -213,14 +301,14 @@
                         {% endfor %}
                     </div>
                     <a class="btn btn-venu load-more3">Load More</a>
-                    </div>
+                </div>
             </div>
         </div>
     </div>
     <!-- Уведомление о добавлении в корзину -->
-<div id="cart-notification" class="cart-notification">
-    <p>Flowers added to Cart</p>
-</div>
+    <div id="cart-notification" class="cart-notification">
+        <p>Flowers added to Cart</p>
+    </div>
 </main>
 <form method="post" id="csrf-form">
     {% csrf_token %}

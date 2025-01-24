@@ -971,17 +971,30 @@ def shop_by_collection(request, slug):
 
 
 def shop_by_category(request, slug):
+    """
+    Отображает страницу shop.html, фильтруя товары по конкретной категории (slug).
+    Также передаёт аннотированные категории, чтобы в шаблоне можно было
+    использовать category.product_count.
+    """
     logger.debug(f"Initiating shop_by_category view for slug: {slug}")
 
+    # Получаем объект категории по slug или 404
     category = get_object_or_404(Category, slug=slug)
     logger.debug(f"Retrieved category: {category.name}")
 
+    # Фильтруем товары только этой категории
     products = Product.objects.filter(category=category)
     logger.debug(f"Retrieved {products.count()} products in category '{category.name}'.")
 
+    # Аннотируем все категории, чтобы иметь category.product_count
+    categories_annotated = Category.objects.annotate(product_count=Count('products'))
+    logger.debug(f"Annotated categories with product_count. Total categories: {categories_annotated.count()}")
+
+    # Формируем контекст для шаблона
     context = {
-        'category': category,
-        'products': products,
+        'category': category,               # Текущая категория
+        'products': products,               # Товары этой категории
+        'categories_annotated': categories_annotated,  # Все категории с подсчитанным product_count
     }
     logger.debug("Rendering shop.html with context.")
     return render(request, 'orders/shop.html', context)

@@ -1,15 +1,14 @@
 from .models import Category
 from orders.models import Cart
+from django.db.models import Count
 
 
 # Контекстный процессор для добавления переменных во все шаблоны, а именно в меню
 
 def category_context(request):
 
-    categories = Category.objects.all()
-    return {
-        'categories': categories,
-    }
+    categories = Category.objects.annotate(product_count=Count('products'))
+    return {'categories': categories}
 
 def cart_items_processor(request):
     if request.user.is_authenticated:
