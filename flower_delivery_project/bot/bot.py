@@ -4,6 +4,7 @@ import logging
 import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.exceptions import TelegramAPIError
+from aiogram.types import FSInputFile
 from dotenv import load_dotenv
 import os
 import threading
@@ -140,8 +141,8 @@ async def send_order_notification_async(order_data, event="created"):
 
                     try:
                         # Открываем файл в двоичном режиме и отправляем
-                        with open(photo_path, 'rb') as photo_file:
-                            await bot.send_photo(
+                        photo_file = FSInputFile(photo_path)
+                        await bot.send_photo(
                                 chat_id=TELEGRAM_ADMIN_ID,
                                 photo=photo_file,
                                 caption=caption_text
