@@ -160,8 +160,8 @@
             <img alt="ru" src="{% static 'images/divider_title.png' %}">
         </div>
         <div class="slider-texr owl-theme owl-carousel mt-5">
-            {% for category in categories %}
-            <a href="{% url 'shop' %}?category={{ category.id }}" class="com-ctr d-inline-block w-100 text-center">
+            {% for category in categories_index %}
+            <a href="{% url 'shop' %}?categories={{ category.id }}" class="com-ctr d-inline-block w-100 text-center">
                 <div class="imgo-buy">
                     <img alt="{{ category.name }}" src="{{ category.image.url }}">
                 </div>
@@ -251,11 +251,11 @@
                 <img alt="sn" src="{% static 'images/slider-1.png' %}">
             </div>
             <div class="text-offer">
-                <h5>Отличное Предложение</h5>
-                <h2 class="mt-2">На Выходных Скидки <span>до 50%</span></h2>
-                <p class="mt-2">на эксклюзивные букеты наших коллекций</p>
+                <h5>Latest Offer</h5>
+                <h2 class="mt-2">Weekend Discount<span>50% off</span></h2>
+                <p class="mt-2">Exclusive Design and bouquet collection on sale</p>
                 <a href="/collections/" class="btn btn-more mt-4">
-                    Подробнее
+                    Show Now
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                         <polyline points="12 5 19 12 12 19"></polyline>
@@ -285,9 +285,8 @@
                                 <img alt="{{ collection.title }}" src="{{ collection.image.url }}">
                             </div>
                         </div>
-                        <h6 class="mt-3">For Birthday</h6>
-                        <h5 class="mt-2">{{ collection.title }}</h5>
-                        <p class="mt-2">{{ collection.description|truncatewords:10 }}</p>
+                        <h6 class="mt-3">{{ collection.name }}</h6>
+                        <p class="mt-2">{{ collection.description|truncatewords:15 }}</p>
                         <div class="btn btn-cart mt-4">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up-right">
                                 <line x1="7" y1="17" x2="17" y2="7"></line>
@@ -298,7 +297,7 @@
                 </div>
                 {% endfor %}
             </div>
-            <a href="{% url 'collections' %}" class="btn btn-all-colo d-table mx-auto">Наши Коллекции
+            <a href="{% url 'collections' %}" class="btn btn-all-colo d-table mx-auto">SEE ALL COLLECTIONS
                 <span class="iou">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up-right">
                         <line x1="7" y1="17" x2="17" y2="7"></line>
@@ -572,10 +571,12 @@
 
 
 <!-- Gifts Worth Waiting For Section -->
+<!-- Эта секция НЕ РАБОЧАЯ идет добавление в корзину букета для которого назначен Combo Offer -->
+<!-- Тип товара Сombo Offer- это  букет + конфеты  не проработан в проекте в настоящий момент, нет карточки товара Конфеты -->
 <section class="gift-sections d-inline-block w-100">
     <div class="container">
         <h6 class="text-center sub-heading">Products</h6>
-        <h2 class="text-center min-heading mt-2">Подарки ждут <strong>Вас</strong></h2>
+        <h2 class="text-center min-heading mt-2">Gifts worth waiting <strong>for You</strong></h2>
         <div class="text-center mt-3">
             <img alt="divider" src="{% static 'images/divider_title.png' %}">
         </div>

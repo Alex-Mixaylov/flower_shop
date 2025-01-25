@@ -34,9 +34,9 @@ from django.contrib.auth.decorators import login_required
 def index(request):
     logger.debug("Initiating index view.")
 
-    # Получение данных для категорий
-    categories = Category.objects.annotate(product_count=Count('products'))
-    logger.debug(f"Retrieved {categories.count()} categories with product counts.")
+    # Получение данных для категорий на Главной не из контекст-процессора
+    categories_index = Category.objects.annotate(product_count=Count('products'))
+    logger.debug(f"Retrieved {categories_index.count()} categories with product counts.")
 
     # Получение отзывов
     testimonials = Testimonial.objects.all()
@@ -84,7 +84,7 @@ def index(request):
 
     # Формирование контекста для передачи в шаблон
     context = {
-        'categories': categories,
+        'categories_index': categories_index,
         'testimonials': testimonials,
         'slides': slides,  # Добавление слайдов
         'best_sellers': best_sellers,  # Добавление Хитов продаж
