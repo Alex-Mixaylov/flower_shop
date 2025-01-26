@@ -13,7 +13,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --- Безопасность ---
 SECRET_KEY = 'django-insecure-^ho&k%-e(5l-ilxqknk%p@w0qza$#o-ps!&x0ad!a)1pjjh!xi'  # Не используйте это в production!
 DEBUG = True  # Включено для разработки. Отключите в production!
-ALLOWED_HOSTS = []  # Для разработки оставьте пустым.
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+
 
 
 # Замените на ваш фактический домен, например, 'https://yourdomain.com'

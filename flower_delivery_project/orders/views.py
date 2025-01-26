@@ -420,8 +420,9 @@ def collection_detail(request, slug):
         'collection': collection,
         'products': products_in_collection,  # Товары для основного вывода
         'products_with_discounts': products_with_discounts,  # Товары для секции с прокруткой
+        'default_image': '/static/images/default-image.png',  # Путь к изображению по умолчанию
+        'image_url': collection.image.url if collection.image and hasattr(collection.image, 'url') else '/static/images/default-image.png',# Unitest
     }
-
     logger.debug("Rendering collection_detail.html with context.")
     return render(request, 'orders/collection_detail.html', context)
 
