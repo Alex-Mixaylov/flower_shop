@@ -22,6 +22,13 @@
 
 <main class="main-body float-start w-100">
     <!-- Products Of Collection Section -->
+    <div class="container">
+        <h6 class="text-center sub-heading"> Products </h6>
+        <h2 class="text-center min-heading mt-2"> {{ collection.name }}</h2>
+            <div class="text-center mt-3">
+                <img alt="ru" src="{% static 'images/divider_title.png' %}">
+            </div>
+    </div>
     <section class="same-day-delio d-inline-block w-100 mt-5">
         <div class="container">
             <div class="row align-items-center">
@@ -84,6 +91,24 @@
 
 {% block scripts %}
 {{ block.super }}
+<script>
+    $(document).ready(function () {
+        $(".slio-eveny").owlCarousel({
+            loop: true,            // Зацикливание слайдов
+            margin: 20,            // Отступ между элементами
+            nav: true,             // Навигационные стрелки
+            dots: false,           // Индикаторы слайдов
+            autoplay: true,        // Автопрокрутка
+            autoplayTimeout: 3000, // Задержка между прокруткой (в мс)
+            responsive: {
+                0: { items: 1 },   // Количество элементов на малых экранах
+                600: { items: 2 },
+                1000: { items: 3 }
+            }
+        });
+    });
+</script>
+
 <script>
     // Функция показа статического уведомления
     function showCartNotification() {
