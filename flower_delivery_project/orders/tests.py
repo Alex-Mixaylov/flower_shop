@@ -4,12 +4,13 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'flower_delivery_project.settings')
 django.setup()
 
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from orders.models import Category, Product, Collection
 from orders.forms import ReviewForm
 from django.contrib.auth import get_user_model
+from orders.context_processors import category_context
 
 # Тест для моделей
 class CategoryModelTestCase(TestCase):
@@ -90,3 +91,23 @@ class ReviewFormTestCase(TestCase):
         self.assertEqual(review.text, "Great product!")
         self.assertEqual(review.product, self.product)
         self.assertEqual(review.author, self.user)
+
+# Тест контекстного процессора
+class CategoryContextProcessorTestCase(TestCase):
+    def setUp(self):
+        Category.objects.all().delete()  # Стираем все категории
+
+        self.factory = RequestFactory()
+        Category.objects.create(name="Flowers")
+        Category.objects.create(name="Plants")
+
+    def test_category_context_returns_categories_with_counts(self):
+        request = self.factory.get('/')
+        context = category_context(request)
+        self.assertIn('categories', context)
+
+        categories = context['categories']
+        self.assertEqual(categories.count(), 2, "Должно вернуться 2 категории.")
+
+        for cat in categories:
+            self.assertTrue(hasattr(cat, 'product_count'))
