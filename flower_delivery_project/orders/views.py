@@ -400,24 +400,30 @@ def collections(request):
     return render(request, 'orders/collections.html', {'collections': collections})
 
 
+# Детали коллекции
 def collection_detail(request, slug):
     logger.debug(f"Initiating collection_detail view for slug: {slug}")
 
-    # Получение коллекции по slug
+    # Получаем коллекцию по slug
     collection = get_object_or_404(Collection, slug=slug)
     logger.debug(f"Retrieved collection: {collection.name}")
 
-    # Получение всех продуктов в этой коллекции
-    products = collection.products.all()
-    logger.debug(f"Retrieved {products.count()} products in collection '{collection.name}'.")
+    # Получаем товары, принадлежащие данной коллекции
+    products_in_collection = Product.objects.filter(collection=collection)
+    logger.debug(f"Retrieved {products_in_collection.count()} products in collection '{collection.name}'.")
+
+    # Дополнительно: товары со скидкой (если требуется)
+    products_with_discounts = products_in_collection.filter(old_price__isnull=False)
+    logger.debug(f"Retrieved {products_with_discounts.count()} discounted products in collection '{collection.name}'.")
 
     context = {
         'collection': collection,
-        'products': products,
+        'products': products_in_collection,  # Товары для основного вывода
+        'products_with_discounts': products_with_discounts,  # Товары для секции с прокруткой
     }
+
     logger.debug("Rendering collection_detail.html with context.")
     return render(request, 'orders/collection_detail.html', context)
-
 
 # Определяем простой класс для имитации объекта Product для гостей
 class ProductMock:
