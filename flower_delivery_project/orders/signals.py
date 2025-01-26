@@ -78,10 +78,10 @@ def notify_telegram_on_order_save(sender, instance, created, **kwargs):
     """
     try:
         if created:
-            logger.info(f"Новый заказ создан: {instance.id}")
+            logger.info(f"New order has created: {instance.id}")
             event = "created"
         else:
-            logger.info(f"Изменен статус заказа {instance.id} на {instance.status}")
+            logger.info(f"Order status has changed {instance.id} to {instance.status}")
             event = "status_changed"
 
         # Используем transaction.on_commit для отправки уведомления после сохранения транзакции
@@ -110,9 +110,9 @@ def notify_telegram_on_order_save(sender, instance, created, **kwargs):
             except Order.DoesNotExist:
                 logger.error(f"Order with id {instance.id} does not exist.")
             except Exception as e:
-                logger.error(f"Ошибка при отправке уведомления для заказа {instance.id}: {e}")
+                logger.error(f"Error while senging new order status update message {instance.id}: {e}")
 
         transaction.on_commit(send_notification)
-        logger.debug(f"Уведомление для заказа {instance.id} запланировано на отправку после коммита.")
+        logger.debug(f"Message for Order {instance.id} is planned after commit.")
     except Exception as e:
-        logger.error(f"Ошибка при вызове send_order_notification: {e}")
+        logger.error(f"Error of send_order_notification: {e}")
