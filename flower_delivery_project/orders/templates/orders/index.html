@@ -277,7 +277,7 @@
         </div>
         <div class="container">
             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 mt-0 g-lg-4">
-                {% for collection in collections %}
+                {% for collection in collections|slice:":4" %}
                 <div class="col">
                     <a href="{% url 'collection_detail' collection.slug %}" class="comon-pord d-inline-block w-100 items-pro">
                         <div class="imouy">
